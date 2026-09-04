@@ -1,0 +1,9 @@
+**/target/
+*.iml
+*.class
+
+### IntelliJ IDEA ###
+.idea
+
+### Mac OS ###
+.DS_Store
