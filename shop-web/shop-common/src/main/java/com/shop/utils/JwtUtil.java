@@ -57,25 +57,6 @@ public class JwtUtil {
                 .getPayload();
     }
 
-    /**
-     * Check whether a JWT token is valid.
-     *
-     * @param secretKey JWT secret key
-     * @param token     JWT token
-     * @return true if valid
-     */
-    public static boolean isValid(
-            String secretKey,
-            String token
-    ) {
-        try {
-            parseToken(secretKey, token);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
     private static SecretKey createKey(String secretKey) {
         return Keys.hmacShaKeyFor(
                 secretKey.getBytes(StandardCharsets.UTF_8)
