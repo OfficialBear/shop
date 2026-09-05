@@ -1,6 +1,7 @@
 package com.shop.controller.admin;
 
 import com.shop.constant.JwtClaimsConstant;
+import com.shop.dto.EmployeeDTO;
 import com.shop.dto.EmployeeLoginDTO;
 import com.shop.entity.Employee;
 import com.shop.properties.JwtProperties;
@@ -69,7 +70,19 @@ public class EmployeeController {
      */
     @PostMapping("/logout")
     public Result<String> logout() {
+        return Result.success();
+    }
 
+    /**
+     * 新增员工
+     *
+     * @param employeeDTO
+     * @return
+     */
+    @PostMapping
+    public Result save(@RequestBody EmployeeDTO employeeDTO) {
+        log.info("新增员工: {}", employeeDTO);
+        employeeService.save(employeeDTO);
         return Result.success();
     }
 

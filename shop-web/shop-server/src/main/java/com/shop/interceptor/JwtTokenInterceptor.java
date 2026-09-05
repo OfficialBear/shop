@@ -1,6 +1,7 @@
 package com.shop.interceptor;
 
 import com.shop.constant.JwtClaimsConstant;
+import com.shop.context.BaseContext;
 import com.shop.properties.JwtProperties;
 import com.shop.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -44,10 +45,9 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
 
         //2、校验令牌
         try {
-            log.info("jwt校验:{}", token);
             Claims claims = JwtUtil.parseToken(jwtProperties.getSecretKey(), token);
             Long empId = Long.valueOf(claims.get(JwtClaimsConstant.EMP_ID).toString());
-            log.info("当前员工id：", empId);
+            BaseContext.setCurrentId(empId);
             //3、通过，放行
             return true;
         } catch (Exception ex) {

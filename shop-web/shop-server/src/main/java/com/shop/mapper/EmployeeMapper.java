@@ -13,5 +13,12 @@ public interface EmployeeMapper {
      * @return
      */
     Employee getByUsername(String username);
+
+    /**
+     * 插入数据
+     *
+     * @param employee
+     */
+    void insert(Employee employee);
 }
 
