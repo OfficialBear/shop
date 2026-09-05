@@ -11,7 +11,9 @@ import com.shop.mapper.EmployeeMapper;
 import com.shop.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 @Service
@@ -39,9 +41,11 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new AccountNotFoundException(MessageConstant.ACCOUNT_NOT_FOUND);
         }
 
-        //密码比对
-        // TODO 后期需要进行md5加密，然后再进行比对
-        if (!password.equals(employee.getPassword())) {
+        // 进行md5加密，然后再进行比对
+        String encryptedPassword = DigestUtils.md5DigestAsHex(
+                password.getBytes(StandardCharsets.UTF_8)
+        );
+        if (!Objects.equals(encryptedPassword, employee.getPassword())) {
             //密码错误
             throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
         }
