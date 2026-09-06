@@ -14,9 +14,11 @@ import com.shop.vo.EmployeeLoginVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
@@ -101,5 +103,19 @@ public class EmployeeController {
 
         PageResult pageResult = employeeService.pageQuery(employeePageQueryDTO);
         return Result.success(pageResult);
+    }
+
+    /**
+     * 启用/禁用员工账号
+     *
+     * @param status
+     * @param id
+     * @return
+     */
+    @PostMapping("/status/{status}")
+    public Result<String> changeStatus(@PathVariable Integer status, @RequestParam Long id) {
+        log.info("启用/禁用员工账号: {}, {}", status, id);
+        employeeService.changeStatus(status, id);
+        return Result.success();
     }
 }
