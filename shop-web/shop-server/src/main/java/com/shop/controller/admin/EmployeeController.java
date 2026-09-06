@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -112,10 +113,24 @@ public class EmployeeController {
      * @param id
      * @return
      */
-    @PostMapping("/status/{status}")
+    @PutMapping("/status/{status}")
     public Result<String> changeStatus(@PathVariable Integer status, @RequestParam Long id) {
         log.info("启用/禁用员工账号: {}, {}", status, id);
         employeeService.changeStatus(status, id);
         return Result.success();
     }
+
+    /**
+     * 编辑员工信息
+     *
+     * @param employeeDTO
+     * @return
+     */
+    @PutMapping
+    public Result<String> update(@RequestBody EmployeeDTO employeeDTO) {
+        log.info("编辑员工: {}, {}", employeeDTO);
+        employeeService.update(employeeDTO);
+        return Result.success();
+    }
+
 }
