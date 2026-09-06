@@ -35,6 +35,7 @@
         <fastjson2.version>2.0.59</fastjson2.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <jjwt.version>0.13.0</jjwt.version>
+        <pagehelper.version>2.1.0</pagehelper.version>
     </properties>
 
     <dependencyManagement>
@@ -86,6 +87,12 @@
                 <artifactId>jjwt-jackson</artifactId>
                 <version>${jjwt.version}</version>
                 <scope>runtime</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper-spring-boot-starter</artifactId>
+                <version>${pagehelper.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

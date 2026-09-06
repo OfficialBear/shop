@@ -3,14 +3,17 @@ package com.shop.controller.admin;
 import com.shop.constant.JwtClaimsConstant;
 import com.shop.dto.EmployeeDTO;
 import com.shop.dto.EmployeeLoginDTO;
+import com.shop.dto.EmployeePageQueryDTO;
 import com.shop.entity.Employee;
 import com.shop.properties.JwtProperties;
+import com.shop.result.PageResult;
 import com.shop.result.Result;
 import com.shop.service.EmployeeService;
 import com.shop.utils.JwtUtil;
 import com.shop.vo.EmployeeLoginVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -86,4 +89,17 @@ public class EmployeeController {
         return Result.success();
     }
 
+    /**
+     * 员工分页查询
+     *
+     * @param employeePageQueryDTO
+     * @return
+     */
+    @GetMapping("page")
+    public Result<PageResult> page(EmployeePageQueryDTO employeePageQueryDTO) {
+        log.info("员工分页查询: {}", employeePageQueryDTO);
+
+        PageResult pageResult = employeeService.pageQuery(employeePageQueryDTO);
+        return Result.success(pageResult);
+    }
 }

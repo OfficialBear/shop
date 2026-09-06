@@ -1,16 +1,20 @@
 package com.shop.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.shop.constant.MessageConstant;
 import com.shop.constant.PasswordConstant;
 import com.shop.constant.StatusConstant;
 import com.shop.context.BaseContext;
 import com.shop.dto.EmployeeDTO;
 import com.shop.dto.EmployeeLoginDTO;
+import com.shop.dto.EmployeePageQueryDTO;
 import com.shop.entity.Employee;
 import com.shop.exception.AccountLockedException;
 import com.shop.exception.AccountNotFoundException;
 import com.shop.exception.PasswordErrorException;
 import com.shop.mapper.EmployeeMapper;
+import com.shop.result.PageResult;
 import com.shop.service.EmployeeService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +23,6 @@ import org.springframework.util.DigestUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Objects;
 
 @Service
@@ -86,6 +89,19 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setUpdateUser(BaseContext.getCurrentId());
 
         employeeMapper.insert(employee);
+    }
+
+    /**
+     * 员工分页查询
+     *
+     * @param employeePageQueryDTO
+     * @return
+     */
+    @Override
+    public PageResult pageQuery(EmployeePageQueryDTO employeePageQueryDTO) {
+        PageHelper.startPage(employeePageQueryDTO.getPageNum(), employeePageQueryDTO.getPageSize());
+        Page<Employee> page = employeeMapper.pageQuery(employeePageQueryDTO);
+        return new PageResult(page.getTotal(), page.getResult());
     }
 }
 
