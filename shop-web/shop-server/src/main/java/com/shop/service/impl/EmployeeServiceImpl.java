@@ -13,6 +13,7 @@ import com.shop.entity.Employee;
 import com.shop.exception.AccountLockedException;
 import com.shop.exception.AccountNotFoundException;
 import com.shop.exception.PasswordErrorException;
+import com.shop.exception.UniquenessConstraintViolationException;
 import com.shop.mapper.EmployeeMapper;
 import com.shop.result.PageResult;
 import com.shop.service.EmployeeService;
@@ -75,8 +76,15 @@ public class EmployeeServiceImpl implements EmployeeService {
      * @param employeeDTO
      */
     @Override
-    public void save(EmployeeDTO employeeDTO) {
-        Employee employee = new Employee();
+    public void add(EmployeeDTO employeeDTO) {
+        // username 存在唯一约束，检查是否已经存在
+        String username = employeeDTO.getUsername();
+        Employee employee = employeeMapper.getByUsername(username);
+        if (employee != null) {
+            throw new UniquenessConstraintViolationException(username + MessageConstant.ALREADY_EXISTS);
+        }
+
+        employee = new Employee();
         // 属性拷贝
         BeanUtils.copyProperties(employeeDTO, employee);
         // 账号状态默认为1，正常状态

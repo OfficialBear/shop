@@ -86,9 +86,9 @@ public class EmployeeController {
      * @return
      */
     @PostMapping
-    public Result save(@RequestBody EmployeeDTO employeeDTO) {
+    public Result add(@RequestBody EmployeeDTO employeeDTO) {
         log.info("新增员工: {}", employeeDTO);
-        employeeService.save(employeeDTO);
+        employeeService.add(employeeDTO);
         return Result.success();
     }
 
@@ -128,7 +128,7 @@ public class EmployeeController {
      */
     @PutMapping
     public Result<String> update(@RequestBody EmployeeDTO employeeDTO) {
-        log.info("编辑员工: {}, {}", employeeDTO);
+        log.info("编辑员工: {}", employeeDTO);
         employeeService.update(employeeDTO);
         return Result.success();
     }

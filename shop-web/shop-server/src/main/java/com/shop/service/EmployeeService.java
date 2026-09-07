@@ -21,7 +21,7 @@ public interface EmployeeService {
      *
      * @param employeeDTO
      */
-    void save(EmployeeDTO employeeDTO);
+    void add(EmployeeDTO employeeDTO);
 
     /**
      * 员工分页查询
@@ -41,6 +41,7 @@ public interface EmployeeService {
 
     /**
      * 编辑员工信息
+     *
      * @param employeeDTO
      */
     void update(EmployeeDTO employeeDTO);
