@@ -1,8 +1,10 @@
 package com.shop.mapper;
 
 import com.github.pagehelper.Page;
+import com.shop.annotation.AutoFill;
 import com.shop.dto.EmployeePageQueryDTO;
 import com.shop.entity.Employee;
+import com.shop.enumeration.OperationType;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
@@ -21,6 +23,7 @@ public interface EmployeeMapper {
      *
      * @param employee
      */
+    @AutoFill(value = OperationType.INSERT)
     void insert(Employee employee);
 
     /**
@@ -36,6 +39,7 @@ public interface EmployeeMapper {
      *
      * @param employee
      */
+    @AutoFill(value = OperationType.UPDATE)
     void update(Employee employee);
 }
 
