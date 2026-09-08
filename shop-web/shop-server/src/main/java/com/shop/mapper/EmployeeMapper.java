@@ -9,7 +9,6 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface EmployeeMapper {
-
     /**
      * 根据用户名查询员工
      *
@@ -19,20 +18,20 @@ public interface EmployeeMapper {
     Employee getByUsername(String username);
 
     /**
-     * 插入数据
-     *
-     * @param employee
-     */
-    @AutoFill(value = OperationType.INSERT)
-    void insert(Employee employee);
-
-    /**
      * 员工分页查询
      *
      * @param employeePageQueryDTO
      * @return
      */
     Page<Employee> pageQuery(EmployeePageQueryDTO employeePageQueryDTO);
+
+    /**
+     * 插入数据
+     *
+     * @param employee
+     */
+    @AutoFill(value = OperationType.INSERT)
+    void insert(Employee employee);
 
     /**
      * 根据id修改员工信息

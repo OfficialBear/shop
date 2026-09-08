@@ -31,6 +31,30 @@ public class CategoryServiceImpl implements CategoryService {
     private SetmealMapper setmealMapper;
 
     /**
+     * 根据类型查询分类
+     *
+     * @param type
+     * @return
+     */
+    @Override
+    public List<Category> queryByType(Integer type) {
+        return categoryMapper.queryByType(type);
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public PageResult pageQuery(CategoryPageQueryDTO dto) {
+        PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
+        Page<Category> page = categoryMapper.pageQuery(dto);
+        return new PageResult(page.getTotal(), page.getResult());
+    }
+
+    /**
      * 新增分类
      *
      * @param categoryDTO
@@ -47,16 +71,30 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     /**
-     * 分页查询
+     * 修改分类
      *
-     * @param dto
-     * @return
+     * @param categoryDTO
      */
     @Override
-    public PageResult pageQuery(CategoryPageQueryDTO dto) {
-        PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
-        Page<Category> page = categoryMapper.pageQuery(dto);
-        return new PageResult(page.getTotal(), page.getResult());
+    public void update(CategoryDTO categoryDTO) {
+        Category category = new Category();
+        BeanUtils.copyProperties(categoryDTO, category);
+        categoryMapper.update(category);
+    }
+
+    /**
+     * 启用、禁用分类
+     *
+     * @param status
+     * @param id
+     */
+    @Override
+    public void updateStatus(Integer status, Long id) {
+        Category category = Category.builder()
+                .id(id)
+                .status(status)
+                .build();
+        categoryMapper.update(category);
     }
 
     /**
@@ -82,43 +120,5 @@ public class CategoryServiceImpl implements CategoryService {
 
         // 删除分类数据
         categoryMapper.deleteById(id);
-    }
-
-    /**
-     * 修改分类
-     *
-     * @param categoryDTO
-     */
-    @Override
-    public void update(CategoryDTO categoryDTO) {
-        Category category = new Category();
-        BeanUtils.copyProperties(categoryDTO, category);
-        categoryMapper.update(category);
-    }
-
-    /**
-     * 启用、禁用分类
-     *
-     * @param status
-     * @param id
-     */
-    @Override
-    public void changeStatus(Integer status, Long id) {
-        Category category = Category.builder()
-                .id(id)
-                .status(status)
-                .build();
-        categoryMapper.update(category);
-    }
-
-    /**
-     * 根据类型查询分类
-     *
-     * @param type
-     * @return
-     */
-    @Override
-    public List<Category> queryByType(Integer type) {
-        return categoryMapper.queryByType(type);
     }
 }

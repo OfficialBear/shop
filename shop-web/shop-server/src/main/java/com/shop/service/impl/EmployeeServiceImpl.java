@@ -51,9 +51,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
 
         // 进行md5加密，然后再进行比对
-        String encryptedPassword = DigestUtils.md5DigestAsHex(
-                password.getBytes(StandardCharsets.UTF_8)
-        );
+        String encryptedPassword = DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
         if (!Objects.equals(encryptedPassword, employee.getPassword())) {
             //密码错误
             throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
@@ -66,6 +64,23 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         //3、返回实体对象
         return employee;
+    }
+
+    /**
+     * 员工分页查询
+     *
+     * @param employeePageQueryDTO
+     * @return
+     */
+    @Override
+    public PageResult pageQuery(EmployeePageQueryDTO employeePageQueryDTO) {
+        PageHelper.startPage(employeePageQueryDTO.getPageNum(), employeePageQueryDTO.getPageSize());
+        Page<Employee> page = employeeMapper.pageQuery(employeePageQueryDTO);
+        List<Employee> employeeList = page.getResult();
+        for (Employee employee : employeeList) {
+            employee.setPassword(null);
+        }
+        return new PageResult(page.getTotal(), employeeList);
     }
 
     /**
@@ -93,38 +108,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     /**
-     * 员工分页查询
-     *
-     * @param employeePageQueryDTO
-     * @return
-     */
-    @Override
-    public PageResult pageQuery(EmployeePageQueryDTO employeePageQueryDTO) {
-        PageHelper.startPage(employeePageQueryDTO.getPageNum(), employeePageQueryDTO.getPageSize());
-        Page<Employee> page = employeeMapper.pageQuery(employeePageQueryDTO);
-        List<Employee> employeeList = page.getResult();
-        for (Employee employee : employeeList) {
-            employee.setPassword(null);
-        }
-        return new PageResult(page.getTotal(), employeeList);
-    }
-
-    /**
-     * 启用/禁用员工账号
-     *
-     * @param status
-     * @param id
-     */
-    @Override
-    public void changeStatus(Integer status, Long id) {
-        Employee employee = Employee.builder()
-                .id(id)
-                .status(status)
-                .build();
-        employeeMapper.update(employee);
-    }
-
-    /**
      * 编辑员工信息
      *
      * @param employeeDTO
@@ -137,5 +120,19 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeMapper.update(employee);
     }
 
+    /**
+     * 启用/禁用员工账号
+     *
+     * @param status
+     * @param id
+     */
+    @Override
+    public void updateStatus(Integer status, Long id) {
+        Employee employee = Employee.builder()
+                .id(id)
+                .status(status)
+                .build();
+        employeeMapper.update(employee);
+    }
 }
 

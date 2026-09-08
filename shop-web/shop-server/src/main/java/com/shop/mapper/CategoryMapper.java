@@ -11,14 +11,13 @@ import java.util.List;
 
 @Mapper
 public interface CategoryMapper {
-
     /**
-     * 插入数据
+     * 根据类型查询分类
      *
-     * @param category
+     * @param type
+     * @return
      */
-    @AutoFill(value = OperationType.INSERT)
-    void insert(Category category);
+    List<Category> queryByType(Integer type);
 
     /**
      * 分页查询
@@ -29,11 +28,12 @@ public interface CategoryMapper {
     Page<Category> pageQuery(CategoryPageQueryDTO categoryPageQueryDTO);
 
     /**
-     * 根据id删除分类
+     * 插入数据
      *
-     * @param id
+     * @param category
      */
-    void deleteById(Long id);
+    @AutoFill(value = OperationType.INSERT)
+    void insert(Category category);
 
     /**
      * 根据id修改分类
@@ -44,10 +44,9 @@ public interface CategoryMapper {
     void update(Category category);
 
     /**
-     * 根据类型查询分类
+     * 根据id删除分类
      *
-     * @param type
-     * @return
+     * @param id
      */
-    List<Category> queryByType(Integer type);
+    void deleteById(Long id);
 }

@@ -10,11 +10,12 @@ import java.util.List;
 public interface CategoryService {
 
     /**
-     * 新增分类
+     * 根据类型查询分类
      *
-     * @param categoryDTO
+     * @param type
+     * @return
      */
-    void add(CategoryDTO categoryDTO);
+    List<Category> queryByType(Integer type);
 
     /**
      * 分页查询
@@ -25,11 +26,11 @@ public interface CategoryService {
     PageResult pageQuery(CategoryPageQueryDTO dto);
 
     /**
-     * 根据id删除分类
+     * 新增分类
      *
-     * @param id
+     * @param categoryDTO
      */
-    void deleteById(Long id);
+    void add(CategoryDTO categoryDTO);
 
     /**
      * 修改分类
@@ -44,13 +45,12 @@ public interface CategoryService {
      * @param status
      * @param id
      */
-    void changeStatus(Integer status, Long id);
+    void updateStatus(Integer status, Long id);
 
     /**
-     * 根据类型查询分类
+     * 根据id删除分类
      *
-     * @param type
-     * @return
+     * @param id
      */
-    List<Category> queryByType(Integer type);
+    void deleteById(Long id);
 }

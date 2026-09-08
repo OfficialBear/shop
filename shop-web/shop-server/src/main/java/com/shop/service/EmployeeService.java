@@ -17,13 +17,6 @@ public interface EmployeeService {
     Employee login(EmployeeLoginDTO employeeLoginDTO);
 
     /**
-     * 新增员工
-     *
-     * @param employeeDTO
-     */
-    void add(EmployeeDTO employeeDTO);
-
-    /**
      * 员工分页查询
      *
      * @param employeePageQueryDTO
@@ -32,12 +25,11 @@ public interface EmployeeService {
     PageResult pageQuery(EmployeePageQueryDTO employeePageQueryDTO);
 
     /**
-     * 启用/禁用员工账号
+     * 新增员工
      *
-     * @param status
-     * @param id
+     * @param employeeDTO
      */
-    void changeStatus(Integer status, Long id);
+    void add(EmployeeDTO employeeDTO);
 
     /**
      * 编辑员工信息
@@ -45,4 +37,12 @@ public interface EmployeeService {
      * @param employeeDTO
      */
     void update(EmployeeDTO employeeDTO);
+
+    /**
+     * 启用/禁用员工账号
+     *
+     * @param status
+     * @param id
+     */
+    void updateStatus(Integer status, Long id);
 }

@@ -3,6 +3,15 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.shop.mapper.CategoryMapper">
+    <select id="queryByType" resultType="com.shop.entity.Category">
+        select * from category
+        where status = 1
+        <if test="type != null">
+            and type = #{type}
+        </if>
+        order by sort asc,update_time desc
+    </select>
+
     <select id="pageQuery" resultType="com.shop.entity.Category">
         select * from category
         <where>
@@ -15,19 +24,13 @@
         </where>
         order by sort asc , update_time desc
     </select>
-    <select id="queryByType" resultType="com.shop.entity.Category">
-        select * from category
-        where status = 1
-        <if test="type != null">
-            and type = #{type}
-        </if>
-        order by sort asc,update_time desc
-    </select>
+
     <insert id="insert">
         insert into category(type, name, sort, status, create_time, update_time, create_user, update_user)
         VALUES
         (#{type}, #{name}, #{sort}, #{status}, #{createTime}, #{updateTime}, #{createUser}, #{updateUser})
     </insert>
+
     <update id="update">
         update category
         <set>
@@ -52,6 +55,7 @@
         </set>
         where id = #{id}
     </update>
+
     <delete id="deleteById">
         delete from category where id = #{id}
     </delete>

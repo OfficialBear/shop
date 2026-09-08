@@ -30,16 +30,15 @@ public class CategoryController {
     private CategoryService categoryService;
 
     /**
-     * 新增分类
+     * 根据类型查询分类
      *
-     * @param categoryDTO
+     * @param type
      * @return
      */
-    @PostMapping
-    public Result<String> add(@RequestBody CategoryDTO categoryDTO) {
-        log.info("新增分类：{}", categoryDTO);
-        categoryService.add(categoryDTO);
-        return Result.success();
+    @GetMapping("/list")
+    public Result<List<Category>> query(Integer type) {
+        List<Category> list = categoryService.queryByType(type);
+        return Result.success(list);
     }
 
     /**
@@ -51,22 +50,20 @@ public class CategoryController {
     @GetMapping("/page")
     public Result<PageResult> pageQuery(CategoryPageQueryDTO dto) {
         log.info("分类分页查询：{}", dto);
-
         PageResult pageResult = categoryService.pageQuery(dto);
-
         return Result.success(pageResult);
     }
 
     /**
-     * 删除分类
+     * 新增分类
      *
-     * @param id
+     * @param categoryDTO
      * @return
      */
-    @DeleteMapping
-    public Result<String> deleteById(Long id) {
-        log.info("删除分类：{}", id);
-        categoryService.deleteById(id);
+    @PostMapping
+    public Result<String> add(@RequestBody CategoryDTO categoryDTO) {
+        log.info("新增分类：{}", categoryDTO);
+        categoryService.add(categoryDTO);
         return Result.success();
     }
 
@@ -91,20 +88,22 @@ public class CategoryController {
      * @return
      */
     @PostMapping("/status/{status}")
-    public Result<String> changeStatus(@PathVariable("status") Integer status, Long id) {
-        categoryService.changeStatus(status, id);
+    public Result<String> updateStatus(@PathVariable("status") Integer status, Long id) {
+        categoryService.updateStatus(status, id);
         return Result.success();
     }
 
     /**
-     * 根据类型查询分类
+     * 删除分类
      *
-     * @param type
+     * @param id
      * @return
      */
-    @GetMapping("/list")
-    public Result<List<Category>> query(Integer type) {
-        List<Category> list = categoryService.queryByType(type);
-        return Result.success(list);
+    @DeleteMapping
+    public Result<String> deleteById(Long id) {
+        log.info("删除分类：{}", id);
+        categoryService.deleteById(id);
+        return Result.success();
     }
+
 }
