@@ -240,3 +240,23 @@ CREATE TABLE `user` (
   `create_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='用户信息';
+
+DROP TABLE IF EXISTS `data_dictionary_t`;
+CREATE TABLE data_dictionary_t (
+ `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'Primary key',
+ `dic_parent_code` VARCHAR(100) DEFAULT NULL COMMENT 'Parent dictionary code',
+ `dic_code` VARCHAR(100) NOT NULL COMMENT 'Dictionary code',
+ `dic_value` VARCHAR(255) NOT NULL COMMENT 'Dictionary value',
+ `description` VARCHAR(500) DEFAULT NULL COMMENT 'Description',
+ `sort` INT NOT NULL DEFAULT 0 COMMENT 'Sort order',
+ `status` TINYINT NOT NULL DEFAULT 1 COMMENT '1: enabled, 0: disabled',
+ `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Created time',
+ `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Updated time',
+ `create_user` BIGINT DEFAULT NULL COMMENT 'Created by',
+ `update_user` BIGINT DEFAULT NULL COMMENT 'Updated by',
+ PRIMARY KEY (id),
+ UNIQUE KEY uk_parent_code_dic_code (dic_parent_code, dic_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Data dictionary';
+
+INSERT INTO `data_dictionary_t` VALUES(1, null,'shop', '0', '', 0,1,'2026-09-09 17:00:00','2026-09-09 17:00:00', 1,1);
+INSERT INTO `data_dictionary_t` VALUES(2, 'shop','shop_status', '0', '1: 营业, 0: 打烊', 0,1,'2026-09-09 17:00:00','2026-09-09 17:00:00', 1,1);

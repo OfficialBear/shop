@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.mapper.DataDictionaryMapper">
+
+    <select id="select" resultType="com.shop.entity.DataDictionary">
+        select * from data_dictionary_t
+        <where>
+            dic_parent_code = #{dicParentCode}
+            <if test="dicCode != null">and dic_code = #{dicCode}</if>
+        </where>
+    </select>
+
+    <update id="update">
+        update data_dictionary_t
+        <set>
+            <if test="dicValue != null">dic_value = #{dicValue},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateUser != null">update_user = #{updateUser},</if>
+        </set>
+        <where>
+            dic_parent_code = #{dicParentCode}
+            <if test="dicCode != null">and dic_code = #{dicCode}</if>
+        </where>
+    </update>
+</mapper>
