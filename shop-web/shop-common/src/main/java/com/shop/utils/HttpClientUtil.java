@@ -1,125 +1,215 @@
 package com.shop.utils;
 
 import com.shop.exception.HttpClientException;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
-import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.net.URIBuilder;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.net.URLEncoder;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.StringJoiner;
 
-public final class HttpClientUtil {
+@Component
+public class HttpClientUtil {
 
-    private static final int CONNECT_TIMEOUT_SECONDS = 5;
-    private static final int RESPONSE_TIMEOUT_SECONDS = 10;
+    private final CloseableHttpClient httpClient;
 
-    private static final CloseableHttpClient HTTP_CLIENT = createHttpClient();
-
-    private HttpClientUtil() {
+    public HttpClientUtil(CloseableHttpClient httpClient) {
+        this.httpClient = httpClient;
     }
 
-    private static CloseableHttpClient createHttpClient() {
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout(
-                        CONNECT_TIMEOUT_SECONDS,
-                        java.util.concurrent.TimeUnit.SECONDS
-                )
-                .setResponseTimeout(
-                        RESPONSE_TIMEOUT_SECONDS,
-                        java.util.concurrent.TimeUnit.SECONDS
-                )
-                .build();
-
-        return HttpClients.custom()
-                .setDefaultRequestConfig(requestConfig)
-                .build();
-    }
-
-    public static String get(String url) {
+    public String get(String url) {
         return get(url, null, null);
     }
 
-    public static String get(
+    public String get(
+            String url,
+            Map<String, String> headers
+    ) {
+        return get(url, headers, null);
+    }
+
+    public String get(
+            String url,
+            Map<String, String> headers,
+            Map<String, String> queryParams
+    ) {
+        String requestUrl = buildUrl(url, queryParams);
+        HttpGet request = new HttpGet(requestUrl);
+        setHeaders(request, headers);
+        return execute(request);
+    }
+
+    public String post(
+            String url,
+            String body
+    ) {
+        return post(url, null, null, body);
+    }
+
+    public String post(
+            String url,
+            Map<String, String> headers,
+            String body
+    ) {
+        return post(url, headers, null, body);
+    }
+
+    public String post(
+            String url,
+            Map<String, String> headers,
+            Map<String, String> queryParams,
+            String body
+    ) {
+        String requestUrl = buildUrl(url, queryParams);
+
+        HttpPost request = new HttpPost(requestUrl);
+
+        setHeaders(request, headers);
+        setJsonBody(request, body);
+
+        return execute(request);
+    }
+
+    public String put(
+            String url,
+            String body
+    ) {
+        return put(url, null, null, body);
+    }
+
+    public String put(
+            String url,
+            Map<String, String> headers,
+            String body
+    ) {
+        return put(url, headers, null, body);
+    }
+
+    public String put(
+            String url,
+            Map<String, String> headers,
+            Map<String, String> queryParams,
+            String body
+    ) {
+        String requestUrl = buildUrl(url, queryParams);
+
+        HttpPut request = new HttpPut(requestUrl);
+
+        setHeaders(request, headers);
+        setJsonBody(request, body);
+
+        return execute(request);
+    }
+
+    public String delete(String url) {
+        return delete(url, null, null);
+    }
+
+    public String delete(
+            String url,
+            Map<String, String> headers
+    ) {
+        return delete(url, headers, null);
+    }
+
+    public String delete(
             String url,
             Map<String, String> headers,
             Map<String, String> queryParams
     ) {
         String requestUrl = buildUrl(url, queryParams);
 
-        HttpGet request = new HttpGet(requestUrl);
+        HttpDelete request = new HttpDelete(requestUrl);
+
         setHeaders(request, headers);
 
         return execute(request);
     }
 
-    public static String post(
-            String url,
-            String body
-    ) {
-        return post(url, null, body);
-    }
+    private String execute(HttpUriRequestBase request) {
+        final String requestUrl;
 
-    public static String post(
-            String url,
-            Map<String, String> headers,
-            String body
-    ) {
-        HttpPost request = new HttpPost(url);
-
-        setHeaders(request, headers);
-
-        if (body != null) {
-            request.setEntity(
-                    new StringEntity(
-                            body,
-                            ContentType.APPLICATION_JSON
-                    )
+        try {
+            requestUrl = request.getUri().toString();
+        } catch (URISyntaxException ex) {
+            throw new HttpClientException(
+                    "Invalid request URI",
+                    request.getRequestUri(),
+                    ex
             );
         }
 
-        return execute(request);
-    }
+        try (CloseableHttpResponse response = httpClient.execute(request)) {
 
-    private static String execute(HttpUriRequestBase request) {
-        try (CloseableHttpResponse response = HTTP_CLIENT.execute(request)) {
             int statusCode = response.getCode();
 
-            HttpEntity entity = response.getEntity();
-            String responseBody = entity == null
-                    ? ""
-                    : EntityUtils.toString(entity, StandardCharsets.UTF_8);
+            String responseBody = readResponseBody(
+                    response.getEntity()
+            );
 
-            if (statusCode < 200 || statusCode >= 300) {
+            if (!isSuccessful(statusCode)) {
                 throw new HttpClientException(
-                        "HTTP request failed, statusCode="
-                                + statusCode
-                                + ", response="
-                                + responseBody
+                        "HTTP request failed",
+                        requestUrl,
+                        statusCode,
+                        responseBody
                 );
             }
 
             return responseBody;
+
         } catch (IOException | ParseException ex) {
             throw new HttpClientException(
-                    "HTTP request failed, url=" + request.getRequestUri(),
+                    "HTTP request failed",
+                    requestUrl,
                     ex
             );
         }
     }
 
-    private static void setHeaders(
+    private String readResponseBody(HttpEntity entity)
+            throws IOException, ParseException {
+
+        if (entity == null) {
+            return "";
+        }
+
+        return EntityUtils.toString(
+                entity,
+                StandardCharsets.UTF_8
+        );
+    }
+
+    private void setJsonBody(
+            HttpUriRequestBase request,
+            String body
+    ) {
+        if (body == null) {
+            return;
+        }
+
+        request.setEntity(
+                new StringEntity(
+                        body,
+                        ContentType.APPLICATION_JSON
+                )
+        );
+    }
+
+    private void setHeaders(
             HttpUriRequestBase request,
             Map<String, String> headers
     ) {
@@ -128,47 +218,57 @@ public final class HttpClientUtil {
         }
 
         headers.forEach((name, value) -> {
-            if (name != null && value != null) {
+            if (name != null
+                    && !name.isBlank()
+                    && value != null) {
+
                 request.setHeader(name, value);
             }
         });
     }
 
-    private static String buildUrl(
+    private String buildUrl(
             String url,
             Map<String, String> queryParams
     ) {
+        validateUrl(url);
+
         if (queryParams == null || queryParams.isEmpty()) {
             return url;
         }
 
-        StringJoiner query = new StringJoiner("&");
-
-        queryParams.forEach((key, value) -> {
-            if (key != null && value != null) {
-                query.add(
-                        URLEncoder.encode(key, StandardCharsets.UTF_8)
-                                + "="
-                                + URLEncoder.encode(value, StandardCharsets.UTF_8)
-                );
-            }
-        });
-
-        if (query.length() == 0) {
-            return url;
-        }
-
-        return url + (url.contains("?") ? "&" : "?") + query;
-    }
-
-    public static void close() {
         try {
-            HTTP_CLIENT.close();
-        } catch (IOException e) {
+            URIBuilder uriBuilder = new URIBuilder(url);
+
+            queryParams.forEach((key, value) -> {
+                if (key != null
+                        && !key.isBlank()
+                        && value != null) {
+
+                    uriBuilder.addParameter(key, value);
+                }
+            });
+
+            return uriBuilder.build().toString();
+
+        } catch (URISyntaxException ex) {
             throw new HttpClientException(
-                    "Failed to close HTTP client",
-                    e
+                    "Invalid request URL",
+                    url,
+                    ex
             );
         }
+    }
+
+    private void validateUrl(String url) {
+        if (url == null || url.isBlank()) {
+            throw new IllegalArgumentException(
+                    "URL must not be blank"
+            );
+        }
+    }
+
+    private boolean isSuccessful(int statusCode) {
+        return statusCode >= 200 && statusCode < 300;
     }
 }
