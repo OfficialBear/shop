@@ -1,0 +1,261 @@
+.page {
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 10px 20px;
+
+  background: #f7f8fa;
+}
+
+.loginCard {
+  width: 100%;
+  max-width: 400px;
+
+  padding: 64px 40px 56px;
+  background: #ffffff;
+  border: 1px solid #eaecf0;
+  border-radius: 12px;
+
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.03),
+    0 8px 24px rgba(16, 24, 40, 0.05);
+}
+
+/* Header */
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  margin-bottom: 36px;
+
+  text-align: center;
+}
+
+.logo {
+  width: 44px;
+  height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 24px;
+
+  border-radius: 11px;
+
+  background: #1677ff;
+
+  color: #ffffff;
+
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.header h1 {
+  margin: 0;
+
+  color: #101828;
+
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 38px;
+
+  letter-spacing: -0.5px;
+}
+
+.header p {
+  margin: 10px 0 0;
+
+  color: #667085;
+
+  font-size: 14px;
+  line-height: 22px;
+}
+
+/* Form */
+
+:global(.ant-form-item) {
+  margin-bottom: 10px;
+}
+
+:global(.ant-form-item-label) {
+  padding: 0 0 5px;
+}
+
+:global(.ant-form-item-label > label) {
+  height: auto;
+
+  color: #344054;
+
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+/*
+ * Keep a clear separation between the label
+ * and the input instead of increasing input height.
+ */
+
+:global(.ant-input-affix-wrapper) {
+  border-radius: 7px;
+}
+
+:global(.ant-input-affix-wrapper-lg) {
+  min-height: 44px;
+}
+
+:global(.ant-input-prefix) {
+  margin-inline-end: 9px;
+
+  color: #98a2b3;
+}
+
+/* Options */
+
+.options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-top: -2px;
+  margin-bottom: 28px;
+}
+
+.options :global(.ant-checkbox-wrapper) {
+  color: #667085;
+
+  font-size: 13px;
+  line-height: 20px;
+}
+
+/* Links */
+
+.linkButton {
+  padding: 0;
+
+  border: 0;
+
+  background: transparent;
+
+  color: #1677ff;
+
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+
+  cursor: pointer;
+
+  transition: color 0.15s ease;
+}
+
+.linkButton:hover {
+  color: #4096ff;
+}
+
+.linkButton:focus-visible {
+  outline: 2px solid rgba(22, 119, 255, 0.3);
+  outline-offset: 3px;
+
+  border-radius: 2px;
+}
+
+/* Submit */
+
+.submitButton {
+  height: 44px;
+
+  border-radius: 7px;
+
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Register */
+
+.register {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  margin-top: 30px;
+
+  color: #98a2b3;
+
+  font-size: 13px;
+  line-height: 20px;
+}
+
+/* Footer */
+
+.footer {
+  margin-top: 24px;
+
+  color: #98a2b3;
+
+  font-size: 12px;
+  line-height: 18px;
+
+  text-align: center;
+}
+
+/* Mobile */
+
+@media (max-width: 480px) {
+  .page {
+    justify-content: flex-start;
+
+    padding: 24px 16px;
+  }
+
+  .loginCard {
+    margin-top: 8vh;
+
+    padding: 40px 24px 32px;
+
+    border-radius: 10px;
+  }
+
+  .header {
+    margin-bottom: 32px;
+  }
+
+  .logo {
+    margin-bottom: 20px;
+  }
+
+  .header h1 {
+    font-size: 28px;
+    line-height: 36px;
+  }
+
+  .header p {
+    margin-top: 8px;
+  }
+
+  :global(.ant-form-item) {
+    margin-bottom: 24px;
+  }
+
+  .options {
+    margin-bottom: 26px;
+  }
+
+  .register {
+    margin-top: 28px;
+  }
+
+  .footer {
+    margin-top: 20px;
+  }
+}

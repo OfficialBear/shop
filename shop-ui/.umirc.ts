@@ -7,9 +7,23 @@ export default defineConfig({
   initialState: {},
   request: {},
   layout: {
-    title: '@umijs/max',
+    title: 'e-shop',
+  },
+  proxy: {
+    '/api': {
+      target: 'http://localhost:8080',
+      changeOrigin: true,
+      pathRewrite: {
+        '^/api': '',
+      },
+    },
   },
   routes: [
+    {
+      path: '/login',
+      component: './Login',
+      layout: false,   
+    },
     {
       path: '/',
       redirect: '/home',
