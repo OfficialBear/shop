@@ -17,4 +17,6 @@ public class MessageConstant {
     public static final String DISH_BE_RELATED_BY_SETMEAL = "当前菜品关联了套餐,不能删除";
 
     public static final String UPLOAD_FAILED = "文件上传失败";
+
+    public static final String LOGIN_FAILED = "登录失败";
 }
