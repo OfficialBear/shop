@@ -11,4 +11,32 @@
         </foreach>
     </select>
 
+    <select id="getBySetmealId" resultType="com.shop.entity.SetmealDish">
+        select * from setmeal_dish where setmeal_id = #{setmealId}
+    </select>
+
+    <select id="countEnabledBySetmealId" resultType="java.lang.Integer">
+        select count(1) from setmeal_dish
+        where status = 1 and setmeal_id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <insert id="insertBatch">
+        insert into setmeal_dish
+        (setmeal_id, dish_id, name, price, copies)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.setmealId},#{item.dishId},#{item.name},#{item.price},#{item.copies})
+        </foreach>
+    </insert>
+
+    <delete id="deleteBatch">
+        delete from setmeal_dish
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
 </mapper>
