@@ -37,13 +37,7 @@ public interface DishMapper {
      */
     Dish getById(Long id);
 
-    /**
-     * 根据分类id查询菜品
-     *
-     * @param categoryId
-     * @return
-     */
-    List<Dish> getByCategoryId(Long categoryId);
+    List<Dish> selectList(Dish dish);
 
     /**
      * 菜品分页查询

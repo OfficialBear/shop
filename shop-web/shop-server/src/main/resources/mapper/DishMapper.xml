@@ -3,7 +3,6 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.shop.mapper.DishMapper">
-
     <select id="countByCategoryId" resultType="java.lang.Integer">
         select count(id) from dish where category_id = #{categoryId}
     </select>
@@ -20,8 +19,19 @@
         select * from dish where id = #{id}
     </select>
 
-    <select id="getByCategoryId" resultType="com.shop.entity.Dish">
-        select * from dish where category_id = #{categoryId}
+    <select id="selectList" resultType="com.shop.entity.Dish">
+        select * from dish
+        <where>
+            <if test="name != null and name !=''">
+                and d.name like concat('%', #{name}, '%')
+            </if>
+            <if test="categoryId != null">
+                and d.category_id = #{categoryId}
+            </if>
+            <if test="status != null">
+                and d.status = #{status}
+            </if>
+        </where>
     </select>
 
     <select id="pageQuery" resultType="com.shop.vo.DishVO">

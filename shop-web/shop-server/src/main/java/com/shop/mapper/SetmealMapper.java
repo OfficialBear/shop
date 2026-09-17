@@ -21,6 +21,18 @@ public interface SetmealMapper {
      */
     Integer countByCategoryId(Long id);
 
+    SetmealVO getBySetmealId(Long id);
+
+    Page<Setmeal> pageQuery(SetmealPageQueryDTO setmealPageQueryDTO);
+
+    /**
+     * 动态条件查询套餐
+     *
+     * @param setmeal
+     * @return
+     */
+    List<Setmeal> selectList(Setmeal setmeal);
+
     @AutoFill(value = OperationType.INSERT)
     void insert(Setmeal setmeal);
 
@@ -28,8 +40,4 @@ public interface SetmealMapper {
     void update(Setmeal setmeal);
 
     void deleteBatch(List<Long> ids);
-
-    SetmealVO getBySetmealId(Long id);
-
-    Page<Setmeal> pageQuery(SetmealPageQueryDTO setmealPageQueryDTO);
 }

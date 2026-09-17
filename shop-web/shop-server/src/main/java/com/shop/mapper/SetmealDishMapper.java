@@ -1,6 +1,7 @@
 package com.shop.mapper;
 
 import com.shop.entity.SetmealDish;
+import com.shop.vo.DishItemVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -18,6 +19,8 @@ public interface SetmealDishMapper {
     List<SetmealDish> getBySetmealId(Long setmealId);
 
     Integer countEnabledBySetmealId(List<Long> ids);
+
+    List<DishItemVO> getDishItemBySetmealId(Long setmealId);
 
     void insertBatch(List<SetmealDish> list);
 
