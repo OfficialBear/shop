@@ -22,7 +22,7 @@ export default defineConfig({
     {
       path: '/login',
       component: './Login',
-      layout: false,   
+      layout: false,
     },
     {
       path: '/',
@@ -32,6 +32,11 @@ export default defineConfig({
       name: '首页',
       path: '/home',
       component: './Home',
+    },
+    {
+      name: '员工管理',
+      path: '/employee',
+      component: './Employee',
     },
   ],
   npmClient: 'pnpm',

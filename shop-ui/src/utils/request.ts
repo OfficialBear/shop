@@ -1,14 +1,9 @@
+import type { Result } from '@/types';
 import { request as umiRequest } from '@umijs/max';
 import { message } from 'antd';
 
 const SUCCESS_CODE = 1;
 const TOKEN_STORAGE_KEY = 'token';
-
-export interface ApiResponse<T = unknown> {
-  code: number;
-  msg: string;
-  data: T;
-}
 
 export class ApiError extends Error {
   constructor(
@@ -42,6 +37,12 @@ const HTTP_ERROR_MESSAGES: Record<number, string> = {
   504: 'Gateway timeout',
 };
 
+interface AxiosLikeError extends Error {
+  response?: {
+    status?: number;
+  };
+}
+
 /**
  * Get JWT from session storage.
  */
@@ -53,21 +54,21 @@ function getStoredToken(): string | null {
  * Create request headers and inject the JWT token.
  */
 function createHeaders(
-  headers: HeadersInit | undefined,
-  skipAuth: boolean,
-): Headers {
-  const requestHeaders = new Headers(headers);
+  headers: Record<string, string> | undefined,
+): Record<string, string> {
+  const requestHeaders = {
+    ...(headers ?? {}),
+  };
 
-  if (!skipAuth) {
-    const token = getStoredToken();
+  const token = getStoredToken();
 
-    if (token) {
-      requestHeaders.set(TOKEN_STORAGE_KEY, `${token}`);
-    }
+  if (token) {
+    requestHeaders['token'] = `${token}`;
   }
 
   return requestHeaders;
 }
+
 /**
  * Remove JWT from session storage.
  */
@@ -99,7 +100,6 @@ function redirectToLogin(): void {
 
   const currentPath = `${window.location.pathname}${window.location.search}`;
   const redirect = encodeURIComponent(currentPath);
-
   window.location.replace(`/login?redirect=${redirect}`);
 }
 
@@ -115,38 +115,48 @@ export async function request<T = unknown>(
   url: string,
   options: RequestOptions = {},
 ): Promise<T> {
-  const {
-    showErrorMessage = true,
-    skipAuth = false,
-    ...requestOptions
-  } = options;
+  const { showErrorMessage = true, ...requestOptions } = options;
 
+  const headers = createHeaders(
+    requestOptions.headers as Record<string, string> | undefined,
+  );
   try {
-    const response = await umiRequest<ApiResponse<T>>(url, {
+    const response = await umiRequest<Result<T>>(url, {
       ...requestOptions,
-      errorHandler: (error: any) => {
-        const status = error?.response?.status;
+      headers,
+      responseInterceptors: [
+        [
+          (response) => response,
+          (error) => {
+            const axiosError = error as AxiosLikeError;
+            const status = axiosError.response?.status;
 
-        if (status === 401) {
-          handleUnauthorized();
+            if (status === 401) {
+              handleUnauthorized();
 
-          throw new ApiError(
-            'Authentication expired. Please sign in again.',
-            undefined,
-            401,
-          );
-        }
+              return Promise.reject(
+                new ApiError(
+                  'Authentication expired. Please sign in again.',
+                  undefined,
+                  401,
+                ),
+              );
+            }
 
-        if (status) {
-          throw new ApiError(
-            HTTP_ERROR_MESSAGES[status] ?? 'Request failed',
-            undefined,
-            status,
-          );
-        }
+            if (status) {
+              return Promise.reject(
+                new ApiError(
+                  HTTP_ERROR_MESSAGES[status] ?? 'Request failed',
+                  undefined,
+                  status,
+                ),
+              );
+            }
 
-        throw error;
-      },
+            return Promise.reject(error);
+          },
+        ],
+      ],
     });
 
     if (response.code !== SUCCESS_CODE) {

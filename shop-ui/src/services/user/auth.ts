@@ -9,8 +9,11 @@ export interface UserInfo {
   id: number;
   username: string;
   name: string;
-  token: string;
+  token?: string;
+  role: string;
+  permissions: string[];
 }
+
 
 /**
  * Login.
@@ -38,10 +41,10 @@ export function logout() {
 /**
  * Get the current authenticated user.
  *
- * GET /api/auth/current
+ * GET /api/admin/employee/current
  */
 export function getCurrentUser() {
-  return request<UserInfo>('/api/auth/current', {
+  return request<UserInfo>('/api/admin/employee/current', {
     method: 'GET',
   });
 }
