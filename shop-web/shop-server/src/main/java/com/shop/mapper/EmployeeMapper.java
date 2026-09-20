@@ -7,6 +7,8 @@ import com.shop.entity.Employee;
 import com.shop.enumeration.OperationType;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 @Mapper
 public interface EmployeeMapper {
     /**
@@ -40,5 +42,7 @@ public interface EmployeeMapper {
      */
     @AutoFill(value = OperationType.UPDATE)
     void update(Employee employee);
+
+    void deleteBatch(List<Long> ids);
 }
 

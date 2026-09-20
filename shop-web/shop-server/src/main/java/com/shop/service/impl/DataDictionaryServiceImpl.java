@@ -19,7 +19,7 @@ public class DataDictionaryServiceImpl implements DataDictionaryService {
 
     @Override
     public void update(DataDictionary dataDictionary) {
-        dataDictionary.setUpdateUser(BaseContext.getCurrentId());
+        dataDictionary.setUpdateUser(BaseContext.getCurrentUser().getUserId());
         dataDictionaryMapper.update(dataDictionary);
     }
 }

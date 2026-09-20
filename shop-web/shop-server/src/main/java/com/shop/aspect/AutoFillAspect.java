@@ -46,7 +46,7 @@ public class AutoFillAspect {
         }
         Object entity = args[0];
         LocalDateTime now = LocalDateTime.now();
-        Long currentId = BaseContext.getCurrentId();
+        Long userId = BaseContext.getCurrentUser().getUserId();
 
         // 根据当前不同的操作类型，为对应的属性通过反射来赋值
         if (operationType == OperationType.INSERT) {
@@ -58,8 +58,8 @@ public class AutoFillAspect {
                 // 通过反射为对象属性赋值
                 setCreateTime.invoke(entity, now);
                 setUpdateTime.invoke(entity, now);
-                setCreateUser.invoke(entity, currentId);
-                setUpdateUser.invoke(entity, currentId);
+                setCreateUser.invoke(entity, userId);
+                setUpdateUser.invoke(entity, userId);
             } catch (Exception ex) {
                 log.error("insert in aspect", ex);
             }
@@ -70,7 +70,7 @@ public class AutoFillAspect {
 
                 // 通过反射为对象属性赋值
                 setUpdateTime.invoke(entity, now);
-                setUpdateUser.invoke(entity, currentId);
+                setUpdateUser.invoke(entity, userId);
             } catch (Exception ex) {
                 log.error("update in aspect", ex);
             }

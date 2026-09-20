@@ -6,6 +6,8 @@ import com.shop.dto.EmployeePageQueryDTO;
 import com.shop.entity.Employee;
 import com.shop.result.PageResult;
 
+import java.util.List;
+
 public interface EmployeeService {
 
     /**
@@ -45,4 +47,6 @@ public interface EmployeeService {
      * @param id
      */
     void updateStatus(Integer status, Long id);
+
+    void deleteBatch(List<Long> ids);
 }

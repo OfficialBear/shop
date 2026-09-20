@@ -1,17 +1,19 @@
 package com.shop.context;
 
-public class BaseContext {
-    public static ThreadLocal<Long> threadLocal = new ThreadLocal<>();
+import com.shop.auth.LoginUser;
 
-    public static void setCurrentId(Long id) {
-        threadLocal.set(id);
+public class BaseContext {
+    public static ThreadLocal<LoginUser> threadLocal = new ThreadLocal<>();
+
+    public static void setCurrentUser(LoginUser loginUser) {
+        threadLocal.set(loginUser);
     }
 
-    public static Long getCurrentId() {
+    public static LoginUser getCurrentUser() {
         return threadLocal.get();
     }
 
-    public static void removeCurrentId() {
+    public static void clear() {
         threadLocal.remove();
     }
 }

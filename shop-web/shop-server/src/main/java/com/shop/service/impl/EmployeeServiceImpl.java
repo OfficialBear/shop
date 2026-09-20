@@ -134,5 +134,10 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .build();
         employeeMapper.update(employee);
     }
+
+    @Override
+    public void deleteBatch(List<Long> ids) {
+        employeeMapper.deleteBatch(ids);
+    }
 }
 

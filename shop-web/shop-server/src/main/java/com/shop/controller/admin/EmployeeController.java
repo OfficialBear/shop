@@ -1,6 +1,8 @@
 package com.shop.controller.admin;
 
+import com.shop.auth.LoginUser;
 import com.shop.constant.JwtClaimsConstant;
+import com.shop.context.BaseContext;
 import com.shop.dto.EmployeeDTO;
 import com.shop.dto.EmployeeLoginDTO;
 import com.shop.dto.EmployeePageQueryDTO;
@@ -12,7 +14,9 @@ import com.shop.service.EmployeeService;
 import com.shop.utils.JwtUtil;
 import com.shop.vo.EmployeeLoginVO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +27,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 员工管理
@@ -54,6 +61,7 @@ public class EmployeeController {
         //登录成功后，生成jwt令牌
         Map<String, Object> claims = new HashMap<>();
         claims.put(JwtClaimsConstant.EMP_ID, employee.getId());
+        claims.put(JwtClaimsConstant.USERNAME, employee.getUsername());
         String token = JwtUtil.generateToken(
                 jwtProperties.getAdminSecretKey(),
                 claims,
@@ -77,6 +85,23 @@ public class EmployeeController {
     @PostMapping("/logout")
     public Result<String> logout() {
         return Result.success();
+    }
+
+    @GetMapping("/current")
+    public Result<LoginUser> getCurrentUser() {
+        // TODO RBAC 基于角色的访问控制。此处简化处理
+        LoginUser loginUser = BaseContext.getCurrentUser();
+        String role = null;
+        Set<String> permissions = new HashSet<>();
+        if ("admin".equals(loginUser.getUsername())) {
+            role = "admin";
+            permissions.add("foo:delete");
+        }
+        LoginUser currentUser = new LoginUser();
+        BeanUtils.copyProperties(loginUser, currentUser);
+        currentUser.setRole(role);
+        currentUser.setPermissions(permissions);
+        return Result.success(currentUser);
     }
 
     /**
@@ -129,6 +154,19 @@ public class EmployeeController {
     public Result<String> updateStatus(@PathVariable Integer status, @RequestParam Long id) {
         log.info("启用/禁用员工账号: {}, {}", status, id);
         employeeService.updateStatus(status, id);
+        return Result.success();
+    }
+
+    /**
+     * 批量删除员工
+     *
+     * @param ids
+     * @return
+     */
+    @DeleteMapping
+    public Result<String> deleteBatch(@RequestBody List<Long> ids) {
+        log.info("批量删除员工: {}", ids);
+        employeeService.deleteBatch(ids);
         return Result.success();
     }
 }

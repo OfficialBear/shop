@@ -116,7 +116,7 @@ public class DishController {
      * @return
      */
     @DeleteMapping
-    public Result<String> deleteBatch(List<Long> ids) {
+    public Result<String> deleteBatch(@RequestBody List<Long> ids) {
         log.info("批量删除菜品: {}", ids);
         dishService.deleteBatch(ids);
         return Result.success();
