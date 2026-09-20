@@ -1,7 +1,7 @@
 import { login } from '@/services/user/auth';
 import { setToken } from '@/utils/request';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { history, useSearchParams } from '@umijs/max';
+import { history, useModel, useSearchParams } from '@umijs/max';
 import { Button, Checkbox, Form, Input, message } from 'antd';
 import { useState } from 'react';
 import styles from './index.less';
@@ -16,7 +16,8 @@ const LoginPage = () => {
   const [form] = Form.useForm<LoginFormValues>();
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
-
+  // 从 @@initialState model 中取出 refresh 方法
+  const { refresh } = useModel('@@initialState');
   const handleSubmit = async (values: LoginFormValues) => {
     if (loading) {
       return;
@@ -31,6 +32,10 @@ const LoginPage = () => {
       });
       if (user.token) {
         setToken(user.token);
+        // 关键：重新执行 getInitialState，刷新 currentUser 和权限
+        // 原因：getInitialState 只会在应用启动时执行一次。SPA 内部路由切换不会重新执行它。
+        // Token 过期后跳转登录页再登录，initialState.currentUser 依然是旧的或空的，access.ts 计算出的权限自然也不对。
+        await refresh();
       }
       message.success('Signed in successfully.');
 
@@ -84,7 +89,7 @@ const LoginPage = () => {
             ]}
           >
             <Input
-              size="default"
+              size="middle"
               prefix={<UserOutlined />}
               placeholder="Enter your account"
               autoComplete="username"
@@ -104,7 +109,7 @@ const LoginPage = () => {
             ]}
           >
             <Input.Password
-              size="default"
+              size="middle"
               prefix={<LockOutlined />}
               placeholder="Enter your password"
               autoComplete="current-password"
