@@ -38,6 +38,11 @@ export default defineConfig({
       path: '/employee',
       component: './Employee',
     },
+    {
+      path: '*',
+      component: './404',
+      layout: false,
+    },
   ],
   npmClient: 'pnpm',
   utoopack: {},
