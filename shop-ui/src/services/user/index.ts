@@ -9,17 +9,8 @@ export interface UserPageParams extends PageParams{
   status?: number;
 }
 
-export interface CreateUserParams {
+export interface UserParams {
   id?: number;
-  username: string;
-  name: string;
-  phone: string;
-  sex: number;
-  idNumber: string;
-}
-
-export interface UpdateUserParams {
-  id: number;
   username?: string;
   name?: string;
   phone?: string;
@@ -43,7 +34,7 @@ export function getUserById(id: number) {
  *
  * GET /api/admin/employee/page?pageNum=1&pageSize=20&keyword=Tom
  */
-export function getUserList(params: UserPageParams) {
+export function getPage(params: UserPageParams) {
   return request<PageResult<User>>('/api/admin/employee/page', {
     method: 'GET',
     params,
@@ -55,7 +46,7 @@ export function getUserList(params: UserPageParams) {
  *
  * POST /api/admin/employee
  */
-export function createUser(data: CreateUserParams) {
+export function createUser(data: UserParams) {
   return request<Result>('/api/admin/employee', {
     method: 'POST',
     data,
@@ -67,7 +58,7 @@ export function createUser(data: CreateUserParams) {
  *
  * PUT /api/admin/employee
  */
-export function updateUser(data: UpdateUserParams) {
+export function updateUser(data: UserParams) {
   return request<Result>(`/api/admin/employee`, {
     method: 'PUT',
     data,
@@ -87,11 +78,11 @@ export function updateUserStatus(status: number, id: number) {
 }
 
 /**
- * Delete a user.
+ * Batch delete users.
  *
  * DELETE /api/admin/employee
  */
-export function deleteUser(ids: (string | number)[]) {
+export function batchDeleteUsers(ids: number[]) {
   return request<Result>(`/api/admin/employee`, {
     method: 'DELETE',
     data: ids,

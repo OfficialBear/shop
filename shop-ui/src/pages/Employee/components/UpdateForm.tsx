@@ -1,17 +1,17 @@
-import { updateUser, UpdateUserParams } from '@/services/user/user';
+import { updateUser, UserParams } from '@/services/user';
 import type { User } from '@/types';
-import { Button, Form, Input, Modal, Select, Space } from 'antd';
+import { Button, Form, Input, message, Modal, Select, Space } from 'antd';
 import React, { PropsWithChildren, useEffect } from 'react';
 
 interface UpdateFormProps {
   modalVisible: boolean;
   editingUser: User | null;
-  onSuccess: () => Promise<void>;
-  onCancel: () => void;
+  reloadData: () => Promise<void>;
+  hideModal: () => void;
 }
 
 const UpdateForm: React.FC<PropsWithChildren<UpdateFormProps>> = (props) => {
-  const { modalVisible, editingUser, onCancel, onSuccess } = props;
+  const { modalVisible, editingUser, hideModal, reloadData } = props;
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -20,11 +20,16 @@ const UpdateForm: React.FC<PropsWithChildren<UpdateFormProps>> = (props) => {
     }
   }, [modalVisible, editingUser, form]);
 
-  const handleSubmit = async (values: UpdateUserParams) => {
+  const handleSubmit = async (values: UserParams) => {
     if (!editingUser) return;
-    await updateUser({ ...values, id: editingUser?.id });
-    await onSuccess();
-    onCancel();
+    try {
+      await updateUser({ ...values, id: editingUser?.id });
+      message.success('修改成功');
+      await reloadData();
+      hideModal();
+    } catch (error) {
+      message.error('修改失败');
+    }
   };
 
   return (
@@ -33,7 +38,7 @@ const UpdateForm: React.FC<PropsWithChildren<UpdateFormProps>> = (props) => {
       title="修改"
       width={420}
       open={modalVisible}
-      onCancel={() => onCancel()}
+      onCancel={() => hideModal()}
       footer={null}
     >
       <Form
@@ -45,14 +50,14 @@ const UpdateForm: React.FC<PropsWithChildren<UpdateFormProps>> = (props) => {
         onFinish={handleSubmit}
         autoComplete="off"
       >
-        <Form.Item<UpdateUserParams>
+        <Form.Item<UserParams>
           label="姓名"
           name="name"
           rules={[{ required: true, message: '请输入姓名!' }]}
         >
           <Input />
         </Form.Item>
-        <Form.Item<UpdateUserParams>
+        <Form.Item<UserParams>
           label="性别"
           name="sex"
           rules={[{ required: true, message: '请选择性别!' }]}
@@ -66,13 +71,13 @@ const UpdateForm: React.FC<PropsWithChildren<UpdateFormProps>> = (props) => {
             ]}
           />
         </Form.Item>
-        <Form.Item<UpdateUserParams> label="身份证号" name="idNumber">
+        <Form.Item<UserParams> label="身份证号" name="idNumber">
           <Input />
         </Form.Item>
-        <Form.Item<UpdateUserParams> label="手机号" name="phone">
+        <Form.Item<UserParams> label="手机号" name="phone">
           <Input />
         </Form.Item>
-        <Form.Item<UpdateUserParams>
+        <Form.Item<UserParams>
           label="用户名"
           name="username"
           rules={[{ required: true, message: 'Please input your username!' }]}
@@ -85,7 +90,7 @@ const UpdateForm: React.FC<PropsWithChildren<UpdateFormProps>> = (props) => {
             <Button type="primary" onClick={() => form.submit()}>
               确定
             </Button>
-            <Button onClick={() => onCancel()}>取消</Button>
+            <Button onClick={() => hideModal()}>取消</Button>
           </Space>
         </Form.Item>
       </Form>

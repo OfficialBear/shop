@@ -1,9 +1,5 @@
 import { SearchParams } from '@/pages/Employee/type';
-import {
-  deleteUser,
-  getUserList,
-  updateUserStatus,
-} from '@/services/user/user';
+import { batchDeleteUsers, getPage, updateUserStatus } from '@/services/user';
 import type { User } from '@/types';
 import { PageContainer } from '@ant-design/pro-components';
 import { Access, useAccess } from '@umijs/max';
@@ -112,7 +108,7 @@ const EmployeePage: React.FC = () => {
     setLoading(true);
 
     try {
-      const result = await getUserList({
+      const result = await getPage({
         ...searchParams,
         ...pagination,
       });
@@ -180,17 +176,27 @@ const EmployeePage: React.FC = () => {
       title: '确认删除',
       content: '删除后将无法恢复，确定要删除该员工吗？',
       onOk: async () => {
-        await deleteUser(ids);
-        await loadData();
+        try {
+          await batchDeleteUsers(ids);
+          message.success('删除成功');
+          setSelectedRowKeys([]);
+          await loadData();
+        } catch (error) {
+          message.error('删除失败');
+        }
       },
     });
   };
 
   const handleStatusChange = async (status: number, id: number) => {
-    await updateUserStatus(status, id);
-
-    // 修改成功后重新查询
-    await loadData();
+    try {
+      await updateUserStatus(status, id);
+      message.success('状态修改成功');
+      // 修改成功后重新查询
+      await loadData();
+    } catch (error) {
+      message.error('状态修改失败');
+    }
   };
 
   return (
@@ -244,14 +250,14 @@ const EmployeePage: React.FC = () => {
       />
       <CreateForm
         modalVisible={createModalVisible}
-        onSuccess={() => loadData()}
-        onCancel={() => setCreateModalVisible(false)}
+        reloadData={() => loadData()}
+        hideModal={() => setCreateModalVisible(false)}
       />
       <UpdateForm
         modalVisible={updateModalVisible}
         editingUser={editingUser}
-        onSuccess={() => loadData()}
-        onCancel={() => setUpdateModalVisible(false)}
+        reloadData={() => loadData()}
+        hideModal={() => setUpdateModalVisible(false)}
       />
     </PageContainer>
   );

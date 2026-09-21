@@ -1,4 +1,4 @@
-import { UserInfo } from '@/services/user/auth';
+import { UserInfo } from '@/services/auth';
 
 export default (initialState: { currentUser: UserInfo }) => {
   // 在这里按照初始化数据定义项目中的权限，统一管理

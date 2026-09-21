@@ -1,21 +1,26 @@
-import { createUser, CreateUserParams } from '@/services/user/user';
+import { createUser, UserParams } from '@/services/user';
 import type { FormProps } from 'antd';
-import { Button, Form, Input, Modal, Select, Space } from 'antd';
+import { Button, Form, Input, message, Modal, Select, Space } from 'antd';
 import React, { PropsWithChildren } from 'react';
 
 interface CreateFormProps {
   modalVisible: boolean;
-  onSuccess: () => Promise<void>;
-  onCancel: () => void;
+  reloadData: () => Promise<void>;
+  hideModal: () => void;
 }
 
 const CreateForm: React.FC<PropsWithChildren<CreateFormProps>> = (props) => {
-  const { modalVisible, onSuccess, onCancel } = props;
+  const { modalVisible, reloadData, hideModal } = props;
 
-  const onFinish: FormProps<CreateUserParams>['onFinish'] = async (values) => {
-    await createUser(values);
-    await onSuccess();
-    onCancel();
+  const onFinish: FormProps<UserParams>['onFinish'] = async (values) => {
+    try {
+      await createUser(values);
+      message.success('添加成功');
+      await reloadData();
+      hideModal();
+    } catch (error) {
+      message.error('添加失败');
+    }
   };
 
   return (
@@ -24,7 +29,7 @@ const CreateForm: React.FC<PropsWithChildren<CreateFormProps>> = (props) => {
       title="新增"
       width={420}
       open={modalVisible}
-      onCancel={() => onCancel()}
+      onCancel={() => hideModal()}
       footer={null}
     >
       <Form
@@ -35,14 +40,14 @@ const CreateForm: React.FC<PropsWithChildren<CreateFormProps>> = (props) => {
         onFinish={onFinish}
         autoComplete="off"
       >
-        <Form.Item<CreateUserParams>
+        <Form.Item<UserParams>
           label="姓名"
           name="name"
           rules={[{ required: true, message: '请输入姓名!' }]}
         >
           <Input />
         </Form.Item>
-        <Form.Item<CreateUserParams>
+        <Form.Item<UserParams>
           label="性别"
           name="sex"
           rules={[{ required: true, message: '请选择性别!' }]}
@@ -56,13 +61,13 @@ const CreateForm: React.FC<PropsWithChildren<CreateFormProps>> = (props) => {
             ]}
           />
         </Form.Item>
-        <Form.Item<CreateUserParams> label="身份证号" name="idNumber">
+        <Form.Item<UserParams> label="身份证号" name="idNumber">
           <Input />
         </Form.Item>
-        <Form.Item<CreateUserParams> label="手机号" name="phone">
+        <Form.Item<UserParams> label="手机号" name="phone">
           <Input />
         </Form.Item>
-        <Form.Item<CreateUserParams>
+        <Form.Item<UserParams>
           label="用户名"
           name="username"
           rules={[{ required: true, message: 'Please input your username!' }]}
@@ -75,7 +80,7 @@ const CreateForm: React.FC<PropsWithChildren<CreateFormProps>> = (props) => {
             <Button type="primary" htmlType="submit">
               确定
             </Button>
-            <Button onClick={() => onCancel()}>取消</Button>
+            <Button onClick={() => hideModal()}>取消</Button>
           </Space>
         </Form.Item>
       </Form>

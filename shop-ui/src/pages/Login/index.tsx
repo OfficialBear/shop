@@ -1,4 +1,4 @@
-import { login } from '@/services/user/auth';
+import { login } from '@/services/auth';
 import { setToken } from '@/utils/request';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { history, useModel, useSearchParams } from '@umijs/max';
