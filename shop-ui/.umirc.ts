@@ -34,6 +34,11 @@ export default defineConfig({
       component: './Home',
     },
     {
+      name: '分类管理',
+      path: '/category',
+      component: './Category',
+    },
+    {
       name: '员工管理',
       path: '/employee',
       component: './Employee',
