@@ -23,7 +23,7 @@ import java.util.List;
  * 分类管理
  */
 @RestController
-@RequestMapping("admin/category")
+@RequestMapping("/admin/category")
 @Slf4j
 public class CategoryController {
     @Autowired
@@ -87,7 +87,7 @@ public class CategoryController {
      * @param id
      * @return
      */
-    @PostMapping("/status/{status}")
+    @PutMapping("/status/{status}")
     public Result<String> updateStatus(@PathVariable("status") Integer status, Long id) {
         categoryService.updateStatus(status, id);
         return Result.success();

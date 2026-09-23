@@ -48,7 +48,7 @@ public class SetmealController {
     }
 
     @PutMapping
-    public Result<String> update(SetmealDTO setmealDTO) {
+    public Result<String> update(@RequestBody SetmealDTO setmealDTO) {
         setmealService.update(setmealDTO);
         return Result.success();
     }
