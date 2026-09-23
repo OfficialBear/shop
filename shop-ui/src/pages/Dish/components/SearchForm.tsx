@@ -1,9 +1,9 @@
-import { Button, Col, Form, Input, Row, Select, Space } from 'antd';
-import React, { PropsWithChildren } from 'react';
-
-import { SearchParams } from '@/pages/Employee/type';
+import { useCategoryOptions } from '@/hooks/categoryOptions';
+import { SearchParams } from '@/pages/Dish/type';
 import { ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 import type { FormInstance } from 'antd';
+import { Button, Col, Form, Input, Row, Select, Space } from 'antd';
+import React, { PropsWithChildren } from 'react';
 import '../index.less';
 
 interface SearchFormProps {
@@ -14,40 +14,37 @@ interface SearchFormProps {
 
 const SearchForm: React.FC<PropsWithChildren<SearchFormProps>> = (props) => {
   const { form, handleSearch, handleReset } = props;
+  const { options, loading } = useCategoryOptions(1);
+
   return (
     <div className="search-panel">
       <Form<SearchParams> form={form} layout="inline" onFinish={handleSearch}>
         <Row gutter={32}>
           <Col span={12}>
-            <Form.Item label="员工姓名" name="name">
-              <Input placeholder="请输入员工姓名" allowClear />
+            <Form.Item label="菜品名称" name="name">
+              <Input placeholder="请输入菜品名称" allowClear />
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="性别" name="sex">
+            <Form.Item label="菜品分类" name="categoryId">
               <Select
-                placeholder="请选择性别"
+                placeholder="请选择"
                 allowClear
-                options={[
-                  { label: '男', value: '1' },
-                  { label: '女', value: '0' },
-                ]}
+                loading={loading}
+                options={options}
+                showSearch
+                optionFilterProp="label"
               />
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="手机号" name="phone">
-              <Input placeholder="请输入手机号" allowClear />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item label="账号状态" name="status">
+            <Form.Item label="售卖状态" name="status">
               <Select
-                placeholder="请选择账号状态"
+                placeholder="请选择"
                 allowClear
                 options={[
-                  { label: '启用', value: 1 },
-                  { label: '禁用', value: 0 },
+                  { label: '启售', value: 1 },
+                  { label: '停售', value: 0 },
                 ]}
               />
             </Form.Item>

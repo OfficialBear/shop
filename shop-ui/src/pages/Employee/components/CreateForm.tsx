@@ -34,9 +34,8 @@ const CreateForm: React.FC<PropsWithChildren<CreateFormProps>> = (props) => {
     >
       <Form
         name="basic"
-        labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
-        style={{ maxWidth: 600 }}
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
         onFinish={onFinish}
         autoComplete="off"
       >
@@ -74,15 +73,14 @@ const CreateForm: React.FC<PropsWithChildren<CreateFormProps>> = (props) => {
         >
           <Input />
         </Form.Item>
-
-        <Form.Item label={null}>
-          <Space>
+       <div style={{ textAlign: 'center', marginTop: 24 }}>
+        <Space>
             <Button type="primary" htmlType="submit">
               确定
             </Button>
             <Button onClick={() => hideModal()}>取消</Button>
           </Space>
-        </Form.Item>
+       </div>
       </Form>
     </Modal>
   );

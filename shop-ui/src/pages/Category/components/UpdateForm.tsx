@@ -44,9 +44,8 @@ const UpdateForm: React.FC<PropsWithChildren<UpdateFormProps>> = (props) => {
       <Form
         form={form}
         name="basic"
-        labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
-        style={{ maxWidth: 600 }}
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
         onFinish={handleSubmit}
         autoComplete="off"
       >
@@ -75,14 +74,14 @@ const UpdateForm: React.FC<PropsWithChildren<UpdateFormProps>> = (props) => {
           <Input />
         </Form.Item>
 
-        <Form.Item label={null}>
+        <div style={{ textAlign: 'center', marginTop: 24 }}>
           <Space>
             <Button type="primary" onClick={() => form.submit()}>
               确定
             </Button>
             <Button onClick={() => hideModal()}>取消</Button>
           </Space>
-        </Form.Item>
+        </div>
       </Form>
     </Modal>
   );

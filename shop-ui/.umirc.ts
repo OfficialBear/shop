@@ -38,6 +38,11 @@ export default defineConfig({
       path: '/category',
       component: './Category',
     },
+        {
+      name: '菜品管理',
+      path: '/dish',
+      component: './Dish',
+    },
     {
       name: '员工管理',
       path: '/employee',
