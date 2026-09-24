@@ -29,7 +29,7 @@ export function getDishById(id: number) {
   });
 }
 
-export function getListByCategoryId(categoryId: number) {
+export function getListByCategoryId(categoryId?: number) {
   return request<Dish[]>(`/api/admin/dish/list`, {
     method: 'GET',
     params: { categoryId },
