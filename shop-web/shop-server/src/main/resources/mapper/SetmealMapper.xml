@@ -7,15 +7,23 @@
         select count(id) from setmeal where category_id = #{categoryId}
     </select>
 
+    <select id="countEnabledBySetmealId" resultType="java.lang.Integer">
+        select count(1) from setmeal
+        where status = 1 and id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
     <select id="getBySetmealId" resultType="com.shop.vo.SetmealVO">
-        select s.id, s.category_id, s.name, s.price, s.status, s.description, s,image,
+        select s.id, s.category_id, s.name, s.price, s.status, s.description, s.image,
         s.update_time, c.name as categoryName
         from setmeal s join category c on s.category_id = c.id
         where s.id = #{id}
     </select>
 
-    <select id="pageQuery" resultType="com.shop.entity.Setmeal">
-        select s.id, s.category_id, s.name, s.price, s.status, s.description, s,image,
+    <select id="pageQuery" resultType="com.shop.vo.SetmealVO">
+        select s.id, s.category_id, s.name, s.price, s.status, s.description, s.image,
         s.update_time, c.name as categoryName
         from setmeal s join category c on s.category_id = c.id
         <where>

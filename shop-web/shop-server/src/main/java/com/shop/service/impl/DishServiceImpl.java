@@ -3,6 +3,7 @@ package com.shop.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.shop.constant.MessageConstant;
+import com.shop.constant.StatusConstant;
 import com.shop.dto.DishDTO;
 import com.shop.dto.DishPageQueryDTO;
 import com.shop.entity.Dish;
@@ -61,8 +62,10 @@ public class DishServiceImpl implements DishService {
      */
     @Override
     public List<Dish> getByCategoryId(Long categoryId) {
-        Dish dish = new Dish();
-        dish.setCategoryId(categoryId);
+        Dish dish = Dish.builder()
+                .categoryId(categoryId)
+                .status(StatusConstant.ENABLE)
+                .build();
         return dishMapper.selectList(dish);
     }
 

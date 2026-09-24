@@ -31,24 +31,28 @@ public class SetmealController {
 
     @GetMapping("/{id}")
     public Result<SetmealVO> getBySetmealId(@PathVariable Long id) {
+        log.info("根据 id 查询套餐: {}", id);
         SetmealVO setmealVO = setmealService.getBySetmealId(id);
         return Result.success(setmealVO);
     }
 
     @GetMapping("/page")
     public Result<PageResult> pageQuery(SetmealPageQueryDTO setmealPageQueryDTO) {
+        log.info("套餐分页查询: {}", setmealPageQueryDTO);
         PageResult pageResult = setmealService.pageQuery(setmealPageQueryDTO);
         return Result.success(pageResult);
     }
 
     @PostMapping
     public Result<String> add(@RequestBody SetmealDTO setmealDTO) {
+        log.info("新增套餐", setmealDTO);
         setmealService.add(setmealDTO);
         return Result.success();
     }
 
     @PutMapping
     public Result<String> update(@RequestBody SetmealDTO setmealDTO) {
+        log.info("修改套餐: {}", setmealDTO);
         setmealService.update(setmealDTO);
         return Result.success();
     }

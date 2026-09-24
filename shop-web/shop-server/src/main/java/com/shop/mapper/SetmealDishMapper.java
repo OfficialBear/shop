@@ -18,8 +18,6 @@ public interface SetmealDishMapper {
 
     List<SetmealDish> getBySetmealId(Long setmealId);
 
-    Integer countEnabledBySetmealId(List<Long> ids);
-
     List<DishItemVO> getDishItemBySetmealId(Long setmealId);
 
     void insertBatch(List<SetmealDish> list);

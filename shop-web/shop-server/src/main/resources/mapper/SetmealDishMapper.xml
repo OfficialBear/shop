@@ -15,14 +15,6 @@
         select * from setmeal_dish where setmeal_id = #{setmealId}
     </select>
 
-    <select id="countEnabledBySetmealId" resultType="java.lang.Integer">
-        select count(1) from setmeal_dish
-        where status = 1 and setmeal_id in
-        <foreach collection="ids" item="id" separator="," open="(" close=")">
-            #{id}
-        </foreach>
-    </select>
-
     <select id="getDishItemBySetmealId" resultType="com.shop.vo.DishItemVO">
         select sd.name, sd.copies, d.image, d.description
         from setmeal_dish sd left join dish d on sd.dish_id = d.id
@@ -40,7 +32,7 @@
 
     <delete id="deleteBatch">
         delete from setmeal_dish
-        where id in
+        where setmeal_id in
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>

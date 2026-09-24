@@ -38,9 +38,11 @@ public class SetmealServiceImpl implements SetmealService {
 
     @Override
     public PageResult pageQuery(SetmealPageQueryDTO setmealPageQueryDTO) {
-        PageHelper.startPage(setmealPageQueryDTO.getPageNum(), setmealPageQueryDTO.getPageSize());
+        int pageNum = setmealPageQueryDTO.getPageNum();
+        int pageSize = setmealPageQueryDTO.getPageSize();
+        PageHelper.startPage(pageNum, pageSize);
 
-        Page<Setmeal> page = setmealMapper.pageQuery(setmealPageQueryDTO);
+        Page<SetmealVO> page = setmealMapper.pageQuery(setmealPageQueryDTO);
 
         return new PageResult(page.getTotal(), page.getResult());
     }
@@ -81,20 +83,25 @@ public class SetmealServiceImpl implements SetmealService {
      *
      * @param setmealDTO
      */
+    @Transactional
     @Override
     public void add(SetmealDTO setmealDTO) {
         Setmeal setmeal = new Setmeal();
         BeanUtils.copyProperties(setmealDTO, setmeal);
         setmeal.setStatus(StatusConstant.DISABLE);
         setmealMapper.insert(setmeal);
+
         List<SetmealDish> list = setmealDTO.getSetmealDishes();
-        if (list != null && list.size() > 0) {
-            for (SetmealDish sd : list) {
-                sd.setSetmealId(setmeal.getId());
-            }
-            // 保存套餐和菜品的关联关系
-            setmealDishMapper.insertBatch(list);
+        if (list == null || list.isEmpty()) {
+            return;
         }
+        // 获取生成的套餐id
+        Long setmealId = setmeal.getId();
+        for (SetmealDish sd : list) {
+            sd.setSetmealId(setmealId);
+        }
+        // 保存套餐和菜品的关联关系
+        setmealDishMapper.insertBatch(list);
     }
 
     @Transactional
@@ -104,12 +111,14 @@ public class SetmealServiceImpl implements SetmealService {
         BeanUtils.copyProperties(setmealDTO, setmeal);
         setmealMapper.update(setmeal);
 
+        // 套餐id
         List<Long> ids = new ArrayList<>();
         ids.add(setmealDTO.getId());
         setmealDishMapper.deleteBatch(ids);
 
         List<SetmealDish> list = setmealDTO.getSetmealDishes();
         if (list != null && list.size() > 0) {
+            list.forEach(setmealDish -> setmealDish.setSetmealId(setmealDTO.getId()));
             setmealDishMapper.insertBatch(list);
         }
     }
@@ -126,7 +135,7 @@ public class SetmealServiceImpl implements SetmealService {
     @Transactional
     @Override
     public void deleteBatch(List<Long> ids) {
-        Integer count = setmealDishMapper.countEnabledBySetmealId(ids);
+        Integer count = setmealMapper.countEnabledBySetmealId(ids);
         if (count > 0) {
             throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
         }

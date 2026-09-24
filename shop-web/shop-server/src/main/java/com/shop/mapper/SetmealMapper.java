@@ -21,9 +21,11 @@ public interface SetmealMapper {
      */
     Integer countByCategoryId(Long id);
 
+    Integer countEnabledBySetmealId(List<Long> ids);
+
     SetmealVO getBySetmealId(Long id);
 
-    Page<Setmeal> pageQuery(SetmealPageQueryDTO setmealPageQueryDTO);
+    Page<SetmealVO> pageQuery(SetmealPageQueryDTO setmealPageQueryDTO);
 
     /**
      * 动态条件查询套餐
