@@ -1,0 +1,187 @@
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+.header {
+  flex-shrink: 0;
+  padding: 16rpx 24rpx;
+  background: #fff;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* 左侧分类 */
+.sidebar {
+  width: 180rpx;
+  height: 100%;
+  flex-shrink: 0;
+  background: #f7f7f7;
+}
+
+.category-item {
+  position: relative;
+  padding: 32rpx 12rpx;
+  font-size: 26rpx;
+  color: #333;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.category-item.active {
+  background: #fff;
+  color: #ff6b00;
+  font-weight: 600;
+}
+
+.category-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6rpx;
+  height: 32rpx;
+  background: #ff6b00;
+  border-radius: 0 4rpx 4rpx 0;
+}
+
+.category-text {
+  display: inline-block;
+  font-size: 26rpx;
+  line-height: 1.4;
+}
+
+/* 右侧内容 */
+.content {
+  flex: 1;
+  height: 100%;
+  min-width: 0;
+  background: #fff;
+}
+
+.category-section {
+  padding: 0 24rpx;
+}
+
+.category-title {
+  padding: 24rpx 0 16rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.dish-item {
+  display: flex;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.dish-img {
+  width: 160rpx;
+  height: 160rpx;
+  flex-shrink: 0;
+  background: #f5f5f5;
+}
+
+.dish-info {
+  flex: 1;
+  margin-left: 20rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.dish-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #222;
+}
+
+.dish-desc {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 6rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dish-sales {
+  font-size: 22rpx;
+  color: #bbb;
+  margin-top: 6rpx;
+}
+
+.dish-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12rpx;
+}
+
+.dish-price {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #ff4d4f;
+}
+
+.dish-price .symbol {
+  font-size: 24rpx;
+  margin-right: 2rpx;
+}
+
+.content-bottom {
+  height: 40rpx;
+}
+
+/* 底部购物车 */
+.cart-bar {
+  flex-shrink: 0;
+  height: 100rpx;
+  display: flex;
+  align-items: center;
+  padding: 0 24rpx;
+  background: #333;
+  color: #fff;
+}
+
+.cart-icon {
+  position: relative;
+  font-size: 44rpx;
+  margin-right: 24rpx;
+}
+
+.cart-price {
+  flex: 1;
+  font-size: 34rpx;
+  font-weight: 600;
+}
+
+.cart-price .empty {
+  font-size: 26rpx;
+  color: #999;
+  font-weight: 400;
+}
+
+.cart-btn {
+  padding: 16rpx 48rpx;
+  background: #666;
+  color: #ccc;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+}
+
+.cart-btn.active {
+  background: #ff6b00;
+  color: #fff;
+}

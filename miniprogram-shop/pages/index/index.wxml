@@ -1,0 +1,57 @@
+<view class="container">
+  <!-- 顶部搜索 -->
+  <view class="header">
+    <t-search placeholder="搜索菜品" shape="round" value="{{keyword}}" bind:change="onSearchChange" bind:submit="onSearchSubmit" bind:clear="onSearchClear" />
+  </view>
+
+  <!-- 双栏主体 -->
+  <view class="body">
+    <!-- 左侧分类 -->
+    <scroll-view class="sidebar" scroll-y enhanced show-scrollbar="{{false}}" scroll-into-view="{{sidebarIntoView}}" scroll-with-animation>
+      <view wx:for="{{categories}}" wx:key="id" id="cat-{{item.id}}" class="category-item {{activeIndex === index ? 'active' : ''}}" data-index="{{index}}" bindtap="onCategoryTap">
+        <t-badge wx:if="{{categoryCount[item.id]}}" count="{{categoryCount[item.id]}}" offset="{{[0, -8]}}">
+          <text class="category-text">{{item.name}}</text>
+        </t-badge>
+        <text wx:else class="category-text">{{item.name}}</text>
+      </view>
+    </scroll-view>
+
+    <!-- 右侧菜品 -->
+    <scroll-view class="content" scroll-y enhanced show-scrollbar="{{false}}" scroll-into-view="{{scrollIntoView}}" scroll-with-animation bindscroll="onContentScroll" bindscrolltolower="onContentScrollToLower">
+      <view wx:for="{{categories}}" wx:key="id" class="category-section" id="category-{{item.id}}">
+        <view class="category-title">{{item.name}}</view>
+
+        <view wx:for="{{item.dishes}}" wx:for-item="dish" wx:key="id" class="dish-item">
+          <t-image class="dish-img" src="{{dish.image}}" mode="aspectFill" shape="round" lazy />
+          <view class="dish-info">
+            <view class="dish-name">{{dish.name}}</view>
+            <view class="dish-desc">{{dish.desc}}</view>
+            <view class="dish-sales">月售 {{dish.sales}}</view>
+            <view class="dish-bottom">
+              <view class="dish-price">
+                <text class="symbol">¥</text>{{dish.price}}
+              </view>
+              <t-stepper value="{{cart[dish.id] || 0}}" theme="filled" min="0" max="99" data-id="{{dish.id}}" bind:change="onStepperChange" />
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 底部留白：保证最后一个分类也能滚到顶部 -->
+      <view class="content-bottom" style="height: {{contentBottomHeight}}px;"></view>
+    </scroll-view>
+  </view>
+
+  <!-- 底部购物车栏 -->
+  <view class="cart-bar">
+    <view class="cart-icon">
+      🛒
+      <t-badge wx:if="{{totalCount}}" count="{{totalCount}}" offset="{{[-8, -8]}}" />
+    </view>
+    <view class="cart-price">
+      <text wx:if="{{totalCount}}">¥{{totalPrice}}</text>
+      <text wx:else class="empty">未选购商品</text>
+    </view>
+    <view class="cart-btn {{totalCount ? 'active' : ''}}">去结算</view>
+  </view>
+</view>

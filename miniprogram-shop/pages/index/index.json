@@ -1,0 +1,9 @@
+{
+  "usingComponents": {
+    "t-search": "tdesign-miniprogram/search/search",
+    "t-image": "tdesign-miniprogram/image/image",
+    "t-stepper": "tdesign-miniprogram/stepper/stepper",
+    "t-badge": "tdesign-miniprogram/badge/badge"
+  },
+  "navigationBarTitleText": ""
+}
