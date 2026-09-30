@@ -8,6 +8,7 @@ import com.shop.service.SetmealService;
 import com.shop.vo.SetmealVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,6 +51,7 @@ public class SetmealController {
         return Result.success();
     }
 
+    @CacheEvict(cacheNames = "menuCache", allEntries = true)
     @PutMapping
     public Result<String> update(@RequestBody SetmealDTO setmealDTO) {
         log.info("修改套餐: {}", setmealDTO);
@@ -64,6 +66,7 @@ public class SetmealController {
      * @param id
      * @return
      */
+    @CacheEvict(cacheNames = "menuCache", allEntries = true)
     @PutMapping("/status/{status}")
     public Result<String> updateStatus(@PathVariable Integer status, Long id) {
         log.info("启用/禁用套餐: {}, {}", status, id);
@@ -71,6 +74,7 @@ public class SetmealController {
         return Result.success();
     }
 
+    @CacheEvict(cacheNames = "menuCache", allEntries = true)
     @DeleteMapping
     public Result<String> remove(@RequestBody List<Long> ids) {
         log.info("批量删除套餐: {}", ids);

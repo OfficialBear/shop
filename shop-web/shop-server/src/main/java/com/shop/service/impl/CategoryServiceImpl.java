@@ -6,6 +6,7 @@ import com.shop.constant.MessageConstant;
 import com.shop.constant.StatusConstant;
 import com.shop.dto.CategoryDTO;
 import com.shop.dto.CategoryPageQueryDTO;
+import com.shop.dto.MenuItemDTO;
 import com.shop.entity.Category;
 import com.shop.exception.DeletionNotAllowedException;
 import com.shop.mapper.CategoryMapper;
@@ -13,11 +14,16 @@ import com.shop.mapper.DishMapper;
 import com.shop.mapper.SetmealMapper;
 import com.shop.result.PageResult;
 import com.shop.service.CategoryService;
+import com.shop.vo.MenuVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -120,5 +126,41 @@ public class CategoryServiceImpl implements CategoryService {
 
         // 删除分类数据
         categoryMapper.deleteById(id);
+    }
+
+    @Override
+    public List<MenuVO> getMenu() {
+        return buildMenu(categoryMapper.selectMenu());
+    }
+
+    /**
+     * 将菜单明细按分类分组，并按分类 sort 全局排序
+     *
+     * @param rows 菜品与套餐的平铺明细
+     * @return 分类及其明细
+     */
+    private List<MenuVO> buildMenu(List<MenuItemDTO> rows) {
+        return rows.stream()
+                .collect(Collectors.groupingBy(
+                        MenuItemDTO::getCategoryId,
+                        LinkedHashMap::new,
+                        Collectors.toList()
+                ))
+                .entrySet().stream()
+                .sorted(Comparator
+                        .comparing(
+                                (Map.Entry<Long, List<MenuItemDTO>> e) -> e.getValue().get(0).getSort(),
+                                Comparator.nullsLast(Comparator.naturalOrder())
+                        )
+                        .thenComparing(Map.Entry::getKey))
+                .map(e -> {
+                    MenuItemDTO first = e.getValue().get(0);
+                    return MenuVO.builder()
+                            .id(e.getKey())
+                            .name(first.getCategoryName())
+                            .items(e.getValue())
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 }

@@ -9,6 +9,7 @@ import com.shop.service.DishService;
 import com.shop.vo.DishVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -88,6 +89,7 @@ public class DishController {
      * @param dishDTO
      * @return
      */
+    @CacheEvict(cacheNames = "menuCache", allEntries = true)
     @PutMapping
     public Result<String> update(@RequestBody DishDTO dishDTO) {
         log.info("修改菜品: {}", dishDTO);
@@ -102,6 +104,7 @@ public class DishController {
      * @param id
      * @return
      */
+    @CacheEvict(cacheNames = "menuCache", allEntries = true)
     @PutMapping("/status/{status}")
     public Result<String> updateStatus(@PathVariable Integer status, @RequestParam Long id) {
         log.info("菜品在售、停售: {}, {}", status, id);
@@ -115,6 +118,7 @@ public class DishController {
      * @param ids
      * @return
      */
+    @CacheEvict(cacheNames = "menuCache", allEntries = true)
     @DeleteMapping
     public Result<String> deleteBatch(@RequestBody List<Long> ids) {
         log.info("批量删除菜品: {}", ids);

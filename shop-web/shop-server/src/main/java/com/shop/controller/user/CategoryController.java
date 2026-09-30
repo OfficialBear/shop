@@ -3,7 +3,10 @@ package com.shop.controller.user;
 import com.shop.entity.Category;
 import com.shop.result.Result;
 import com.shop.service.CategoryService;
+import com.shop.vo.MenuVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,6 +16,7 @@ import java.util.List;
 /**
  * C端-分类接口
  */
+@Slf4j
 @RestController("userCategoryController")
 @RequestMapping("/user/category")
 public class CategoryController {
@@ -29,6 +33,14 @@ public class CategoryController {
     @GetMapping("/list")
     public Result<List<Category>> list(Integer type) {
         List<Category> list = categoryService.queryByType(type);
+        return Result.success(list);
+    }
+
+    @Cacheable(cacheNames = "menuCache")
+    @GetMapping("/menu")
+    public Result<List<MenuVO>> getMenu() {
+        log.info("获取菜单列表");
+        List<MenuVO> list = categoryService.getMenu();
         return Result.success(list);
     }
 }

@@ -4,6 +4,7 @@ import com.shop.dto.CategoryDTO;
 import com.shop.dto.CategoryPageQueryDTO;
 import com.shop.entity.Category;
 import com.shop.result.PageResult;
+import com.shop.vo.MenuVO;
 
 import java.util.List;
 
@@ -53,4 +54,6 @@ public interface CategoryService {
      * @param id
      */
     void deleteById(Long id);
+
+    List<MenuVO> getMenu();
 }

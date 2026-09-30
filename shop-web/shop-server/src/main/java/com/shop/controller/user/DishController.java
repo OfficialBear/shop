@@ -8,6 +8,7 @@ import com.shop.vo.DishVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -38,5 +39,17 @@ public class DishController {
         List<DishVO> list = dishService.listWithFlavor(dish);
 
         return Result.success(list);
+    }
+
+    /**
+     * 根据 id 查询菜品及口味（供"选规格"按需调用）
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public Result<DishVO> queryById(@PathVariable Long id) {
+        DishVO dishVO = dishService.getByIdWithFlavor(id);
+        return Result.success(dishVO);
     }
 }

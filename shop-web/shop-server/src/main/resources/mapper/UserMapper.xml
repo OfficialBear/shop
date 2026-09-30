@@ -9,7 +9,7 @@
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        insert into user (openid, name, phone, sex, id_number, avatar, creat_time)
-        values (#{openid}, #{name}, #{phone}, #{sex}, #{idNumber}, #{avatar}, #{creatTime})
+        insert into user (openid, name, phone, sex, id_number, avatar, create_time)
+        values (#{openid}, #{name}, #{phone}, #{sex}, #{idNumber}, #{avatar}, #{createTime})
     </insert>
 </mapper>

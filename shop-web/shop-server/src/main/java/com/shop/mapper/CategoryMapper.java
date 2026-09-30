@@ -3,6 +3,7 @@ package com.shop.mapper;
 import com.github.pagehelper.Page;
 import com.shop.annotation.AutoFill;
 import com.shop.dto.CategoryPageQueryDTO;
+import com.shop.dto.MenuItemDTO;
 import com.shop.entity.Category;
 import com.shop.enumeration.OperationType;
 import org.apache.ibatis.annotations.Mapper;
@@ -49,4 +50,11 @@ public interface CategoryMapper {
      * @param id
      */
     void deleteById(Long id);
+
+    /**
+     * 查询全部上架分类下的菜品与套餐明细（平铺，未分组）
+     *
+     * @return 菜单明细
+     */
+    List<MenuItemDTO> selectMenu();
 }

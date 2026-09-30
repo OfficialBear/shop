@@ -28,6 +28,26 @@
         order by sort asc , update_time desc
     </select>
 
+    <select id="selectMenu" resultType="com.shop.dto.MenuItemDTO">
+        select c.id as categoryId, c.type, c.name as categoryName, c.sort,
+        d.id, d.name, d.price, d.image, d.description,
+        CASE
+          WHEN EXISTS ( SELECT 1 FROM dish_flavor df WHERE df.dish_id = d.id )
+          THEN 1
+          ELSE 0
+        END AS has_flavor
+        from category c
+        join dish d on c.id = d.category_id
+        where c.status = 1 and d.status = 1
+        union all
+        select c.id as categoryId, c.type, c.name as categoryName, c.sort,
+        s.id, s.name, s.price, s.image, s.description, 0 AS has_flavor
+        from category c
+        join setmeal s on c.id = s.category_id
+        where c.status = 1 and s.status = 1
+        order by sort, categoryId, id
+    </select>
+
     <insert id="insert">
         insert into category
         (type, name, sort, status, create_time, update_time, create_user, update_user)
