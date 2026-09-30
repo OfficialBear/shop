@@ -3,7 +3,10 @@
     "t-search": "tdesign-miniprogram/search/search",
     "t-image": "tdesign-miniprogram/image/image",
     "t-stepper": "tdesign-miniprogram/stepper/stepper",
-    "t-badge": "tdesign-miniprogram/badge/badge"
+    "t-badge": "tdesign-miniprogram/badge/badge",
+    "t-popup": "tdesign-miniprogram/popup/popup",
+    "t-radio-group": "tdesign-miniprogram/radio-group/radio-group",
+    "t-button": "tdesign-miniprogram/button/button"
   },
   "navigationBarTitleText": ""
 }

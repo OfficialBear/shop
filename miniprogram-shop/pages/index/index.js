@@ -1,4 +1,5 @@
 import { getCategoryList } from '@/service/api/category';
+import { getDishDetail } from '@/service/api/dish';
 
 Page({
   data: {
@@ -7,17 +8,32 @@ Page({
     scrollIntoView: '',
     sidebarIntoView: '',
     keyword: '',
-    cart: {},
+    // 购物车（按行存储，支持同一菜品不同规格各占一行）
+    cartLines: [],
+    // 派生：dishId -> 该菜品总数量（控制按钮/步进器与角标）
+    countByDish: {},
     categoryCount: {},
     totalCount: 0,
     totalPrice: '0.00',
-    contentBottomHeight: 0
+    contentBottomHeight: 0,
+    // 规格弹层
+    specVisible: false,
+    specDish: {},
+    specGroups: [],
+    specSelections: [],
+    specComplete: false,
+    // 购物车弹层
+    cartVisible: false
   },
 
   // 非渲染数据挂在 this 上，避免不必要的 setData
   categoryTops: [],
   scrollTimer: null,
   contentScrollTop: 0,
+  // 当前菜单的菜品索引：dishId -> dish
+  dishMap: {},
+  // 口味缓存：dishId -> 规格组
+  flavorCache: {},
 
   async onLoad() {
     await this.loadMenu();
@@ -37,6 +53,15 @@ Page({
    * （避免列表变更时右栏仍处于滚动状态导致偏移量计算错误）
    */
   applyCategories(categories) {
+    // 重建菜品索引，供操作区按 id 定位菜品
+    const dishMap = {};
+    (categories || []).forEach(category => {
+      (category.items || []).forEach(dish => {
+        dishMap[dish.id] = dish;
+      });
+    });
+    this.dishMap = dishMap;
+
     const first = categories && categories[0];
     this.setData(
       { categories, activeIndex: 0, scrollIntoView: '', sidebarIntoView: '' },
@@ -157,51 +182,211 @@ Page({
     });
   },
 
-  /**
-   * 步进器变化（TDesign t-stepper 统一处理加减）
-   */
-  onStepperChange(e) {
-    const id = e.currentTarget.dataset.id;
-    const value = e.detail.value;
-    const cart = { ...this.data.cart };
+  /* ==================== 购物车 ==================== */
 
-    if (value > 0) {
-      cart[id] = value;
-    } else {
-      delete cart[id];
-    }
-    this.updateCart(cart);
+  /**
+   * 无口味菜品：点击 + 直接加购
+   */
+  onAddDish(e) {
+    const id = e.currentTarget.dataset.id;
+    const dish = this.dishMap[id];
+    if (!dish) return;
+    this.addToCart(dish, []);
   },
 
   /**
-   * 更新购物车，同时计算分类角标和总价
+   * 无口味菜品：步进器加减
    */
-  updateCart(cart) {
-    const { categories } = this.data;
+  onStepperChange(e) {
+    const id = e.currentTarget.dataset.id;
+    this.setLineQuantity(`dish-${id}`, e.detail.value);
+  },
+
+  /**
+   * 有口味菜品：打开规格弹层
+   */
+  onOpenSpec(e) {
+    const id = e.currentTarget.dataset.id;
+    const dish = this.dishMap[id];
+    if (!dish) return;
+
+    const cached = this.flavorCache[dish.id];
+    if (cached) {
+      this.showSpec(dish, cached);
+      return;
+    }
+    getDishDetail(dish.id)
+      .then((vo) => {
+        const groups = this.buildSpecGroups((vo && vo.flavors) || []);
+        this.flavorCache[dish.id] = groups;
+        this.showSpec(dish, groups);
+      })
+      .catch(() => {
+        // 请求层已提示错误
+      });
+  },
+
+  /**
+   * 将后端口味数据转换为弹层需要的规格组
+   */
+  buildSpecGroups(flavors) {
+    return flavors.map(flavor => {
+      let values = [];
+      try {
+        values = JSON.parse(flavor.value || '[]');
+      } catch (e) {
+        values = [];
+      }
+      return {
+        name: flavor.name,
+        options: values.map(v => ({ label: v, value: v }))
+      };
+    });
+  },
+
+  showSpec(dish, groups) {
+    this.setData({
+      specVisible: true,
+      specDish: dish,
+      specGroups: groups,
+      specSelections: groups.map(() => ''),
+      specComplete: groups.length === 0
+    });
+  },
+
+  onSpecVisibleChange(e) {
+    this.setData({ specVisible: e.detail.visible });
+  },
+
+  onCloseSpec() {
+    this.setData({ specVisible: false });
+  },
+
+  /**
+   * 规格选择变化：按组索引记录所选值
+   */
+  onSpecOptionChange(e) {
+    const index = e.currentTarget.dataset.index;
+    const selections = this.data.specSelections.slice();
+    selections[index] = e.detail.value;
+    this.setData({
+      specSelections: selections,
+      specComplete: this.data.specGroups.every((g, i) => !!selections[i])
+    });
+  },
+
+  /**
+   * 确认规格 → 加入购物车
+   */
+  onSpecConfirm() {
+    if (!this.data.specComplete) return;
+    const dish = this.data.specDish;
+    const spec = this.data.specGroups.map((g, i) => ({
+      name: g.name,
+      value: this.data.specSelections[i]
+    }));
+    this.addToCart(dish, spec);
+    this.setData({ specVisible: false });
+  },
+
+  /**
+   * 加入购物车：同菜同规格合并数量，不同规格各占一行
+   */
+  addToCart(dish, spec) {
+    const specKey = spec.map(s => `${s.name}:${s.value}`).join('|');
+    const lineId = spec.length ? `dish-${dish.id}#${specKey}` : `dish-${dish.id}`;
+    const lines = this.data.cartLines.slice();
+    const index = lines.findIndex(line => line.lineId === lineId);
+
+    if (index >= 0) {
+      lines[index] = { ...lines[index], quantity: lines[index].quantity + 1 };
+    } else {
+      lines.push({
+        lineId,
+        dishId: dish.id,
+        categoryId: dish.categoryId,
+        name: dish.name,
+        price: dish.price,
+        image: dish.image,
+        spec,
+        specText: spec.map(s => `${s.name}:${s.value}`).join(' / '),
+        quantity: 1
+      });
+    }
+    this.commitCart(lines);
+  },
+
+  /**
+   * 设置某一行数量，<=0 删除该行
+   */
+  setLineQuantity(lineId, value) {
+    const lines = this.data.cartLines.slice();
+    const index = lines.findIndex(line => line.lineId === lineId);
+    if (index < 0) return;
+
+    if (value > 0) {
+      lines[index] = { ...lines[index], quantity: value };
+    } else {
+      lines.splice(index, 1);
+    }
+    this.commitCart(lines);
+  },
+
+  /**
+   * 购物车弹层：行加减
+   */
+  onLineChange(e) {
+    this.setLineQuantity(e.currentTarget.dataset.lineId, e.detail.value);
+  },
+
+  /**
+   * 提交购物车：重算派生数据
+   */
+  commitCart(lines) {
+    const countByDish = {};
     const categoryCount = {};
     let totalCount = 0;
     let totalPrice = 0;
 
-    categories.forEach(category => {
-      let count = 0;
-      category.dishes.forEach(dish => {
-        const num = cart[dish.id] || 0;
-        if (num > 0) {
-          count += num;
-          totalCount += num;
-          totalPrice += dish.price * num;
-        }
-      });
-      if (count > 0) categoryCount[category.id] = count;
+    lines.forEach(line => {
+      countByDish[line.dishId] = (countByDish[line.dishId] || 0) + line.quantity;
+      categoryCount[line.categoryId] = (categoryCount[line.categoryId] || 0) + line.quantity;
+      totalCount += line.quantity;
+      totalPrice += Number(line.price) * line.quantity;
     });
 
     this.setData({
-      cart,
+      cartLines: lines,
+      countByDish,
       categoryCount,
       totalCount,
       totalPrice: totalPrice.toFixed(2)
     });
   },
+
+  onOpenCart() {
+    if (!this.data.cartLines.length) return;
+    this.setData({ cartVisible: true });
+  },
+
+  onCartVisibleChange(e) {
+    this.setData({ cartVisible: e.detail.visible });
+  },
+
+  onCloseCart() {
+    this.setData({ cartVisible: false });
+  },
+
+  onClearCart() {
+    this.commitCart([]);
+  },
+
+  onCheckout() {
+    if (!this.data.totalCount) return;
+    wx.showToast({ title: '去结算功能开发中', icon: 'none' });
+  },
+
+  /* ==================== 搜索 ==================== */
 
   /**
    * 搜索框输入
@@ -238,11 +423,11 @@ Page({
     const filtered = categories
       .map(category => ({
         ...category,
-        dishes: category.dishes.filter(dish =>
+        items: category.items.filter(dish =>
           dish.name.includes(keyword)
         )
       }))
-      .filter(category => category.dishes.length > 0);
+      .filter(category => category.items.length > 0);
 
     this.applyCategories(filtered);
   }

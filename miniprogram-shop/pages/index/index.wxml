@@ -21,17 +21,28 @@
       <view wx:for="{{categories}}" wx:key="id" class="category-section" id="category-{{item.id}}">
         <view class="category-title">{{item.name}}</view>
 
-        <view wx:for="{{item.dishes}}" wx:for-item="dish" wx:key="id" class="dish-item">
+        <view wx:for="{{item.items}}" wx:for-item="dish" wx:key="id" class="dish-item">
           <t-image class="dish-img" src="{{dish.image}}" mode="aspectFill" shape="round" lazy />
           <view class="dish-info">
             <view class="dish-name">{{dish.name}}</view>
-            <view class="dish-desc">{{dish.desc}}</view>
+            <view class="dish-desc">{{dish.description}}</view>
             <view class="dish-sales">月售 {{dish.sales}}</view>
             <view class="dish-bottom">
               <view class="dish-price">
                 <text class="symbol">¥</text>{{dish.price}}
               </view>
-              <t-stepper value="{{cart[dish.id] || 0}}" theme="filled" min="0" max="99" data-id="{{dish.id}}" bind:change="onStepperChange" />
+
+              <!-- 有口味：选规格（已选则显示数量角标，数量在购物车面板中调整） -->
+              <view wx:if="{{dish.hasFlavor}}" class="spec-btn" data-id="{{dish.id}}" bindtap="onOpenSpec">
+                选规格
+                <text wx:if="{{countByDish[dish.id]}}" class="spec-count">{{countByDish[dish.id]}}</text>
+              </view>
+
+              <!-- 无口味：未选显示 +，已选显示步进器 -->
+              <block wx:else>
+                <t-stepper wx:if="{{countByDish[dish.id]}}" value="{{countByDish[dish.id]}}" theme="filled" min="0" max="99" data-id="{{dish.id}}" bind:change="onStepperChange" />
+                <view wx:else class="add-btn" data-id="{{dish.id}}" bindtap="onAddDish">+</view>
+              </block>
             </view>
           </view>
         </view>
@@ -43,7 +54,7 @@
   </view>
 
   <!-- 底部购物车栏 -->
-  <view class="cart-bar">
+  <view class="cart-bar" bindtap="onOpenCart">
     <view class="cart-icon">
       🛒
       <t-badge wx:if="{{totalCount}}" count="{{totalCount}}" offset="{{[-8, -8]}}" />
@@ -52,6 +63,57 @@
       <text wx:if="{{totalCount}}">¥{{totalPrice}}</text>
       <text wx:else class="empty">未选购商品</text>
     </view>
-    <view class="cart-btn {{totalCount ? 'active' : ''}}">去结算</view>
+    <view class="cart-btn {{totalCount ? 'active' : ''}}" catchtap="onCheckout">去结算</view>
   </view>
+
+  <!-- 规格选择弹层 -->
+  <t-popup visible="{{specVisible}}" placement="bottom" bind:visible-change="onSpecVisibleChange">
+    <view class="spec-panel">
+      <view class="spec-header">
+        <t-image class="spec-img" src="{{specDish.image}}" mode="aspectFill" shape="round" />
+        <view class="spec-meta">
+          <view class="spec-name">{{specDish.name}}</view>
+          <view class="spec-price"><text class="symbol">¥</text>{{specDish.price}}</view>
+        </view>
+        <view class="spec-close" bindtap="onCloseSpec">✕</view>
+      </view>
+
+      <scroll-view class="spec-body" scroll-y>
+        <view wx:for="{{specGroups}}" wx:key="name" class="spec-group">
+          <view class="spec-group-title">{{item.name}}</view>
+          <t-radio-group value="{{specSelections[index]}}" options="{{item.options}}" data-index="{{index}}" bind:change="onSpecOptionChange" />
+        </view>
+      </scroll-view>
+
+      <view class="spec-footer">
+        <t-button theme="primary" size="large" block disabled="{{!specComplete}}" bind:tap="onSpecConfirm">加入购物车</t-button>
+      </view>
+    </view>
+  </t-popup>
+
+  <!-- 购物车弹层 -->
+  <t-popup visible="{{cartVisible}}" placement="bottom" bind:visible-change="onCartVisibleChange">
+    <view class="cart-panel">
+      <view class="cart-panel-header">
+        <text class="cart-panel-title">已选商品</text>
+        <text wx:if="{{cartLines.length}}" class="cart-clear" bindtap="onClearCart">清空</text>
+        <text class="cart-close" bindtap="onCloseCart">✕</text>
+      </view>
+
+      <scroll-view class="cart-list" scroll-y>
+        <view wx:for="{{cartLines}}" wx:key="lineId" class="cart-line">
+          <t-image class="cart-line-img" src="{{item.image}}" mode="aspectFill" shape="round" />
+          <view class="cart-line-info">
+            <view class="cart-line-name">{{item.name}}</view>
+            <view wx:if="{{item.specText}}" class="cart-line-spec">{{item.specText}}</view>
+            <view class="cart-line-bottom">
+              <view class="cart-line-price"><text class="symbol">¥</text>{{item.price}}</view>
+              <t-stepper value="{{item.quantity}}" theme="filled" min="0" max="99" data-line-id="{{item.lineId}}" bind:change="onLineChange" />
+            </view>
+          </view>
+        </view>
+        <view wx:if="{{!cartLines.length}}" class="cart-empty">购物车还没有商品</view>
+      </scroll-view>
+    </view>
+  </t-popup>
 </view>
