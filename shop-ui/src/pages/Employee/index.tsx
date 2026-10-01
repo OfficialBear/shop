@@ -1,95 +1,30 @@
-import TableToolbar from '@/components/TableToolbar';
-import { useTablePage } from '@/hooks/useTablePage';
-import { SearchParams } from '@/pages/Employee/type';
+import type { SearchParams } from '@/pages/Employee/type';
 import {
   batchDeleteEmployees,
   getPage,
   updateEmployeeStatus,
 } from '@/services/employee';
 import type { Employee } from '@/types';
-import { PageContainer } from '@ant-design/pro-components';
-import { useAccess } from '@umijs/max';
-import type { TableProps } from 'antd';
-import { Form, Modal, Pagination, Space, Table, message } from 'antd';
-import React, { useState } from 'react';
+import type { ActionType, ProColumns } from '@ant-design/pro-components';
+import { PageContainer, ProTable } from '@ant-design/pro-components';
+import { Access, useAccess } from '@umijs/max';
+import { Button, Modal, message } from 'antd';
+import React, { useRef, useState } from 'react';
 import CreateForm from './components/CreateForm';
-import SearchForm from './components/SearchForm';
 import UpdateForm from './components/UpdateForm';
 
-const columns = (
-  onStatusChange: (status: number, id: number) => void,
-  onEdit: (record: Employee) => void,
-): TableProps<Employee>['columns'] => [
-  {
-    title: '员工姓名',
-    dataIndex: 'name',
-    key: 'name',
-    render: (text) => <a>{text}</a>,
-  },
-  {
-    title: '账号',
-    dataIndex: 'username',
-    key: 'username',
-  },
-  {
-    title: '手机号',
-    dataIndex: 'phone',
-    key: 'phone',
-  },
-  {
-    title: '性别',
-    dataIndex: 'sex',
-    key: 'sex',
-    render: (_, record) => <>{record.sex === '0' ? '女' : '男'}</>,
-  },
-  {
-    title: '账号状态',
-    dataIndex: 'status',
-    key: 'status',
-    render: (_, record) => <>{record.status === 0 ? '禁用' : '启用'}</>,
-  },
-  {
-    title: '更新时间',
-    dataIndex: 'updateTime',
-    key: 'updateTime',
-  },
-  {
-    title: '操作',
-    key: 'action',
-    render: (_, record) => (
-      <Space size="middle">
-        <a onClick={() => onEdit(record)}>修改</a>
-        <a
-          onClick={() => {
-            onStatusChange(record.status === 0 ? 1 : 0, record.id);
-          }}
-        >
-          {record.status === 0 ? '启用' : '禁用'}
-        </a>
-      </Space>
-    ),
-  },
-];
-
 const EmployeePage: React.FC = () => {
-  const [form] = Form.useForm<SearchParams>();
+  const actionRef = useRef<ActionType>();
   const access = useAccess();
-  const {
-    data,
-    total,
-    loading,
-    pagination,
-    rowSelection,
-    selectedRowKeys,
-    search,
-    reset,
-    changePage,
-    reload,
-  } = useTablePage<Employee, SearchParams>({ fetch: getPage, form });
 
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [updateModalVisible, setUpdateModalVisible] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+
+  const reload = async () => {
+    await actionRef.current?.reload();
+  };
 
   const onEdit = (record: Employee) => {
     setEditingEmployee(record);
@@ -109,6 +44,7 @@ const EmployeePage: React.FC = () => {
         try {
           await batchDeleteEmployees(ids);
           message.success('删除成功');
+          setSelectedRowKeys([]);
           await reload();
         } catch {
           // 错误提示由全局请求层统一处理
@@ -127,33 +63,94 @@ const EmployeePage: React.FC = () => {
     }
   };
 
+  const columns: ProColumns<Employee>[] = [
+    {
+      title: '员工姓名',
+      dataIndex: 'name',
+    },
+    {
+      title: '账号',
+      dataIndex: 'username',
+    },
+    {
+      title: '手机号',
+      dataIndex: 'phone',
+    },
+    {
+      title: '性别',
+      dataIndex: 'sex',
+      valueEnum: { 1: '男', 0: '女' },
+    },
+    {
+      title: '账号状态',
+      dataIndex: 'status',
+      valueEnum: { 1: '启用', 0: '禁用' },
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'updateTime',
+      search: false,
+    },
+    {
+      title: '操作',
+      valueType: 'option',
+      search: false,
+      render: (_, record) => [
+        <a key="edit" onClick={() => onEdit(record)}>
+          修改
+        </a>,
+        <a
+          key="status"
+          onClick={() =>
+            handleStatusChange(record.status === 0 ? 1 : 0, record.id)
+          }
+        >
+          {record.status === 0 ? '启用' : '禁用'}
+        </a>,
+      ],
+    },
+  ];
+
   return (
     <PageContainer ghost>
-      <SearchForm form={form} handleSearch={search} handleReset={reset} />
-      <TableToolbar
-        onCreate={() => setCreateModalVisible(true)}
-        onBatchDelete={handleDelete}
-        canBatchDelete={access.canDeleteFoo}
+      <ProTable<Employee, SearchParams>
+        rowKey="id"
+        actionRef={actionRef}
+        columns={columns}
+        search={{ labelWidth: 'auto' }}
+        options={false}
+        pagination={{ pageSize: 10, showSizeChanger: true }}
+        rowSelection={{
+          selectedRowKeys,
+          onChange: (keys) => setSelectedRowKeys(keys),
+        }}
+        request={async (params) => {
+          const { current, pageSize, ...rest } = params;
+          try {
+            const res = await getPage({
+              ...(rest as SearchParams),
+              pageNum: current ?? 1,
+              pageSize: pageSize ?? 10,
+            });
+            return { data: res.records, total: res.total, success: true };
+          } catch {
+            return { data: [], total: 0, success: false };
+          }
+        }}
+        toolBarRender={() => [
+          <Button
+            key="create"
+            type="primary"
+            onClick={() => setCreateModalVisible(true)}
+          >
+            新增
+          </Button>,
+          <Access key="batch-delete" accessible={access.canDeleteFoo}>
+            <Button onClick={handleDelete}>批量删除</Button>
+          </Access>,
+        ]}
       />
 
-      <Table<Employee>
-        rowKey="id"
-        rowSelection={rowSelection}
-        columns={columns(handleStatusChange, onEdit)}
-        dataSource={data}
-        pagination={false}
-        loading={loading}
-      />
-      <br />
-      <Pagination
-        align="end"
-        current={pagination.pageNum}
-        pageSize={pagination.pageSize}
-        total={total}
-        showSizeChanger
-        showQuickJumper
-        onChange={changePage}
-      />
       <CreateForm
         modalVisible={createModalVisible}
         reloadData={reload}

@@ -1,103 +1,33 @@
-import TableToolbar from '@/components/TableToolbar';
-import { useTablePage } from '@/hooks/useTablePage';
-import { SearchParams } from '@/pages/Setmeal/type';
+import { useCategoryOptions } from '@/hooks/categoryOptions';
+import type { SearchParams } from '@/pages/Setmeal/type';
 import {
   batchDeleteSetmeals,
   getPage,
   updateSetmealStatus,
 } from '@/services/setmeal';
 import type { Setmeal } from '@/types';
-import { PageContainer } from '@ant-design/pro-components';
-import { useAccess } from '@umijs/max';
-import type { TableProps } from 'antd';
-import { Form, Image, Modal, Pagination, Space, Table, message } from 'antd';
-import React, { useState } from 'react';
+import type { ActionType, ProColumns } from '@ant-design/pro-components';
+import { PageContainer, ProTable } from '@ant-design/pro-components';
+import { Access, useAccess } from '@umijs/max';
+import { Button, Image, Modal, message } from 'antd';
+import React, { useRef, useState } from 'react';
 import CreateForm from './components/CreateForm';
-import SearchForm from './components/SearchForm';
 import UpdateForm from './components/UpdateForm';
 
-const columns = (
-  onStatusChange: (status: number, id: number) => void,
-  onEdit: (record: Setmeal) => void,
-  handleDelete: (ids: number[]) => void,
-): TableProps<Setmeal>['columns'] => [
-  {
-    title: '套餐名称',
-    dataIndex: 'name',
-    key: 'name',
-    render: (text) => <a>{text}</a>,
-  },
-  {
-    title: '套餐图片',
-    dataIndex: 'image',
-    key: 'image',
-    render: (_, record) => <Image width={100} src={record.image} />,
-  },
-  {
-    title: '套餐分类',
-    dataIndex: 'categoryName',
-    key: 'categoryName',
-  },
-  {
-    title: '售价',
-    dataIndex: 'price',
-    key: 'price',
-    render: (_, record) => <>{`¥ ${record.price}`}</>,
-  },
-  {
-    title: '售卖状态',
-    dataIndex: 'status',
-    key: 'status',
-    render: (_, record) => <>{record.status === 0 ? '停售' : '启售'}</>,
-  },
-  {
-    title: '更新时间',
-    dataIndex: 'updateTime',
-    key: 'updateTime',
-  },
-  {
-    title: '操作',
-    key: 'action',
-    render: (_, record) => (
-      <Space size="middle">
-        <a onClick={() => onEdit(record)}>修改</a>
-        <a
-          style={{ color: '#f5222d' }}
-          onClick={() => handleDelete([record.id])}
-        >
-          删除
-        </a>
-        <a
-          onClick={() => {
-            onStatusChange(record.status === 0 ? 1 : 0, record.id);
-          }}
-        >
-          {record.status === 0 ? '启售' : '停售'}
-        </a>
-      </Space>
-    ),
-  },
-];
-
 const SetmealPage: React.FC = () => {
-  const [form] = Form.useForm<SearchParams>();
+  const actionRef = useRef<ActionType>();
   const access = useAccess();
-  const {
-    data,
-    total,
-    loading,
-    pagination,
-    rowSelection,
-    selectedRowKeys,
-    search,
-    reset,
-    changePage,
-    reload,
-  } = useTablePage<Setmeal, SearchParams>({ fetch: getPage, form });
+  const { options: categoryOptions, loading: categoryLoading } =
+    useCategoryOptions(2);
 
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [updateModalVisible, setUpdateModalVisible] = useState(false);
   const [editingSetmeal, setEditingSetmeal] = useState<Setmeal | null>(null);
+
+  const reload = async () => {
+    await actionRef.current?.reload();
+  };
 
   const onEdit = (record: Setmeal) => {
     setEditingSetmeal(record);
@@ -115,6 +45,7 @@ const SetmealPage: React.FC = () => {
         try {
           await batchDeleteSetmeals(ids);
           message.success('删除成功');
+          setSelectedRowKeys([]);
           await reload();
         } catch {
           // 错误提示由全局请求层统一处理
@@ -141,33 +72,117 @@ const SetmealPage: React.FC = () => {
     }
   };
 
+  const columns: ProColumns<Setmeal>[] = [
+    {
+      title: '套餐名称',
+      dataIndex: 'name',
+    },
+    {
+      title: '套餐图片',
+      dataIndex: 'image',
+      search: false,
+      render: (_, record) => <Image width={100} src={record.image} />,
+    },
+    {
+      title: '套餐分类',
+      dataIndex: 'categoryId',
+      hideInTable: true,
+      valueType: 'select',
+      fieldProps: {
+        options: categoryOptions,
+        loading: categoryLoading,
+        showSearch: true,
+        optionFilterProp: 'label',
+      },
+    },
+    {
+      title: '套餐分类',
+      dataIndex: 'categoryName',
+      search: false,
+    },
+    {
+      title: '售价',
+      dataIndex: 'price',
+      search: false,
+      render: (_, record) => <>{`¥ ${record.price}`}</>,
+    },
+    {
+      title: '售卖状态',
+      dataIndex: 'status',
+      valueEnum: { 1: '启售', 0: '停售' },
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'updateTime',
+      search: false,
+    },
+    {
+      title: '操作',
+      valueType: 'option',
+      search: false,
+      render: (_, record) => [
+        <a key="edit" onClick={() => onEdit(record)}>
+          修改
+        </a>,
+        <a
+          key="delete"
+          style={{ color: '#f5222d' }}
+          onClick={() => handleDelete([record.id])}
+        >
+          删除
+        </a>,
+        <a
+          key="status"
+          onClick={() =>
+            handleStatusChange(record.status === 0 ? 1 : 0, record.id)
+          }
+        >
+          {record.status === 0 ? '启售' : '停售'}
+        </a>,
+      ],
+    },
+  ];
+
   return (
     <PageContainer ghost>
-      <SearchForm form={form} handleSearch={search} handleReset={reset} />
-      <TableToolbar
-        onCreate={() => setCreateModalVisible(true)}
-        onBatchDelete={handleBatchDelete}
-        canBatchDelete={access.canDeleteFoo}
+      <ProTable<Setmeal, SearchParams>
+        rowKey="id"
+        actionRef={actionRef}
+        columns={columns}
+        search={{ labelWidth: 'auto' }}
+        options={false}
+        pagination={{ pageSize: 10, showSizeChanger: true }}
+        rowSelection={{
+          selectedRowKeys,
+          onChange: (keys) => setSelectedRowKeys(keys),
+        }}
+        request={async (params) => {
+          const { current, pageSize, ...rest } = params;
+          try {
+            const res = await getPage({
+              ...(rest as SearchParams),
+              pageNum: current ?? 1,
+              pageSize: pageSize ?? 10,
+            });
+            return { data: res.records, total: res.total, success: true };
+          } catch {
+            return { data: [], total: 0, success: false };
+          }
+        }}
+        toolBarRender={() => [
+          <Button
+            key="create"
+            type="primary"
+            onClick={() => setCreateModalVisible(true)}
+          >
+            新增
+          </Button>,
+          <Access key="batch-delete" accessible={access.canDeleteFoo}>
+            <Button onClick={handleBatchDelete}>批量删除</Button>
+          </Access>,
+        ]}
       />
 
-      <Table<Setmeal>
-        rowKey="id"
-        rowSelection={rowSelection}
-        columns={columns(handleStatusChange, onEdit, handleDelete)}
-        dataSource={data}
-        pagination={false}
-        loading={loading}
-      />
-      <br />
-      <Pagination
-        align="end"
-        current={pagination.pageNum}
-        pageSize={pagination.pageSize}
-        total={total}
-        showSizeChanger
-        showQuickJumper
-        onChange={changePage}
-      />
       <CreateForm
         modalVisible={createModalVisible}
         reloadData={reload}

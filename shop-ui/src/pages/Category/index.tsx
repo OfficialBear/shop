@@ -1,82 +1,27 @@
-import TableToolbar from '@/components/TableToolbar';
-import { useTablePage } from '@/hooks/useTablePage';
-import { SearchParams } from '@/pages/Category/type';
+import type { SearchParams } from '@/pages/Category/type';
 import {
   deleteCategory,
   getPage,
   updateCategoryStatus,
 } from '@/services/category';
 import type { Category } from '@/types';
-import { PageContainer } from '@ant-design/pro-components';
-import type { TableProps } from 'antd';
-import { Form, Modal, Pagination, Space, Table, message } from 'antd';
-import React, { useState } from 'react';
+import type { ActionType, ProColumns } from '@ant-design/pro-components';
+import { PageContainer, ProTable } from '@ant-design/pro-components';
+import { Button, Modal, message } from 'antd';
+import React, { useRef, useState } from 'react';
 import CreateForm from './components/CreateForm';
-import SearchForm from './components/SearchForm';
 import UpdateForm from './components/UpdateForm';
 
-const columns = (
-  onStatusChange: (status: number, id: number) => void,
-  onEdit: (record: Category) => void,
-  handleDelete: (id: number) => void,
-): TableProps<Category>['columns'] => [
-  {
-    title: '分类名称',
-    dataIndex: 'name',
-    key: 'name',
-    render: (text) => <a>{text}</a>,
-  },
-  {
-    title: '分类类型',
-    dataIndex: 'type',
-    key: 'type',
-    render: (_, record) => <>{record.type === 1 ? '菜品' : '套餐'}</>,
-  },
-  {
-    title: '排序',
-    dataIndex: 'sort',
-    key: 'sort',
-  },
-  {
-    title: '状态',
-    dataIndex: 'status',
-    key: 'status',
-    render: (_, record) => <>{record.status === 0 ? '禁用' : '启用'}</>,
-  },
-  {
-    title: '更新时间',
-    dataIndex: 'updateTime',
-    key: 'updateTime',
-  },
-  {
-    title: '操作',
-    key: 'action',
-    render: (_, record) => (
-      <Space size="middle">
-        <a onClick={() => onEdit(record)}>修改</a>
-        <a style={{ color: '#f5222d' }} onClick={() => handleDelete(record.id)}>
-          删除
-        </a>
-        <a
-          onClick={() => {
-            onStatusChange(record.status === 0 ? 1 : 0, record.id);
-          }}
-        >
-          {record.status === 0 ? '启用' : '禁用'}
-        </a>
-      </Space>
-    ),
-  },
-];
-
 const CategoryPage: React.FC = () => {
-  const [form] = Form.useForm<SearchParams>();
-  const { data, total, loading, pagination, search, reset, changePage, reload } =
-    useTablePage<Category, SearchParams>({ fetch: getPage, form });
+  const actionRef = useRef<ActionType>();
 
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [updateModalVisible, setUpdateModalVisible] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+
+  const reload = async () => {
+    await actionRef.current?.reload();
+  };
 
   const onEdit = (record: Category) => {
     setEditingCategory(record);
@@ -112,28 +57,91 @@ const CategoryPage: React.FC = () => {
     });
   };
 
+  const columns: ProColumns<Category>[] = [
+    {
+      title: '分类名称',
+      dataIndex: 'name',
+    },
+    {
+      title: '分类类型',
+      dataIndex: 'type',
+      valueEnum: { 1: '菜品', 2: '套餐' },
+    },
+    {
+      title: '排序',
+      dataIndex: 'sort',
+      search: false,
+    },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      valueEnum: { 1: '启用', 0: '禁用' },
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'updateTime',
+      search: false,
+    },
+    {
+      title: '操作',
+      valueType: 'option',
+      search: false,
+      render: (_, record) => [
+        <a key="edit" onClick={() => onEdit(record)}>
+          修改
+        </a>,
+        <a
+          key="delete"
+          style={{ color: '#f5222d' }}
+          onClick={() => handleDelete(record.id)}
+        >
+          删除
+        </a>,
+        <a
+          key="status"
+          onClick={() =>
+            handleStatusChange(record.status === 0 ? 1 : 0, record.id)
+          }
+        >
+          {record.status === 0 ? '启用' : '禁用'}
+        </a>,
+      ],
+    },
+  ];
+
   return (
     <PageContainer ghost>
-      <SearchForm form={form} handleSearch={search} handleReset={reset} />
-      <TableToolbar onCreate={() => setCreateModalVisible(true)} />
-
-      <Table<Category>
+      <ProTable<Category, SearchParams>
         rowKey="id"
-        columns={columns(handleStatusChange, onEdit, handleDelete)}
-        dataSource={data}
-        pagination={false}
-        loading={loading}
+        actionRef={actionRef}
+        columns={columns}
+        search={{ labelWidth: 'auto' }}
+        options={false}
+        pagination={{ pageSize: 10, showSizeChanger: true }}
+        request={async (params) => {
+          const { current, pageSize, ...rest } = params;
+          try {
+            const res = await getPage({
+              ...(rest as SearchParams),
+              pageNum: current ?? 1,
+              pageSize: pageSize ?? 10,
+            });
+            return { data: res.records, total: res.total, success: true };
+          } catch {
+            return { data: [], total: 0, success: false };
+          }
+        }}
+        toolBarRender={() => [
+          <Button
+            key="create"
+            type="primary"
+            onClick={() => setCreateModalVisible(true)}
+          >
+            新增
+          </Button>,
+        ]}
       />
-      <br />
-      <Pagination
-        align="end"
-        current={pagination.pageNum}
-        pageSize={pagination.pageSize}
-        total={total}
-        showSizeChanger
-        showQuickJumper
-        onChange={changePage}
-      />
+
       <CreateForm
         modalVisible={createModalVisible}
         reloadData={reload}
