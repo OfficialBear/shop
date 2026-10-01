@@ -1,0 +1,13 @@
+<view class="login-page">
+  <view class="brand">
+    <view class="brand-logo">🛒</view>
+    <view class="brand-title">欢迎光临</view>
+    <view class="brand-sub">登录后即可下单</view>
+  </view>
+
+  <t-button theme="primary" size="large" block loading="{{loading}}" bind:tap="onLogin">
+    微信一键登录
+  </t-button>
+
+  <view class="tip">登录即代表同意《用户协议》与《隐私政策》</view>
+</view>

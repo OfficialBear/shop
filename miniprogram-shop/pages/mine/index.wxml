@@ -1,0 +1,16 @@
+<view class="mine-page">
+  <view class="profile">
+    <t-image wx:if="{{user.avatar}}" class="avatar" src="{{user.avatar}}" mode="aspectFill" shape="round" />
+    <view wx:else class="avatar avatar-default">🛒</view>
+    <view class="profile-info">
+      <view class="name">{{user.name || user.nickName || '微信用户'}}</view>
+      <view class="sub">{{loggedIn ? '欢迎回来' : '登录后享受更多服务'}}</view>
+    </view>
+  </view>
+
+  <t-cell-group class="menu">
+    <t-cell title="我的订单" arrow bind:click="goOrders" />
+    <t-cell wx:if="{{!loggedIn}}" title="去登录" arrow bind:click="goLogin" />
+    <t-cell wx:if="{{loggedIn}}" title="退出登录" arrow bind:click="onLogout" />
+  </t-cell-group>
+</view>

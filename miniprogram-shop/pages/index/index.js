@@ -8,6 +8,7 @@ Page({
     scrollIntoView: '',
     sidebarIntoView: '',
     keyword: '',
+    tableNo: '',
     // 购物车（按行存储，支持同一菜品不同规格各占一行）
     cartLines: [],
     // 派生：dishId -> 该菜品总数量（控制按钮/步进器与角标）
@@ -35,7 +36,8 @@ Page({
   // 口味缓存：dishId -> 规格组
   flavorCache: {},
 
-  async onLoad() {
+  async onLoad(options) {
+    this.setData({ tableNo: (options && options.tableNo) || '' });
     await this.loadMenu();
   },
 
@@ -304,6 +306,7 @@ Page({
       lines.push({
         lineId,
         dishId: dish.id,
+        type: dish.type,
         categoryId: dish.categoryId,
         name: dish.name,
         price: dish.price,
@@ -383,7 +386,28 @@ Page({
 
   onCheckout() {
     if (!this.data.totalCount) return;
-    wx.showToast({ title: '去结算功能开发中', icon: 'none' });
+    const items = this.data.cartLines.map(line => ({
+      type: line.type || 1,
+      id: line.dishId,
+      number: line.quantity,
+      dishFlavor: (line.specText || '').slice(0, 50),
+      // 以下仅用于结算页展示，提交时后端以 id 重新计价
+      name: line.name,
+      price: line.price,
+      image: line.image,
+      specText: line.specText || ''
+    }));
+    // 结算数据交给确认订单页，避免页面间传参过长
+    wx.setStorageSync('pending_order', {
+      tableNo: this.data.tableNo || '',
+      remark: '',
+      items,
+      totalPrice: this.data.totalPrice
+    });
+    wx.navigateTo({
+      url: '/pages/order/confirm/index',
+      fail: () => wx.showToast({ title: '打开结算页失败', icon: 'none' })
+    });
   },
 
   /* ==================== 搜索 ==================== */

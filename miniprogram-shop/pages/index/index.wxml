@@ -2,6 +2,7 @@
   <!-- 顶部搜索 -->
   <view class="header">
     <t-search placeholder="搜索菜品" shape="round" value="{{keyword}}" bind:change="onSearchChange" bind:submit="onSearchSubmit" bind:clear="onSearchClear" />
+    <view wx:if="{{tableNo}}" class="table-tag">桌号 {{tableNo}}</view>
   </view>
 
   <!-- 双栏主体 -->

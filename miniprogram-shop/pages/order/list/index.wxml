@@ -1,0 +1,27 @@
+<view class="page">
+  <view wx:for="{{orders}}" wx:key="id" class="order-card" data-id="{{item.id}}" bindtap="goDetail">
+    <view class="order-head">
+      <text class="order-no">No.{{item.number}}</text>
+      <text class="status status-{{item.status}}">{{item.statusText}}</text>
+    </view>
+
+    <view class="order-summary">{{item.summary}}</view>
+
+    <view class="order-meta">
+      <text wx:if="{{item.tableNo}}">桌号 {{item.tableNo}}</text>
+      <text class="order-time">{{item.orderTime}}</text>
+    </view>
+
+    <view class="order-foot">
+      <view class="amount">合计 <text class="amount-price">¥{{item.amount}}</text></view>
+      <view wx:if="{{item.status === 1}}" class="order-actions">
+        <view class="btn btn-plain" data-id="{{item.id}}" catchtap="onCancel">取消订单</view>
+        <view class="btn btn-primary" data-id="{{item.id}}" catchtap="onPay">去支付</view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{!orders.length && !loading}}" class="empty">暂无订单</view>
+  <view wx:if="{{loading}}" class="loading">加载中...</view>
+  <view wx:if="{{orders.length && finished}}" class="loading">没有更多了</view>
+</view>

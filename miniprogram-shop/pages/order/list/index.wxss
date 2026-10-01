@@ -1,0 +1,109 @@
+.page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 24rpx;
+  background: #f5f6f8;
+}
+
+.order-card {
+  margin-bottom: 24rpx;
+  padding: 24rpx;
+  border-radius: 16rpx;
+  background: #fff;
+}
+
+.order-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.order-no {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.status {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #ff6b00;
+}
+
+.status-5 {
+  color: #07c160;
+}
+
+.status-6 {
+  color: #999;
+}
+
+.order-summary {
+  margin-top: 16rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #222;
+}
+
+.order-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.order-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #f5f5f5;
+}
+
+.amount {
+  font-size: 26rpx;
+  color: #333;
+}
+
+.amount-price {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #ff4d4f;
+}
+
+.order-actions {
+  display: flex;
+  gap: 16rpx;
+}
+
+.btn {
+  padding: 10rpx 32rpx;
+  border-radius: 32rpx;
+  font-size: 26rpx;
+}
+
+.btn-plain {
+  border: 1rpx solid #ddd;
+  color: #666;
+}
+
+.btn-primary {
+  background: #ff6b00;
+  color: #fff;
+}
+
+.empty {
+  padding: 160rpx 0;
+  text-align: center;
+  font-size: 28rpx;
+  color: #bbb;
+}
+
+.loading {
+  padding: 24rpx 0;
+  text-align: center;
+  font-size: 24rpx;
+  color: #bbb;
+}

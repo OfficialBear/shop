@@ -1,0 +1,27 @@
+<view class="page">
+  <view class="result">
+    <view class="icon">✓</view>
+    <view class="title">支付成功</view>
+    <view class="sub">商家已收到您的订单</view>
+  </view>
+
+  <view class="card">
+    <view class="row">
+      <text class="label">订单号</text>
+      <text class="value">{{number}}</text>
+    </view>
+    <view class="row">
+      <text class="label">支付金额</text>
+      <text class="value price">¥{{amount}}</text>
+    </view>
+    <view wx:if="{{tableNo}}" class="row">
+      <text class="label">桌号</text>
+      <text class="value">{{tableNo}}</text>
+    </view>
+  </view>
+
+  <view class="actions">
+    <t-button theme="light" size="large" block bind:tap="goMenu">返回点餐</t-button>
+    <t-button theme="primary" size="large" block bind:tap="goDetail">查看订单</t-button>
+  </view>
+</view>

@@ -1,0 +1,45 @@
+<view class="page" wx:if="{{order}}">
+  <view class="banner">
+    <view class="status">{{statusText}}</view>
+    <view class="status-sub">订单号 {{order.number}}</view>
+  </view>
+
+  <view class="card">
+    <view wx:for="{{order.items}}" wx:key="id" class="goods-item">
+      <t-image class="goods-img" src="{{item.image}}" mode="aspectFill" shape="round" />
+      <view class="goods-info">
+        <view class="goods-name">{{item.name}}</view>
+        <view wx:if="{{item.dishFlavor}}" class="goods-spec">{{item.dishFlavor}}</view>
+        <view class="goods-bottom">
+          <text class="goods-price">¥{{item.amount}}</text>
+          <text class="goods-num">×{{item.number}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="total-row">
+      <text class="label">合计</text>
+      <text class="total-price">¥{{order.amount}}</text>
+    </view>
+  </view>
+
+  <view class="card info-card">
+    <view class="row">
+      <text class="label">下单时间</text>
+      <text class="value">{{order.orderTime}}</text>
+    </view>
+    <view wx:if="{{order.tableNo}}" class="row">
+      <text class="label">桌号</text>
+      <text class="value">{{order.tableNo}}</text>
+    </view>
+    <view wx:if="{{order.remark}}" class="row">
+      <text class="label">备注</text>
+      <text class="value">{{order.remark}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{order.status === 1}}" class="actions">
+    <t-button theme="light" size="large" block bind:tap="onCancel">取消订单</t-button>
+    <t-button theme="primary" size="large" block bind:tap="onPay">去支付</t-button>
+  </view>
+</view>
