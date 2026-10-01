@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.mapper.OrderMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into orders
+        (number, table_no, status, user_id, address_book_id, order_time, checkout_time,
+        pay_method, pay_status, amount, remark, phone, user_name, consignee,
+        cancel_reason, cancel_time)
+        values
+        (#{number}, #{tableNo}, #{status}, #{userId}, #{addressBookId}, #{orderTime}, #{checkoutTime},
+        #{payMethod}, #{payStatus}, #{amount}, #{remark}, #{phone}, #{userName}, #{consignee},
+        #{cancelReason}, #{cancelTime})
+    </insert>
+
+    <select id="getById" resultType="com.shop.entity.Order">
+        select * from orders where id = #{id}
+    </select>
+
+    <select id="pageQuery" resultType="com.shop.entity.Order">
+        select * from orders
+        <where>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+        order by order_time desc, id desc
+    </select>
+
+    <update id="update">
+        update orders
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="payStatus != null">pay_status = #{payStatus},</if>
+            <if test="checkoutTime != null">checkout_time = #{checkoutTime},</if>
+            <if test="cancelTime != null">cancel_time = #{cancelTime},</if>
+            <if test="cancelReason != null">cancel_reason = #{cancelReason},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </set>
+        where id = #{id}
+    </update>
+</mapper>

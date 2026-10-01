@@ -160,6 +160,7 @@ DROP TABLE IF EXISTS `orders`;
 CREATE TABLE `orders` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `number` varchar(50) DEFAULT NULL COMMENT '订单号',
+  `table_no` varchar(32) DEFAULT NULL COMMENT '堂食桌号',
   `status` int NOT NULL DEFAULT '1' COMMENT '订单状态 1待付款 2待接单 3已接单 4派送中 5已完成 6已取消 7退款',
   `user_id` bigint NOT NULL COMMENT '下单用户',
   `address_book_id` bigint NOT NULL COMMENT '地址id',
