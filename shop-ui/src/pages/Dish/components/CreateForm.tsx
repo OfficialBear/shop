@@ -2,7 +2,7 @@ import ImageUpload from '@/components/Upload';
 import { useCategoryOptions } from '@/hooks/categoryOptions';
 import { createDish } from '@/services/dish';
 import type { FormProps } from 'antd';
-import { Button, Form, Input, message, Modal, Select, Space } from 'antd';
+import { Button, Form, Input, InputNumber, message, Modal, Select, Space } from 'antd';
 import React, { PropsWithChildren } from 'react';
 import { DishFormValues } from '../type';
 import DishFlavorList from './DishFlavorList';
@@ -28,8 +28,8 @@ const CreateForm: React.FC<PropsWithChildren<CreateFormProps>> = (props) => {
       message.success('添加成功');
       await reloadData();
       hideModal();
-    } catch (error) {
-      message.error('添加失败');
+    } catch {
+      // 错误提示由全局请求层统一处理
     }
   };
 
@@ -72,7 +72,7 @@ const CreateForm: React.FC<PropsWithChildren<CreateFormProps>> = (props) => {
           />
         </Form.Item>
         <Form.Item<DishFormValues> label="菜品价格" name="price">
-          <Input />
+          <InputNumber min={0} precision={2} style={{ width: '100%' }} />
         </Form.Item>
         <Form.Item<DishFormValues> label="菜品图片" name="image">
           <ImageUpload />

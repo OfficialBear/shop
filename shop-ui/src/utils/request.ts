@@ -1,8 +1,5 @@
-import type { Result } from '@/types';
-import { request as umiRequest } from '@umijs/max';
-import { message } from 'antd';
+import { request } from '@umijs/max';
 
-const SUCCESS_CODE = 1;
 const TOKEN_STORAGE_KEY = 'token';
 
 export class ApiError extends Error {
@@ -16,64 +13,11 @@ export class ApiError extends Error {
   }
 }
 
-export interface RequestOptions {
-  showErrorMessage?: boolean;
-  [key: string]: unknown;
-}
-
-const HTTP_ERROR_MESSAGES: Record<number, string> = {
-  400: 'Bad request',
-  401: 'Unauthorized',
-  403: 'Forbidden',
-  404: 'Resource not found',
-  405: 'Method not allowed',
-  408: 'Request timeout',
-  409: 'Conflict',
-  422: 'Validation failed',
-  429: 'Too many requests',
-  500: 'Internal server error',
-  502: 'Bad gateway',
-  503: 'Service unavailable',
-  504: 'Gateway timeout',
-};
-
-interface AxiosLikeError extends Error {
-  response?: {
-    status?: number;
-  };
-}
-
 /**
  * Get JWT from session storage.
  */
-function getStoredToken(): string | null {
-  return sessionStorage.getItem(TOKEN_STORAGE_KEY);
-}
-
-/**
- * Create request headers and inject the JWT token.
- */
-function createHeaders(
-  headers: Record<string, string> | undefined,
-): Record<string, string> {
-  const requestHeaders = {
-    ...(headers ?? {}),
-  };
-
-  const token = getStoredToken();
-
-  if (token) {
-    requestHeaders['token'] = `${token}`;
-  }
-
-  return requestHeaders;
-}
-
-/**
- * Remove JWT from session storage.
- */
-export function clearToken(): void {
-  sessionStorage.removeItem(TOKEN_STORAGE_KEY);
+export function getToken(): string {
+  return sessionStorage.getItem(TOKEN_STORAGE_KEY) ?? '';
 }
 
 /**
@@ -84,16 +28,17 @@ export function setToken(token: string): void {
 }
 
 /**
- * Get the current JWT.
+ * Remove JWT from session storage.
  */
-export function getToken(): string | null {
-  return getStoredToken();
+export function clearToken(): void {
+  sessionStorage.removeItem(TOKEN_STORAGE_KEY);
 }
 
 /**
- * Redirect to the login page after authentication expires.
+ * Redirect to the login page after authentication expires, keeping the
+ * current location so the user can be sent back after signing in.
  */
-function redirectToLogin(): void {
+export function redirectToLogin(): void {
   if (window.location.pathname === '/login') {
     return;
   }
@@ -103,74 +48,6 @@ function redirectToLogin(): void {
   window.location.replace(`/login?redirect=${redirect}`);
 }
 
-/**
- * Handle HTTP 401 Unauthorized.
- */
-function handleUnauthorized(): void {
-  clearToken();
-  redirectToLogin();
-}
-
-export async function request<T = unknown>(
-  url: string,
-  options: RequestOptions = {},
-): Promise<T> {
-  const { showErrorMessage = true, ...requestOptions } = options;
-
-  const headers = createHeaders(
-    requestOptions.headers as Record<string, string> | undefined,
-  );
-  try {
-    const response = await umiRequest<Result<T>>(url, {
-      ...requestOptions,
-      headers,
-      responseInterceptors: [
-        [
-          (response) => response,
-          (error) => {
-            const axiosError = error as AxiosLikeError;
-            const status = axiosError.response?.status;
-
-            if (status === 401) {
-              handleUnauthorized();
-
-              return Promise.reject(
-                new ApiError(
-                  'Authentication expired. Please sign in again.',
-                  undefined,
-                  401,
-                ),
-              );
-            }
-
-            if (status) {
-              return Promise.reject(
-                new ApiError(
-                  HTTP_ERROR_MESSAGES[status] ?? 'Request failed',
-                  undefined,
-                  status,
-                ),
-              );
-            }
-
-            return Promise.reject(error);
-          },
-        ],
-      ],
-    });
-
-    if (response.code !== SUCCESS_CODE) {
-      throw new ApiError(response.msg || 'Request failed', response.code);
-    }
-
-    return response.data;
-  } catch (error) {
-    if (showErrorMessage) {
-      message.error(error instanceof Error ? error.message : 'Request failed');
-    }
-
-    throw error;
-  }
-}
-
+// Re-export Umi's axios instance so the whole app shares one configured client.
 export default request;
+export { request };

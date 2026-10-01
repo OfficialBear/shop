@@ -1,6 +1,6 @@
 import { UserInfo } from '@/services/auth';
 
-export default (initialState: { currentUser: UserInfo }) => {
+export default (initialState: { currentUser?: UserInfo }) => {
   // 在这里按照初始化数据定义项目中的权限，统一管理
   // 参考文档 https://umijs.org/docs/max/access
 
@@ -15,7 +15,7 @@ export default (initialState: { currentUser: UserInfo }) => {
     };
   }
 
-  const { role, permissions } = currentUser;
+  const { role, permissions = [] } = currentUser;
 
   return {
     // 静态权限：直接返回布尔值

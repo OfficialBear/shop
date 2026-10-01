@@ -1,4 +1,4 @@
-import type { Category, PageParams, PageResult, Result } from '@/types';
+import type { Category, PageParams, PageResult } from '@/types';
 import request from '@/utils/request';
 
 export interface CategoryPageParams extends PageParams {
@@ -16,10 +16,10 @@ export interface CategoryParams {
 /**
  * Get a list by type.
  *
- * GET /api/admin/Category/list
+ * GET /admin/category/list
  */
 export function getListByType(type: number) {
-  return request<Category[]>(`/api/admin/category/list`, {
+  return request<Category[]>('/admin/category/list', {
     method: 'GET',
     params: { type },
   });
@@ -28,10 +28,10 @@ export function getListByType(type: number) {
 /**
  * Get Categories with pagination and filtering.
  *
- * GET /api/admin/Category/page?pageNum=1&pageSize=20&keyword=Tom
+ * GET /admin/category/page?pageNum=1&pageSize=20&keyword=Tom
  */
 export function getPage(params: CategoryPageParams) {
-  return request<PageResult<Category>>('/api/admin/category/page', {
+  return request<PageResult<Category>>('/admin/category/page', {
     method: 'GET',
     params,
   });
@@ -40,10 +40,10 @@ export function getPage(params: CategoryPageParams) {
 /**
  * Create a Category.
  *
- * POST /api/admin/Category
+ * POST /admin/category
  */
 export function createCategory(data: CategoryParams) {
-  return request<Result>('/api/admin/category', {
+  return request<void>('/admin/category', {
     method: 'POST',
     data,
   });
@@ -52,10 +52,10 @@ export function createCategory(data: CategoryParams) {
 /**
  * Update a Category.
  *
- * PUT /api/admin/Category
+ * PUT /admin/category
  */
 export function updateCategory(data: CategoryParams) {
-  return request<Result>(`/api/admin/category`, {
+  return request<void>('/admin/category', {
     method: 'PUT',
     data,
   });
@@ -64,10 +64,10 @@ export function updateCategory(data: CategoryParams) {
 /**
  * Update a Category's status.
  *
- * PUT /api/admin/Category/status/{status}
+ * PUT /admin/category/status/{status}
  */
 export function updateCategoryStatus(status: number, id: number) {
-  return request<Result>(`/api/admin/category/status/${status}`, {
+  return request<void>(`/admin/category/status/${status}`, {
     method: 'PUT',
     params: { id },
   });
@@ -76,10 +76,10 @@ export function updateCategoryStatus(status: number, id: number) {
 /**
  * Delete a Category.
  *
- * DELETE /api/admin/Category
+ * DELETE /admin/category
  */
 export function deleteCategory(id: number) {
-  return request<Result>(`/api/admin/category`, {
+  return request<void>('/admin/category', {
     method: 'DELETE',
     params: { id },
   });

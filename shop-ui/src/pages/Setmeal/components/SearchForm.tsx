@@ -14,7 +14,7 @@ interface SearchFormProps {
 
 const SearchForm: React.FC<PropsWithChildren<SearchFormProps>> = (props) => {
   const { form, handleSearch, handleReset } = props;
-  const { options, loading } = useCategoryOptions(1);
+  const { options, loading } = useCategoryOptions(2);
 
   return (
     <div className="search-panel">

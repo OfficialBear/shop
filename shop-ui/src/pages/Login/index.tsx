@@ -46,12 +46,8 @@ const LoginPage = () => {
       } else {
         history.replace('/');
       }
-    } catch (error) {
-      message.error(
-        error instanceof Error
-          ? error.message
-          : 'Unable to sign in. Please try again.',
-      );
+    } catch {
+      // 错误提示由全局请求层统一处理
     } finally {
       setLoading(false);
     }
@@ -121,14 +117,6 @@ const LoginPage = () => {
             <Form.Item name="remember" valuePropName="checked" noStyle>
               <Checkbox disabled={loading}>Remember me</Checkbox>
             </Form.Item>
-
-            <button
-              type="button"
-              className={styles.linkButton}
-              onClick={() => history.push('/forgot-password')}
-            >
-              Forgot password?
-            </button>
           </div>
 
           <Button
@@ -142,18 +130,6 @@ const LoginPage = () => {
             Sign in
           </Button>
         </Form>
-
-        <div className={styles.register}>
-          <span>Don't have an account?</span>
-
-          <button
-            type="button"
-            className={styles.linkButton}
-            onClick={() => history.push('/register')}
-          >
-            Create account
-          </button>
-        </div>
       </div>
 
       <footer className={styles.footer}>

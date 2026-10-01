@@ -2,7 +2,7 @@ import ImageUpload from '@/components/Upload';
 import { useCategoryOptions } from '@/hooks/categoryOptions';
 import { getDishById, updateDish } from '@/services/dish';
 import type { Dish } from '@/types';
-import { Button, Form, Input, message, Modal, Select, Space, Spin } from 'antd';
+import { Button, Form, Input, InputNumber, message, Modal, Select, Space, Spin } from 'antd';
 import React, { PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { DishFormValues, FlavorFormItem } from '../type';
 import DishFlavorList from './DishFlavorList';
@@ -40,7 +40,7 @@ const UpdateForm: React.FC<PropsWithChildren<UpdateFormProps>> = (props) => {
 
         form.setFieldsValue({
           name: dish.name,
-          categoryId: String(dish.categoryId),
+          categoryId: dish.categoryId,
           price: dish.price,
           image: dish.image,
           description: dish.description,
@@ -48,7 +48,7 @@ const UpdateForm: React.FC<PropsWithChildren<UpdateFormProps>> = (props) => {
         });
       } catch {
         if (myId === reqIdRef.current) {
-          message.error('菜品及口味数据加载失败');
+          // 错误提示由全局请求层统一处理
         }
       } finally {
         if (myId === reqIdRef.current) {
@@ -74,8 +74,8 @@ const UpdateForm: React.FC<PropsWithChildren<UpdateFormProps>> = (props) => {
       message.success('修改成功');
       await reloadData();
       hideModal();
-    } catch (error) {
-      message.error('修改失败');
+    } catch {
+      // 错误提示由全局请求层统一处理
     }
   };
 
@@ -119,7 +119,7 @@ const UpdateForm: React.FC<PropsWithChildren<UpdateFormProps>> = (props) => {
             />
           </Form.Item>
           <Form.Item<DishFormValues> label="菜品价格" name="price">
-            <Input />
+            <InputNumber min={0} precision={2} style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item<DishFormValues> label="菜品图片" name="image">
             <ImageUpload />

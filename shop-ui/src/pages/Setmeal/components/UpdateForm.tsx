@@ -2,7 +2,7 @@ import ImageUpload from '@/components/Upload';
 import { useCategoryOptions } from '@/hooks/categoryOptions';
 import { getSetmealById, updateSetmeal } from '@/services/setmeal';
 import type { Setmeal } from '@/types';
-import { Button, Form, Input, message, Modal, Select, Space, Spin } from 'antd';
+import { Button, Form, Input, InputNumber, message, Modal, Select, Space, Spin } from 'antd';
 import React, { PropsWithChildren, useEffect, useRef, useState } from 'react';
 import AddDish from './AddDish';
 
@@ -30,20 +30,19 @@ const UpdateForm: React.FC<PropsWithChildren<UpdateFormProps>> = (props) => {
     const load = async () => {
       try {
         const setmeal = await getSetmealById(editingSetmeal.id);
-        console.log('setmeal',setmeal);
         if (myId !== reqIdRef.current) return;
 
         form.setFieldsValue({
           name: setmeal.name,
-          categoryId: String(setmeal.categoryId),
+          categoryId: setmeal.categoryId,
           price: setmeal.price,
           image: setmeal.image,
           description: setmeal.description,
-          setmealDishes: setmeal.setmealDishes
+          setmealDishes: setmeal.setmealDishes,
         });
       } catch {
         if (myId === reqIdRef.current) {
-          message.error('套餐及口味数据加载失败');
+          // 错误提示由全局请求层统一处理
         }
       } finally {
         if (myId === reqIdRef.current) {
@@ -62,8 +61,8 @@ const UpdateForm: React.FC<PropsWithChildren<UpdateFormProps>> = (props) => {
       message.success('修改成功');
       await reloadData();
       hideModal();
-    } catch (error) {
-      message.error('修改失败');
+    } catch {
+      // 错误提示由全局请求层统一处理
     }
   };
 
@@ -107,7 +106,12 @@ const UpdateForm: React.FC<PropsWithChildren<UpdateFormProps>> = (props) => {
             />
           </Form.Item>
           <Form.Item<Setmeal> label="套餐价格" name="price">
-            <Input addonAfter="元"/>
+            <InputNumber
+              min={0}
+              precision={2}
+              addonAfter="元"
+              style={{ width: '100%' }}
+            />
           </Form.Item>
           <Form.Item<Setmeal> label="套餐菜品" name="setmealDishes">
             <AddDish />

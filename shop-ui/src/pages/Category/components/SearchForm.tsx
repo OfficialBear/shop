@@ -1,7 +1,7 @@
 import { Button, Col, Form, Input, Row, Select, Space } from 'antd';
 import React, { PropsWithChildren } from 'react';
 
-import { SearchParams } from '@/pages/Dish/type';
+import { SearchParams } from '@/pages/Category/type';
 import { ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 import type { FormInstance } from 'antd';
 import '../index.less';

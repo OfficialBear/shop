@@ -3,7 +3,7 @@ import { getListByCategoryId } from '@/services/dish';
 import type { Dish, SetmealDish } from '@/types';
 import type { TableProps } from 'antd';
 import { Button, Col, Empty, Modal, Row, Table, Transfer } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 interface DishSelectProps {
   value?: SetmealDish[];
@@ -37,11 +37,10 @@ const AddDish: React.FC<DishSelectProps> = ({
     }
   };
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const handleOpen = () => {
+  const handleOpen = async () => {
+    if (!data.length) {
+      await loadData();
+    }
     setTempKeys(value.map((v) => String(v.dishId)).filter(Boolean));
     setModalVisible(true);
   };
@@ -157,7 +156,7 @@ const AddDish: React.FC<DishSelectProps> = ({
           showSearch
           listStyle={{ width: 320, height: 380 }}
           filterOption={(input, item) =>
-            item.name.toLowerCase().includes(input.toLowerCase())
+            (item.name ?? '').toLowerCase().includes(input.toLowerCase())
           }
           locale={{
             itemUnit: '项',

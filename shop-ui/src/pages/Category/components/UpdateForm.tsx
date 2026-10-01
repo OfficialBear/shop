@@ -1,6 +1,6 @@
 import { CategoryParams, updateCategory } from '@/services/category';
 import type { Category } from '@/types';
-import { Button, Form, Input, Modal, Select, Space, message } from 'antd';
+import { Button, Form, Input, InputNumber, Modal, Select, Space, message } from 'antd';
 import React, { PropsWithChildren, useEffect } from 'react';
 
 interface UpdateFormProps {
@@ -27,8 +27,8 @@ const UpdateForm: React.FC<PropsWithChildren<UpdateFormProps>> = (props) => {
       message.success('修改成功');
       await reloadData();
       hideModal();
-    } catch (error) {
-      message.error('修改失败');
+    } catch {
+      // 错误提示由全局请求层统一处理
     }
   };
 
@@ -71,7 +71,7 @@ const UpdateForm: React.FC<PropsWithChildren<UpdateFormProps>> = (props) => {
           <Input />
         </Form.Item>
         <Form.Item<CategoryParams> label="排序号" name="sort">
-          <Input />
+          <InputNumber min={0} style={{ width: '100%' }} />
         </Form.Item>
 
         <div style={{ textAlign: 'center', marginTop: 24 }}>

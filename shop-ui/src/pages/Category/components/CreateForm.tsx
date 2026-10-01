@@ -1,6 +1,6 @@
 import { CategoryParams, createCategory } from '@/services/category';
 import type { FormProps } from 'antd';
-import { Button, Form, Input, Modal, Select, Space, message } from 'antd';
+import { Button, Form, Input, InputNumber, Modal, Select, Space, message } from 'antd';
 import React, { PropsWithChildren } from 'react';
 
 interface CreateFormProps {
@@ -18,8 +18,8 @@ const CreateForm: React.FC<PropsWithChildren<CreateFormProps>> = (props) => {
       message.success('添加成功');
       await reloadData();
       hideModal();
-    } catch (error) {
-      message.error('添加失败');
+    } catch {
+      // 错误提示由全局请求层统一处理
     }
   };
 
@@ -61,7 +61,7 @@ const CreateForm: React.FC<PropsWithChildren<CreateFormProps>> = (props) => {
           <Input />
         </Form.Item>
         <Form.Item<CategoryParams> label="排序号" name="sort">
-          <Input />
+          <InputNumber min={0} style={{ width: '100%' }} />
         </Form.Item>
 
         <div style={{ textAlign: 'center', marginTop: 24 }}>

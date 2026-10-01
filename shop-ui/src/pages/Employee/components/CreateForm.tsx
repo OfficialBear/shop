@@ -18,8 +18,8 @@ const CreateForm: React.FC<PropsWithChildren<CreateFormProps>> = (props) => {
       message.success('添加成功');
       await reloadData();
       hideModal();
-    } catch (error) {
-      message.error('添加失败');
+    } catch {
+      // 错误提示由全局请求层统一处理
     }
   };
 

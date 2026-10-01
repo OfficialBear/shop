@@ -1,4 +1,4 @@
-import type { Dish, DishFlavor, PageParams, PageResult, Result } from '@/types';
+import type { Dish, DishFlavor, PageParams, PageResult } from '@/types';
 import request from '@/utils/request';
 
 export interface DishPageParams extends PageParams {
@@ -21,16 +21,16 @@ export interface DishParams {
 /**
  * Get a dish by ID.
  *
- * GET /api/admin/dish/{id}
+ * GET /admin/dish/{id}
  */
 export function getDishById(id: number) {
-  return request<Dish>(`/api/admin/dish/${id}`, {
+  return request<Dish>(`/admin/dish/${id}`, {
     method: 'GET',
   });
 }
 
 export function getListByCategoryId(categoryId?: number) {
-  return request<Dish[]>(`/api/admin/dish/list`, {
+  return request<Dish[]>('/admin/dish/list', {
     method: 'GET',
     params: { categoryId },
   });
@@ -39,10 +39,10 @@ export function getListByCategoryId(categoryId?: number) {
 /**
  * Get dishes with pagination and filtering.
  *
- * GET /api/admin/dish/page?pageNum=1&pageSize=20&keyword=Tom
+ * GET /admin/dish/page?pageNum=1&pageSize=20&keyword=Tom
  */
 export function getPage(params: DishPageParams) {
-  return request<PageResult<Dish>>('/api/admin/dish/page', {
+  return request<PageResult<Dish>>('/admin/dish/page', {
     method: 'GET',
     params,
   });
@@ -51,10 +51,10 @@ export function getPage(params: DishPageParams) {
 /**
  * Create a dish.
  *
- * POST /api/admin/dish
+ * POST /admin/dish
  */
 export function createDish(data: DishParams) {
-  return request<void>('/api/admin/dish', {
+  return request<void>('/admin/dish', {
     method: 'POST',
     data,
   });
@@ -63,10 +63,10 @@ export function createDish(data: DishParams) {
 /**
  * Update a dish.
  *
- * PUT /api/admin/dish
+ * PUT /admin/dish
  */
 export function updateDish(data: DishParams) {
-  return request<void>(`/api/admin/dish`, {
+  return request<void>('/admin/dish', {
     method: 'PUT',
     data,
   });
@@ -75,10 +75,10 @@ export function updateDish(data: DishParams) {
 /**
  * Update a dish's status.
  *
- * PUT /api/admin/dish/status/{status}
+ * PUT /admin/dish/status/{status}
  */
 export function updateDishStatus(status: number, id: number) {
-  return request<void>(`/api/admin/dish/status/${status}`, {
+  return request<void>(`/admin/dish/status/${status}`, {
     method: 'PUT',
     params: { id },
   });
@@ -87,10 +87,10 @@ export function updateDishStatus(status: number, id: number) {
 /**
  * Delete dishes.
  *
- * DELETE /api/admin/dish
+ * DELETE /admin/dish
  */
 export function batchDeleteDishes(ids: number[]) {
-  return request<void>(`/api/admin/dish`, {
+  return request<void>('/admin/dish', {
     method: 'DELETE',
     data: ids,
   });

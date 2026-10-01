@@ -1,4 +1,4 @@
-import type { Setmeal, SetmealDish, PageParams, PageResult} from '@/types';
+import type { PageParams, PageResult, Setmeal, SetmealDish } from '@/types';
 import request from '@/utils/request';
 
 export interface SetmealPageParams extends PageParams {
@@ -21,28 +21,28 @@ export interface SetmealParams {
 /**
  * Get a Setmeal by ID.
  *
- * GET /api/admin/setmeal/{id}
+ * GET /admin/setmeal/{id}
  */
 export function getSetmealById(id: number) {
-  return request<Setmeal>(`/api/admin/setmeal/${id}`, {
+  return request<Setmeal>(`/admin/setmeal/${id}`, {
     method: 'GET',
   });
 }
 
 export function getListByCategoryId(categoryId: number) {
-  return request<Setmeal[]>(`/api/admin/setmeal/list`, {
+  return request<Setmeal[]>('/admin/setmeal/list', {
     method: 'GET',
     params: { categoryId },
   });
 }
 
 /**
- * Get Setmeales with pagination and filtering.
+ * Get Setmeals with pagination and filtering.
  *
- * GET /api/admin/setmeal/page?pageNum=1&pageSize=20&keyword=Tom
+ * GET /admin/setmeal/page?pageNum=1&pageSize=20&keyword=Tom
  */
 export function getPage(params: SetmealPageParams) {
-  return request<PageResult<Setmeal>>('/api/admin/setmeal/page', {
+  return request<PageResult<Setmeal>>('/admin/setmeal/page', {
     method: 'GET',
     params,
   });
@@ -51,10 +51,10 @@ export function getPage(params: SetmealPageParams) {
 /**
  * Create a Setmeal.
  *
- * POST /api/admin/setmeal
+ * POST /admin/setmeal
  */
 export function createSetmeal(data: SetmealParams) {
-  return request<void>('/api/admin/setmeal', {
+  return request<void>('/admin/setmeal', {
     method: 'POST',
     data,
   });
@@ -63,10 +63,10 @@ export function createSetmeal(data: SetmealParams) {
 /**
  * Update a Setmeal.
  *
- * PUT /api/admin/setmeal
+ * PUT /admin/setmeal
  */
 export function updateSetmeal(data: SetmealParams) {
-  return request<void>(`/api/admin/setmeal`, {
+  return request<void>('/admin/setmeal', {
     method: 'PUT',
     data,
   });
@@ -75,10 +75,10 @@ export function updateSetmeal(data: SetmealParams) {
 /**
  * Update a Setmeal's status.
  *
- * PUT /api/admin/setmeal/status/{status}
+ * PUT /admin/setmeal/status/{status}
  */
 export function updateSetmealStatus(status: number, id: number) {
-  return request<void>(`/api/admin/setmeal/status/${status}`, {
+  return request<void>(`/admin/setmeal/status/${status}`, {
     method: 'PUT',
     params: { id },
   });
@@ -87,10 +87,10 @@ export function updateSetmealStatus(status: number, id: number) {
 /**
  * Delete Setmeals.
  *
- * DELETE /api/admin/setmeal
+ * DELETE /admin/setmeal
  */
 export function batchDeleteSetmeals(ids: number[]) {
-  return request<void>(`/api/admin/setmeal`, {
+  return request<void>('/admin/setmeal', {
     method: 'DELETE',
     data: ids,
   });

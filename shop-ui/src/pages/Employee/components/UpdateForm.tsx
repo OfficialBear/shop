@@ -27,8 +27,8 @@ const UpdateForm: React.FC<PropsWithChildren<UpdateFormProps>> = (props) => {
       message.success('修改成功');
       await reloadData();
       hideModal();
-    } catch (error) {
-      message.error('修改失败');
+    } catch {
+      // 错误提示由全局请求层统一处理
     }
   };
 

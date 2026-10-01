@@ -181,8 +181,8 @@ const EmployeePage: React.FC = () => {
           message.success('删除成功');
           setSelectedRowKeys([]);
           await loadData();
-        } catch (error) {
-          message.error('删除失败');
+        } catch {
+          // 错误提示由全局请求层统一处理
         }
       },
     });
@@ -194,8 +194,8 @@ const EmployeePage: React.FC = () => {
       message.success('状态修改成功');
       // 修改成功后重新查询
       await loadData();
-    } catch (error) {
-      message.error('状态修改失败');
+    } catch {
+      // 错误提示由全局请求层统一处理
     }
   };
 

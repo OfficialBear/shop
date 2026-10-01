@@ -14,7 +14,7 @@ export function useCategoryOptions(type: number) {
     () =>
       (data ?? []).map((i: Category) => ({
         label: i.name,
-        value: String(i.id),
+        value: i.id,
       })),
     [data],
   );

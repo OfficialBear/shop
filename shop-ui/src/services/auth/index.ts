@@ -14,14 +14,13 @@ export interface UserInfo {
   permissions: string[];
 }
 
-
 /**
  * Login.
  *
- * POST /api/admin/employee/login
+ * POST /admin/employee/login
  */
 export function login(data: LoginParams) {
-  return request<UserInfo>('/api/admin/employee/login', {
+  return request<UserInfo>('/admin/employee/login', {
     method: 'POST',
     data,
   });
@@ -30,10 +29,10 @@ export function login(data: LoginParams) {
 /**
  * Logout.
  *
- * POST /api/admin/employee/logout
+ * POST /admin/employee/logout
  */
 export function logout() {
-  return request<void>('/api/admin/employee/logout', {
+  return request<void>('/admin/employee/logout', {
     method: 'POST',
   });
 }
@@ -41,10 +40,10 @@ export function logout() {
 /**
  * Get the current authenticated user.
  *
- * GET /api/admin/employee/current
+ * GET /admin/employee/current
  */
 export function getCurrentUser() {
-  return request<UserInfo>('/api/admin/employee/current', {
+  return request<UserInfo>('/admin/employee/current', {
     method: 'GET',
   });
 }
