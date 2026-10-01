@@ -6,6 +6,11 @@ import {
 import { wxLogin, bootstrap } from '@/service/auth.js';
 
 App({
+  globalData: {
+    // 下单支付成功后置为 true，菜单页 onShow 时据此清空购物车
+    clearCartOnShow: false
+  },
+
   onLaunch() {
     // 登录请求合并：所有登录入口共享同一个进行中的登录请求，避免并发重复登录
     setLoginProvider(wxLogin);

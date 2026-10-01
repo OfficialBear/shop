@@ -41,6 +41,16 @@ Page({
     await this.loadMenu();
   },
 
+  onShow() {
+    // 下单支付成功后返回本页，清空购物车
+    const app = getApp();
+    if (app && app.globalData && app.globalData.clearCartOnShow) {
+      app.globalData.clearCartOnShow = false;
+      this.commitCart([]);
+      this.setData({ cartVisible: false, specVisible: false });
+    }
+  },
+
   async loadMenu() {
     try {
       const categories = await getCategoryList();

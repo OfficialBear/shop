@@ -50,6 +50,9 @@ Page({
       await payOrder(submitted.id);
 
       wx.removeStorageSync('pending_order');
+      // 标记需要清空菜单页购物车（tab 页常驻内存，onShow 时处理）
+      const app = getApp();
+      if (app && app.globalData) app.globalData.clearCartOnShow = true;
       wx.redirectTo({
         url: `/pages/order/result/index?id=${submitted.id}&number=${submitted.number}&amount=${submitted.amount}&tableNo=${this.data.tableNo}`
       });
