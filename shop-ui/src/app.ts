@@ -5,6 +5,7 @@
 
 import { getCurrentUser, UserInfo } from '@/services/auth';
 import type { Result } from '@/types';
+import UnAccessible from '@/components/UnAccessible';
 import {
   ApiError,
   clearToken,
@@ -21,6 +22,7 @@ import type {
   ResponseInterceptor,
 } from '@umijs/max';
 import { message } from 'antd';
+import React from 'react';
 
 const SUCCESS_CODE = 1;
 
@@ -100,6 +102,8 @@ export const layout = () => {
       locale: false,
     },
     siderWidth: 180,
+    // 未登录/无权限访问受保护路由时，重定向到登录页
+    unAccessible: React.createElement(UnAccessible),
   };
 };
 

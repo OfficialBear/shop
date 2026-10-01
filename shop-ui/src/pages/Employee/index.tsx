@@ -1,29 +1,25 @@
+import TableToolbar from '@/components/TableToolbar';
+import { useTablePage } from '@/hooks/useTablePage';
 import { SearchParams } from '@/pages/Employee/type';
-import { batchDeleteUsers, getPage, updateUserStatus } from '@/services/user';
-import type { User } from '@/types';
-import { PageContainer } from '@ant-design/pro-components';
-import { Access, useAccess } from '@umijs/max';
-import type { TableProps } from 'antd';
 import {
-  Button,
-  Col,
-  Form,
-  message,
-  Modal,
-  Pagination,
-  Row,
-  Space,
-  Table,
-} from 'antd';
-import React, { useEffect, useState } from 'react';
+  batchDeleteEmployees,
+  getPage,
+  updateEmployeeStatus,
+} from '@/services/employee';
+import type { Employee } from '@/types';
+import { PageContainer } from '@ant-design/pro-components';
+import { useAccess } from '@umijs/max';
+import type { TableProps } from 'antd';
+import { Form, Modal, Pagination, Space, Table, message } from 'antd';
+import React, { useState } from 'react';
 import CreateForm from './components/CreateForm';
 import SearchForm from './components/SearchForm';
 import UpdateForm from './components/UpdateForm';
 
 const columns = (
   onStatusChange: (status: number, id: number) => void,
-  onEdit: (record: User) => void,
-): TableProps<User>['columns'] => [
+  onEdit: (record: Employee) => void,
+): TableProps<Employee>['columns'] => [
   {
     title: '员工姓名',
     dataIndex: 'name',
@@ -75,94 +71,28 @@ const columns = (
   },
 ];
 
-type TableRowSelection<T extends object = object> =
-  TableProps<T>['rowSelection'];
-
 const EmployeePage: React.FC = () => {
-  // ========== 1. 基础状态 ==========
   const [form] = Form.useForm<SearchParams>();
   const access = useAccess();
-
-  // ========== 2. 数据状态 ==========
-  const [data, setData] = useState<User[]>([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
-
-  // ========== 3. 查询状态 ==========
-  const [searchParams, setSearchParams] = useState<SearchParams>({});
-  const [pagination, setPagination] = useState({
-    pageNum: 1,
-    pageSize: 10,
-  });
-
-  // ========== 4. 弹窗状态 ==========
-  const [createModalVisible, setCreateModalVisible] = useState<boolean>(false);
-  const [updateModalVisible, setUpdateModalVisible] = useState<boolean>(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
-
-  // ========== 5. 表格选择状态 ==========
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-
-  // ========== 6. 数据加载 ==========
-  const loadData = async () => {
-    setLoading(true);
-
-    try {
-      const result = await getPage({
-        ...searchParams,
-        ...pagination,
-      });
-      setData(result.records);
-      setTotal(result.total);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-  }, [searchParams, pagination.pageNum, pagination.pageSize]);
-
-  // ========== 7. 查询相关事件 ==========
-  const handleSearch = (values: SearchParams) => {
-    setSearchParams(values);
-    setPagination((prev) => ({
-      ...prev,
-      pageNum: 1,
-    }));
-  };
-
-  const handleReset = () => {
-    form.resetFields();
-
-    setSearchParams({});
-
-    setPagination((prev) => ({
-      ...prev,
-      pageNum: 1,
-    }));
-  };
-
-  const handlePageChange = (pageNum: number, pageSize: number) => {
-    setPagination({
-      pageNum,
-      pageSize,
-    });
-  };
-
-  // ========== 8. 表格选择相关 ==========
-  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    setSelectedRowKeys(newSelectedRowKeys);
-  };
-
-  const rowSelection: TableRowSelection<User> = {
+  const {
+    data,
+    total,
+    loading,
+    pagination,
+    rowSelection,
     selectedRowKeys,
-    onChange: onSelectChange,
-  };
-  // ========== 9. 增删改相关事件 ==========
+    search,
+    reset,
+    changePage,
+    reload,
+  } = useTablePage<Employee, SearchParams>({ fetch: getPage, form });
 
-  const onEdit = (record: User) => {
-    setEditingUser(record);
+  const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
+  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+
+  const onEdit = (record: Employee) => {
+    setEditingEmployee(record);
     setUpdateModalVisible(true);
   };
 
@@ -177,10 +107,9 @@ const EmployeePage: React.FC = () => {
       content: '删除后将无法恢复，确定要删除该员工吗？',
       onOk: async () => {
         try {
-          await batchDeleteUsers(ids);
+          await batchDeleteEmployees(ids);
           message.success('删除成功');
-          setSelectedRowKeys([]);
-          await loadData();
+          await reload();
         } catch {
           // 错误提示由全局请求层统一处理
         }
@@ -190,10 +119,9 @@ const EmployeePage: React.FC = () => {
 
   const handleStatusChange = async (status: number, id: number) => {
     try {
-      await updateUserStatus(status, id);
+      await updateEmployeeStatus(status, id);
       message.success('状态修改成功');
-      // 修改成功后重新查询
-      await loadData();
+      await reload();
     } catch {
       // 错误提示由全局请求层统一处理
     }
@@ -201,36 +129,14 @@ const EmployeePage: React.FC = () => {
 
   return (
     <PageContainer ghost>
-      <SearchForm
-        form={form}
-        handleSearch={handleSearch}
-        handleReset={handleReset}
+      <SearchForm form={form} handleSearch={search} handleReset={reset} />
+      <TableToolbar
+        onCreate={() => setCreateModalVisible(true)}
+        onBatchDelete={handleDelete}
+        canBatchDelete={access.canDeleteFoo}
       />
-      <div>
-        <Row gutter={32}>
-          <Col span={24}>
-            <Space>
-              <Button
-                type="primary"
-                onClick={() => setCreateModalVisible(true)}
-              >
-                新增
-              </Button>
-              <Access accessible={access.canDeleteFoo}>
-                <Button
-                  onClick={() => {
-                    handleDelete();
-                  }}
-                >
-                  批量删除
-                </Button>
-              </Access>
-            </Space>
-          </Col>
-        </Row>
-      </div>
 
-      <Table<User>
+      <Table<Employee>
         rowKey="id"
         rowSelection={rowSelection}
         columns={columns(handleStatusChange, onEdit)}
@@ -246,17 +152,17 @@ const EmployeePage: React.FC = () => {
         total={total}
         showSizeChanger
         showQuickJumper
-        onChange={handlePageChange}
+        onChange={changePage}
       />
       <CreateForm
         modalVisible={createModalVisible}
-        reloadData={() => loadData()}
+        reloadData={reload}
         hideModal={() => setCreateModalVisible(false)}
       />
       <UpdateForm
         modalVisible={updateModalVisible}
-        editingUser={editingUser}
-        reloadData={() => loadData()}
+        editingEmployee={editingEmployee}
+        reloadData={reload}
         hideModal={() => setUpdateModalVisible(false)}
       />
     </PageContainer>

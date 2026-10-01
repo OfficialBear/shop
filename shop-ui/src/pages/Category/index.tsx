@@ -1,3 +1,5 @@
+import TableToolbar from '@/components/TableToolbar';
+import { useTablePage } from '@/hooks/useTablePage';
 import { SearchParams } from '@/pages/Category/type';
 import {
   deleteCategory,
@@ -7,18 +9,8 @@ import {
 import type { Category } from '@/types';
 import { PageContainer } from '@ant-design/pro-components';
 import type { TableProps } from 'antd';
-import {
-  Button,
-  Col,
-  Form,
-  Modal,
-  Pagination,
-  Row,
-  Space,
-  Table,
-  message,
-} from 'antd';
-import React, { useEffect, useState } from 'react';
+import { Form, Modal, Pagination, Space, Table, message } from 'antd';
+import React, { useState } from 'react';
 import CreateForm from './components/CreateForm';
 import SearchForm from './components/SearchForm';
 import UpdateForm from './components/UpdateForm';
@@ -78,78 +70,13 @@ const columns = (
 ];
 
 const CategoryPage: React.FC = () => {
-  // ========== 1. 基础状态 ==========
   const [form] = Form.useForm<SearchParams>();
+  const { data, total, loading, pagination, search, reset, changePage, reload } =
+    useTablePage<Category, SearchParams>({ fetch: getPage, form });
 
-  // ========== 2. 数据状态 ==========
-  const [data, setData] = useState<Category[]>([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
-
-  // ========== 3. 查询状态 ==========
-  const [searchParams, setSearchParams] = useState<SearchParams>({});
-  const [pagination, setPagination] = useState({
-    pageNum: 1,
-    pageSize: 10,
-  });
-
-  // ========== 4. 弹窗状态 ==========
-  const [createModalVisible, setCreateModalVisible] = useState<boolean>(false);
-  const [updateModalVisible, setUpdateModalVisible] = useState<boolean>(false);
+  const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-
-  // ========== 5. 表格选择状态 ==========
-
-  // ========== 6. 数据加载 ==========
-  const loadData = async () => {
-    setLoading(true);
-
-    try {
-      const result = await getPage({
-        ...searchParams,
-        ...pagination,
-      });
-      setData(result.records);
-      setTotal(result.total);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-  }, [searchParams, pagination.pageNum, pagination.pageSize]);
-
-  // ========== 7. 查询相关事件 ==========
-  const handleSearch = (values: SearchParams) => {
-    setSearchParams(values);
-    setPagination((prev) => ({
-      ...prev,
-      pageNum: 1,
-    }));
-  };
-
-  const handleReset = () => {
-    form.resetFields();
-
-    setSearchParams({});
-
-    setPagination((prev) => ({
-      ...prev,
-      pageNum: 1,
-    }));
-  };
-
-  const handlePageChange = (pageNum: number, pageSize: number) => {
-    setPagination({
-      pageNum,
-      pageSize,
-    });
-  };
-
-  // ========== 8. 表格选择相关 ==========
-
-  // ========== 9. 增删改相关事件 ==========
 
   const onEdit = (record: Category) => {
     setEditingCategory(record);
@@ -160,8 +87,7 @@ const CategoryPage: React.FC = () => {
     try {
       await updateCategoryStatus(status, id);
       message.success('状态修改成功');
-      // 修改成功后重新查询
-      await loadData();
+      await reload();
     } catch {
       // 错误提示由全局请求层统一处理
     }
@@ -178,7 +104,7 @@ const CategoryPage: React.FC = () => {
         try {
           await deleteCategory(id);
           message.success('删除成功');
-          await loadData();
+          await reload();
         } catch {
           // 错误提示由全局请求层统一处理
         }
@@ -188,25 +114,8 @@ const CategoryPage: React.FC = () => {
 
   return (
     <PageContainer ghost>
-      <SearchForm
-        form={form}
-        handleSearch={handleSearch}
-        handleReset={handleReset}
-      />
-      <div>
-        <Row gutter={32}>
-          <Col span={24}>
-            <Space>
-              <Button
-                type="primary"
-                onClick={() => setCreateModalVisible(true)}
-              >
-                新增
-              </Button>
-            </Space>
-          </Col>
-        </Row>
-      </div>
+      <SearchForm form={form} handleSearch={search} handleReset={reset} />
+      <TableToolbar onCreate={() => setCreateModalVisible(true)} />
 
       <Table<Category>
         rowKey="id"
@@ -223,17 +132,17 @@ const CategoryPage: React.FC = () => {
         total={total}
         showSizeChanger
         showQuickJumper
-        onChange={handlePageChange}
+        onChange={changePage}
       />
       <CreateForm
         modalVisible={createModalVisible}
-        reloadData={() => loadData()}
+        reloadData={reload}
         hideModal={() => setCreateModalVisible(false)}
       />
       <UpdateForm
         modalVisible={updateModalVisible}
         editingCategory={editingCategory}
-        reloadData={() => loadData()}
+        reloadData={reload}
         hideModal={() => setUpdateModalVisible(false)}
       />
     </PageContainer>

@@ -9,6 +9,8 @@ export default (initialState: { currentUser?: UserInfo }) => {
   // 如果用户未登录，所有权限为 false
   if (!currentUser) {
     return {
+      // 未登录时禁止访问受保护路由
+      canAccess: false,
       canReadFoo: false,
       canUpdateFoo: false,
       canDeleteFoo: false,
@@ -18,6 +20,8 @@ export default (initialState: { currentUser?: UserInfo }) => {
   const { role, permissions = [] } = currentUser;
 
   return {
+    // 已登录：允许访问受保护路由
+    canAccess: true,
     // 静态权限：直接返回布尔值
     canReadFoo: true,
     // 根据角色判断

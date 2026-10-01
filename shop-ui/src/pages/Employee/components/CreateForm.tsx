@@ -1,4 +1,4 @@
-import { createUser, UserParams } from '@/services/user';
+import { createEmployee, EmployeeParams } from '@/services/employee';
 import type { FormProps } from 'antd';
 import { Button, Form, Input, message, Modal, Select, Space } from 'antd';
 import React, { PropsWithChildren } from 'react';
@@ -12,9 +12,9 @@ interface CreateFormProps {
 const CreateForm: React.FC<PropsWithChildren<CreateFormProps>> = (props) => {
   const { modalVisible, reloadData, hideModal } = props;
 
-  const onFinish: FormProps<UserParams>['onFinish'] = async (values) => {
+  const onFinish: FormProps<EmployeeParams>['onFinish'] = async (values) => {
     try {
-      await createUser(values);
+      await createEmployee(values);
       message.success('添加成功');
       await reloadData();
       hideModal();
@@ -39,14 +39,14 @@ const CreateForm: React.FC<PropsWithChildren<CreateFormProps>> = (props) => {
         onFinish={onFinish}
         autoComplete="off"
       >
-        <Form.Item<UserParams>
+        <Form.Item<EmployeeParams>
           label="姓名"
           name="name"
           rules={[{ required: true, message: '请输入姓名!' }]}
         >
           <Input />
         </Form.Item>
-        <Form.Item<UserParams>
+        <Form.Item<EmployeeParams>
           label="性别"
           name="sex"
           rules={[{ required: true, message: '请选择性别!' }]}
@@ -60,27 +60,28 @@ const CreateForm: React.FC<PropsWithChildren<CreateFormProps>> = (props) => {
             ]}
           />
         </Form.Item>
-        <Form.Item<UserParams> label="身份证号" name="idNumber">
+        <Form.Item<EmployeeParams> label="身份证号" name="idNumber">
           <Input />
         </Form.Item>
-        <Form.Item<UserParams> label="手机号" name="phone">
+        <Form.Item<EmployeeParams> label="手机号" name="phone">
           <Input />
         </Form.Item>
-        <Form.Item<UserParams>
+        <Form.Item<EmployeeParams>
           label="用户名"
           name="username"
-          rules={[{ required: true, message: 'Please input your username!' }]}
+          rules={[{ required: true, message: '请输入用户名!' }]}
         >
           <Input />
         </Form.Item>
-       <div style={{ textAlign: 'center', marginTop: 24 }}>
-        <Space>
+
+        <div style={{ textAlign: 'center', marginTop: 24 }}>
+          <Space>
             <Button type="primary" htmlType="submit">
               确定
             </Button>
             <Button onClick={() => hideModal()}>取消</Button>
           </Space>
-       </div>
+        </div>
       </Form>
     </Modal>
   );

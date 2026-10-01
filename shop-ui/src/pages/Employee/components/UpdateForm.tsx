@@ -1,29 +1,29 @@
-import { updateUser, UserParams } from '@/services/user';
-import type { User } from '@/types';
+import { updateEmployee, EmployeeParams } from '@/services/employee';
+import type { Employee } from '@/types';
 import { Button, Form, Input, message, Modal, Select, Space } from 'antd';
 import React, { PropsWithChildren, useEffect } from 'react';
 
 interface UpdateFormProps {
   modalVisible: boolean;
-  editingUser: User | null;
+  editingEmployee: Employee | null;
   reloadData: () => Promise<void>;
   hideModal: () => void;
 }
 
 const UpdateForm: React.FC<PropsWithChildren<UpdateFormProps>> = (props) => {
-  const { modalVisible, editingUser, hideModal, reloadData } = props;
+  const { modalVisible, editingEmployee, hideModal, reloadData } = props;
   const [form] = Form.useForm();
 
   useEffect(() => {
-    if (modalVisible && editingUser) {
-      form.setFieldsValue(editingUser);
+    if (modalVisible && editingEmployee) {
+      form.setFieldsValue(editingEmployee);
     }
-  }, [modalVisible, editingUser, form]);
+  }, [modalVisible, editingEmployee, form]);
 
-  const handleSubmit = async (values: UserParams) => {
-    if (!editingUser) return;
+  const handleSubmit = async (values: EmployeeParams) => {
+    if (!editingEmployee) return;
     try {
-      await updateUser({ ...values, id: editingUser?.id });
+      await updateEmployee({ ...values, id: editingEmployee.id });
       message.success('修改成功');
       await reloadData();
       hideModal();
@@ -46,18 +46,17 @@ const UpdateForm: React.FC<PropsWithChildren<UpdateFormProps>> = (props) => {
         name="basic"
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 18 }}
-        style={{ maxWidth: 600 }}
         onFinish={handleSubmit}
         autoComplete="off"
       >
-        <Form.Item<UserParams>
+        <Form.Item<EmployeeParams>
           label="姓名"
           name="name"
           rules={[{ required: true, message: '请输入姓名!' }]}
         >
           <Input />
         </Form.Item>
-        <Form.Item<UserParams>
+        <Form.Item<EmployeeParams>
           label="性别"
           name="sex"
           rules={[{ required: true, message: '请选择性别!' }]}
@@ -71,18 +70,18 @@ const UpdateForm: React.FC<PropsWithChildren<UpdateFormProps>> = (props) => {
             ]}
           />
         </Form.Item>
-        <Form.Item<UserParams> label="身份证号" name="idNumber">
+        <Form.Item<EmployeeParams> label="身份证号" name="idNumber">
           <Input />
         </Form.Item>
-        <Form.Item<UserParams> label="手机号" name="phone">
+        <Form.Item<EmployeeParams> label="手机号" name="phone">
           <Input />
         </Form.Item>
-        <Form.Item<UserParams>
+        <Form.Item<EmployeeParams>
           label="用户名"
           name="username"
-          rules={[{ required: true, message: 'Please input your username!' }]}
+          rules={[{ required: true, message: '请输入用户名!' }]}
         >
-          <Input disabled={true} />
+          <Input disabled />
         </Form.Item>
 
         <div style={{ textAlign: 'center', marginTop: 24 }}>

@@ -1,7 +1,7 @@
-import type { PageParams, PageResult, User } from '@/types';
+import type { Employee, PageParams, PageResult } from '@/types';
 import request from '@/utils/request';
 
-export interface UserPageParams extends PageParams {
+export interface EmployeePageParams extends PageParams {
   username?: string;
   phone?: string;
   name?: string;
@@ -9,7 +9,7 @@ export interface UserPageParams extends PageParams {
   status?: number;
 }
 
-export interface UserParams {
+export interface EmployeeParams {
   id?: number;
   username?: string;
   name?: string;
@@ -23,8 +23,8 @@ export interface UserParams {
  *
  * GET /admin/employee/{id}
  */
-export function getUserById(id: number) {
-  return request<User>(`/admin/employee/${id}`, {
+export function getEmployeeById(id: number) {
+  return request<Employee>(`/admin/employee/${id}`, {
     method: 'GET',
   });
 }
@@ -34,8 +34,8 @@ export function getUserById(id: number) {
  *
  * GET /admin/employee/page?pageNum=1&pageSize=20&keyword=Tom
  */
-export function getPage(params: UserPageParams) {
-  return request<PageResult<User>>('/admin/employee/page', {
+export function getPage(params: EmployeePageParams) {
+  return request<PageResult<Employee>>('/admin/employee/page', {
     method: 'GET',
     params,
   });
@@ -46,7 +46,7 @@ export function getPage(params: UserPageParams) {
  *
  * POST /admin/employee
  */
-export function createUser(data: UserParams) {
+export function createEmployee(data: EmployeeParams) {
   return request<void>('/admin/employee', {
     method: 'POST',
     data,
@@ -58,7 +58,7 @@ export function createUser(data: UserParams) {
  *
  * PUT /admin/employee
  */
-export function updateUser(data: UserParams) {
+export function updateEmployee(data: EmployeeParams) {
   return request<void>('/admin/employee', {
     method: 'PUT',
     data,
@@ -70,7 +70,7 @@ export function updateUser(data: UserParams) {
  *
  * PUT /admin/employee/status/{status}
  */
-export function updateUserStatus(status: number, id: number) {
+export function updateEmployeeStatus(status: number, id: number) {
   return request<void>(`/admin/employee/status/${status}`, {
     method: 'PUT',
     params: { id },
@@ -82,7 +82,7 @@ export function updateUserStatus(status: number, id: number) {
  *
  * DELETE /admin/employee
  */
-export function batchDeleteUsers(ids: number[]) {
+export function batchDeleteEmployees(ids: number[]) {
   return request<void>('/admin/employee', {
     method: 'DELETE',
     data: ids,
