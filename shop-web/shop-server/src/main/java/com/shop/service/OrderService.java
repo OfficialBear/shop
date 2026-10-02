@@ -30,7 +30,7 @@ public interface OrderService {
      * @param dto
      * @return
      */
-    PageResult pageQuery(OrderPageQueryDTO dto);
+    PageResult<OrderVO> pageQuery(OrderPageQueryDTO dto);
 
     /**
      * 订单详情

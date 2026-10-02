@@ -40,7 +40,7 @@ public interface DishService {
      * @param dishPageQueryDTO
      * @return
      */
-    PageResult pageQuery(DishPageQueryDTO dishPageQueryDTO);
+    PageResult<DishVO> pageQuery(DishPageQueryDTO dishPageQueryDTO);
 
     /**
      * 新增菜品

@@ -16,11 +16,21 @@
     </insert>
 
     <select id="getById" resultType="com.shop.entity.Order">
-        select * from orders where id = #{id}
+        select id, number, table_no, status, user_id, address_book_id, order_time,
+        checkout_time, pay_method, pay_status, amount, remark, phone, address,
+        user_name, consignee, cancel_reason, rejection_reason, cancel_time,
+        estimated_delivery_time, delivery_status, delivery_time, pack_amount,
+        tableware_number, tableware_status
+        from orders where id = #{id}
     </select>
 
     <select id="pageQuery" resultType="com.shop.entity.Order">
-        select * from orders
+        select id, number, table_no, status, user_id, address_book_id, order_time,
+        checkout_time, pay_method, pay_status, amount, remark, phone, address,
+        user_name, consignee, cancel_reason, rejection_reason, cancel_time,
+        estimated_delivery_time, delivery_status, delivery_time, pack_amount,
+        tableware_number, tableware_status
+        from orders
         <where>
             <if test="userId != null">
                 and user_id = #{userId}

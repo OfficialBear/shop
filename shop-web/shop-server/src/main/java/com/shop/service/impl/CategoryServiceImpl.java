@@ -54,10 +54,10 @@ public class CategoryServiceImpl implements CategoryService {
      * @return
      */
     @Override
-    public PageResult pageQuery(CategoryPageQueryDTO dto) {
+    public PageResult<Category> pageQuery(CategoryPageQueryDTO dto) {
         PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         Page<Category> page = categoryMapper.pageQuery(dto);
-        return new PageResult(page.getTotal(), page.getResult());
+        return new PageResult<>(page.getTotal(), page.getResult());
     }
 
     /**

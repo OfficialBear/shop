@@ -9,6 +9,7 @@ import com.shop.mapper.UserMapper;
 import com.shop.properties.WechatProperties;
 import com.shop.service.UserService;
 import com.shop.utils.HttpClientUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +18,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
 
-    private static String WX_LOGIN_URL = "https://api.weixin.qq.com/sns/jscode2session";
+    private static final String WX_LOGIN_URL = "https://api.weixin.qq.com/sns/jscode2session";
 
     @Autowired
     private HttpClientUtil httpClientUtil;
@@ -61,7 +63,8 @@ public class UserServiceImpl implements UserService {
         queryParams.put("js_code", code);
         queryParams.put("grant_type", "authorization_code");
         String json = httpClientUtil.get(WX_LOGIN_URL, null, queryParams);
-        System.out.println(json);
+        // 不打印响应体，避免 openid / session_key 等敏感信息进入日志
+        log.debug("已获取微信 jscode2session 响应");
         JSONObject body = JSONObject.parseObject(json);
         return body.getString("openid");
     }

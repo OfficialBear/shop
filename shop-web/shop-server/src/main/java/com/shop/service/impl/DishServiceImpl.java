@@ -8,6 +8,7 @@ import com.shop.dto.DishDTO;
 import com.shop.dto.DishPageQueryDTO;
 import com.shop.entity.Dish;
 import com.shop.entity.DishFlavor;
+import com.shop.exception.BaseException;
 import com.shop.exception.DeletionNotAllowedException;
 import com.shop.mapper.DishFlavorMapper;
 import com.shop.mapper.DishMapper;
@@ -46,6 +47,9 @@ public class DishServiceImpl implements DishService {
     public DishVO getByIdWithFlavor(Long id) {
         // 查询菜品表
         Dish dish = dishMapper.getById(id);
+        if (dish == null) {
+            throw new BaseException("菜品不存在");
+        }
         // 查询关联的口味
         List<DishFlavor> flavors = dishFlavorMapper.getByDishId(id);
         DishVO dishVO = new DishVO();
@@ -101,10 +105,10 @@ public class DishServiceImpl implements DishService {
      * @return
      */
     @Override
-    public PageResult pageQuery(DishPageQueryDTO dishPageQueryDTO) {
+    public PageResult<DishVO> pageQuery(DishPageQueryDTO dishPageQueryDTO) {
         PageHelper.startPage(dishPageQueryDTO.getPageNum(), dishPageQueryDTO.getPageSize());
         Page<DishVO> page = dishMapper.pageQuery(dishPageQueryDTO);
-        return new PageResult(page.getTotal(), page.getResult());
+        return new PageResult<>(page.getTotal(), page.getResult());
     }
 
     /**
@@ -140,20 +144,22 @@ public class DishServiceImpl implements DishService {
      * @param dishDTO
      */
     @Transactional
+    @Override
     public void updateWithFlavor(DishDTO dishDTO) {
         Dish dish = new Dish();
         BeanUtils.copyProperties(dishDTO, dish);
         dishMapper.update(dish);
 
+        Long dishId = dishDTO.getId();
+        // 无论是否提交新口味，都先删除旧口味，避免清空口味时残留
+        dishFlavorMapper.deleteBatch(List.of(dishId));
+
         List<DishFlavor> flavors = dishDTO.getFlavors();
         if (flavors == null || flavors.isEmpty()) {
             return;
         }
-        List<Long> list = new ArrayList<>();
-        list.add(dishDTO.getId());
-        dishFlavorMapper.deleteBatch(list);
         for (DishFlavor dishFlavor : flavors) {
-            dishFlavor.setDishId(dishDTO.getId());
+            dishFlavor.setDishId(dishId);
         }
         dishFlavorMapper.insertBatch(flavors);
     }

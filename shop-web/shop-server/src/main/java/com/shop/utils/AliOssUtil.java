@@ -4,6 +4,8 @@ import com.aliyun.oss.ClientException;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.OSSException;
+import com.shop.constant.MessageConstant;
+import com.shop.exception.BaseException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -35,17 +37,12 @@ public class AliOssUtil {
         try {
             // 创建PutObject请求。
             ossClient.putObject(bucketName, objectName, new ByteArrayInputStream(bytes));
-        } catch (OSSException oe) {
-            log.error("Error Message:{}", oe.getErrorMessage());
-            log.error("Error Code:{}", oe.getErrorCode());
-            log.error("Request ID:{}", oe.getRequestId());
-            log.error("Host ID:{}", oe.getHostId());
-        } catch (ClientException ce) {
-            log.error("Error Message:" + ce.getMessage());
+        } catch (OSSException | ClientException e) {
+            // 上传失败必须上抛，不能返回一个并不存在的 URL
+            log.error("OSS 上传失败: {}", e.getMessage(), e);
+            throw new BaseException(MessageConstant.UPLOAD_FAILED);
         } finally {
-            if (ossClient != null) {
-                ossClient.shutdown();
-            }
+            ossClient.shutdown();
         }
 
         // 文件访问路径规则 https://BucketName.Endpoint/ObjectName

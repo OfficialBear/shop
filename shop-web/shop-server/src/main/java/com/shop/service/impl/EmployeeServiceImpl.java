@@ -73,14 +73,14 @@ public class EmployeeServiceImpl implements EmployeeService {
      * @return
      */
     @Override
-    public PageResult pageQuery(EmployeePageQueryDTO employeePageQueryDTO) {
+    public PageResult<Employee> pageQuery(EmployeePageQueryDTO employeePageQueryDTO) {
         PageHelper.startPage(employeePageQueryDTO.getPageNum(), employeePageQueryDTO.getPageSize());
         Page<Employee> page = employeeMapper.pageQuery(employeePageQueryDTO);
         List<Employee> employeeList = page.getResult();
         for (Employee employee : employeeList) {
             employee.setPassword(null);
         }
-        return new PageResult(page.getTotal(), employeeList);
+        return new PageResult<>(page.getTotal(), employeeList);
     }
 
     /**

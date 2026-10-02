@@ -43,4 +43,16 @@ public class GlobalExceptionHandler {
         }
         return Result.error(MessageConstant.UNKNOWN_ERROR);
     }
+
+    /**
+     * 兜底：未预期的异常统一返回，保持响应结构一致且不暴露堆栈。
+     *
+     * @param ex
+     * @return
+     */
+    @ExceptionHandler(Exception.class)
+    public Result exceptionHandler(Exception ex) {
+        log.error("unexpected ex:{}", ex.getMessage(), ex);
+        return Result.error(MessageConstant.UNKNOWN_ERROR);
+    }
 }

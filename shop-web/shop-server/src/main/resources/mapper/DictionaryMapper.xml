@@ -5,7 +5,9 @@
 <mapper namespace="com.shop.mapper.DataDictionaryMapper">
 
     <select id="select" resultType="com.shop.entity.DataDictionary">
-        select * from data_dictionary_t
+        select id, dic_parent_code, dic_code, dic_value, description, sort, status,
+        create_time, update_time, create_user, update_user
+        from data_dictionary_t
         <where>
             dic_parent_code = #{dicParentCode}
             <if test="dicCode != null">and dic_code = #{dicCode}</if>

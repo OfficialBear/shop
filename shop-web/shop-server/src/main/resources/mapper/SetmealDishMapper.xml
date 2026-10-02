@@ -12,7 +12,8 @@
     </select>
 
     <select id="getBySetmealId" resultType="com.shop.entity.SetmealDish">
-        select * from setmeal_dish where setmeal_id = #{setmealId}
+        select id, setmeal_id, dish_id, name, price, copies
+        from setmeal_dish where setmeal_id = #{setmealId}
     </select>
 
     <select id="getDishItemBySetmealId" resultType="com.shop.vo.DishItemVO">

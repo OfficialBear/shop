@@ -8,6 +8,7 @@ import com.shop.dto.SetmealDTO;
 import com.shop.dto.SetmealPageQueryDTO;
 import com.shop.entity.Setmeal;
 import com.shop.entity.SetmealDish;
+import com.shop.exception.BaseException;
 import com.shop.exception.DeletionNotAllowedException;
 import com.shop.mapper.SetmealDishMapper;
 import com.shop.mapper.SetmealMapper;
@@ -37,19 +38,22 @@ public class SetmealServiceImpl implements SetmealService {
     private SetmealDishMapper setmealDishMapper;
 
     @Override
-    public PageResult pageQuery(SetmealPageQueryDTO setmealPageQueryDTO) {
+    public PageResult<SetmealVO> pageQuery(SetmealPageQueryDTO setmealPageQueryDTO) {
         int pageNum = setmealPageQueryDTO.getPageNum();
         int pageSize = setmealPageQueryDTO.getPageSize();
         PageHelper.startPage(pageNum, pageSize);
 
         Page<SetmealVO> page = setmealMapper.pageQuery(setmealPageQueryDTO);
 
-        return new PageResult(page.getTotal(), page.getResult());
+        return new PageResult<>(page.getTotal(), page.getResult());
     }
 
     @Override
     public SetmealVO getBySetmealId(Long id) {
         SetmealVO setmealVO = setmealMapper.getBySetmealId(id);
+        if (setmealVO == null) {
+            throw new BaseException("套餐不存在");
+        }
         List<SetmealDish> setmealDishes = setmealDishMapper.getBySetmealId(id);
         setmealVO.setSetmealDishes(setmealDishes);
         return setmealVO;

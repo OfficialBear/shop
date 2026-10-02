@@ -31,8 +31,10 @@ public class ShopController {
     @GetMapping("/status")
     public Result<Integer> getStatus() {
         DataDictionary dataDictionary = dataDictionaryService.get(DictionaryConstant.SHOP, DictionaryConstant.SHOP_STATUS);
-        Integer status = Integer.parseInt(dataDictionary.getDicValue());
-        return Result.success(status);
+        if (dataDictionary == null || dataDictionary.getDicValue() == null) {
+            return Result.error("店铺营业状态未配置");
+        }
+        return Result.success(Integer.parseInt(dataDictionary.getDicValue()));
     }
 
     /**

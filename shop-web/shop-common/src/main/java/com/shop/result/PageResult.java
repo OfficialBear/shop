@@ -13,9 +13,9 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PageResult implements Serializable {
+public class PageResult<T> implements Serializable {
     // 总记录数
     private long total;
     // 当前页数据集合
-    private List records;
+    private List<T> records;
 }

@@ -20,6 +20,9 @@ import java.util.UUID;
 @RequestMapping("admin/common")
 @Slf4j
 public class CommonController {
+
+    private static final long MAX_IMAGE_SIZE = 2 * 1024 * 1024L;
+
     @Autowired
     private AliOssUtil aliOssUtil;
 
@@ -31,23 +34,34 @@ public class CommonController {
      */
     @PostMapping("/upload")
     public Result<String> upload(MultipartFile file) {
-        log.info("文件上传：{}", file);
+        if (file == null || file.isEmpty()) {
+            return Result.error("上传文件不能为空");
+        }
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            return Result.error("仅支持上传图片文件");
+        }
+        if (file.getSize() > MAX_IMAGE_SIZE) {
+            return Result.error("图片大小不能超过 2MB");
+        }
+
+        String originalFilename = file.getOriginalFilename();
+        String extension = "";
+        if (originalFilename != null) {
+            int dot = originalFilename.lastIndexOf('.');
+            if (dot >= 0) {
+                extension = originalFilename.substring(dot);
+            }
+        }
+        String objectName = UUID.randomUUID() + extension;
+        log.info("文件上传：{}", objectName);
 
         try {
-            //原始文件名
-            String originalFilename = file.getOriginalFilename();
-            //截取原始文件名的后缀   dfdfdf.png
-            String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            //构造新文件名称
-            String objectName = UUID.randomUUID() + extension;
-
-            //文件的请求路径
             String filePath = aliOssUtil.upload(file.getBytes(), objectName);
             return Result.success(filePath);
         } catch (IOException ex) {
-            log.error("文件上传失败：{}", ex);
+            log.error("文件上传失败", ex);
+            return Result.error(MessageConstant.UPLOAD_FAILED);
         }
-
-        return Result.error(MessageConstant.UPLOAD_FAILED);
     }
 }

@@ -1,8 +1,9 @@
 package com.shop.aspect;
 
 import com.shop.annotation.AutoFill;
+import com.shop.auth.LoginUser;
 import com.shop.constant.AutoFillConstant;
-import com.shop.context.BaseContext;
+import com.shop.context.UserContext;
 import com.shop.enumeration.OperationType;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -35,45 +36,48 @@ public class AutoFillAspect {
      */
     @Before("autoFillPointCut()")
     public void autoFill(JoinPoint joinPoint) {
-        log.info("开始进行公共字段自动填充...");
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         AutoFill autoFill = signature.getMethod().getAnnotation(AutoFill.class);
         OperationType operationType = autoFill.value();
-        // 获取到当前被拦截的方法的参数--实体对象
+
         Object[] args = joinPoint.getArgs();
-        if (args == null || args.length == 0) {
+        if (args == null || args.length == 0 || args[0] == null) {
             return;
         }
+
         Object entity = args[0];
         LocalDateTime now = LocalDateTime.now();
-        Long userId = BaseContext.getCurrentUser().getUserId();
+        // 无登录上下文时（如系统/定时任务触发）不写入操作人，避免 NPE
+        LoginUser loginUser = UserContext.getCurrentUser();
+        Long userId = loginUser == null ? null : loginUser.getUserId();
 
-        // 根据当前不同的操作类型，为对应的属性通过反射来赋值
-        if (operationType == OperationType.INSERT) {
-            try {
-                Method setCreateTime = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_CREATE_TIME, LocalDateTime.class);
-                Method setUpdateTime = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_TIME, LocalDateTime.class);
-                Method setCreateUser = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_CREATE_USER, Long.class);
-                Method setUpdateUser = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_USER, Long.class);
-                // 通过反射为对象属性赋值
-                setCreateTime.invoke(entity, now);
-                setUpdateTime.invoke(entity, now);
-                setCreateUser.invoke(entity, userId);
-                setUpdateUser.invoke(entity, userId);
-            } catch (Exception ex) {
-                log.error("insert in aspect", ex);
+        try {
+            if (operationType == OperationType.INSERT) {
+                invokeSetter(entity, AutoFillConstant.SET_CREATE_TIME, LocalDateTime.class, now);
+                invokeSetter(entity, AutoFillConstant.SET_UPDATE_TIME, LocalDateTime.class, now);
+                if (userId != null) {
+                    invokeSetter(entity, AutoFillConstant.SET_CREATE_USER, Long.class, userId);
+                    invokeSetter(entity, AutoFillConstant.SET_UPDATE_USER, Long.class, userId);
+                }
+            } else if (operationType == OperationType.UPDATE) {
+                invokeSetter(entity, AutoFillConstant.SET_UPDATE_TIME, LocalDateTime.class, now);
+                if (userId != null) {
+                    invokeSetter(entity, AutoFillConstant.SET_UPDATE_USER, Long.class, userId);
+                }
             }
-        } else if (operationType == OperationType.UPDATE) {
-            try {
-                Method setUpdateTime = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_TIME, LocalDateTime.class);
-                Method setUpdateUser = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_USER, Long.class);
-
-                // 通过反射为对象属性赋值
-                setUpdateTime.invoke(entity, now);
-                setUpdateUser.invoke(entity, userId);
-            } catch (Exception ex) {
-                log.error("update in aspect", ex);
-            }
+        } catch (ReflectiveOperationException ex) {
+            // 不再静默吞掉：公共字段填充失败应阻断写入，避免脏数据
+            throw new IllegalStateException("公共字段自动填充失败", ex);
         }
+    }
+
+    private void invokeSetter(
+            Object entity,
+            String setterName,
+            Class<?> paramType,
+            Object value
+    ) throws ReflectiveOperationException {
+        Method setter = entity.getClass().getDeclaredMethod(setterName, paramType);
+        setter.invoke(entity, value);
     }
 }

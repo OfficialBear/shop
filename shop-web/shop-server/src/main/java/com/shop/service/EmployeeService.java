@@ -24,7 +24,7 @@ public interface EmployeeService {
      * @param employeePageQueryDTO
      * @return
      */
-    PageResult pageQuery(EmployeePageQueryDTO employeePageQueryDTO);
+    PageResult<Employee> pageQuery(EmployeePageQueryDTO employeePageQueryDTO);
 
     /**
      * 新增员工

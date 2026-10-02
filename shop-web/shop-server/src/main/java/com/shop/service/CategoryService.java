@@ -24,7 +24,7 @@ public interface CategoryService {
      * @param dto
      * @return
      */
-    PageResult pageQuery(CategoryPageQueryDTO dto);
+    PageResult<Category> pageQuery(CategoryPageQueryDTO dto);
 
     /**
      * 新增分类

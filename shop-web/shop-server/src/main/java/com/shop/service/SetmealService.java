@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface SetmealService {
 
-    PageResult pageQuery(SetmealPageQueryDTO setmealPageQueryDTO);
+    PageResult<SetmealVO> pageQuery(SetmealPageQueryDTO setmealPageQueryDTO);
 
     SetmealVO getBySetmealId(Long id);
 

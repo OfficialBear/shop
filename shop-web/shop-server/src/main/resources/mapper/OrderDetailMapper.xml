@@ -15,11 +15,13 @@
     </insert>
 
     <select id="getByOrderId" resultType="com.shop.entity.OrderDetail">
-        select * from order_detail where order_id = #{orderId}
+        select id, name, image, order_id, dish_id, setmeal_id, dish_flavor, number, amount
+        from order_detail where order_id = #{orderId}
     </select>
 
     <select id="getByOrderIds" resultType="com.shop.entity.OrderDetail">
-        select * from order_detail
+        select id, name, image, order_id, dish_id, setmeal_id, dish_flavor, number, amount
+        from order_detail
         where order_id in
         <foreach collection="orderIds" item="id" separator="," open="(" close=")">
             #{id}

@@ -50,7 +50,7 @@ public class OrderController {
      * 我的订单分页查询
      */
     @GetMapping("/list")
-    public Result<PageResult> list(OrderPageQueryDTO dto) {
+    public Result<PageResult<OrderVO>> list(OrderPageQueryDTO dto) {
         return Result.success(orderService.pageQuery(dto));
     }
 

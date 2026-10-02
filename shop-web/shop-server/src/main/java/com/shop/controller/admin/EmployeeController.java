@@ -2,7 +2,7 @@ package com.shop.controller.admin;
 
 import com.shop.auth.LoginUser;
 import com.shop.constant.JwtClaimsConstant;
-import com.shop.context.BaseContext;
+import com.shop.context.UserContext;
 import com.shop.dto.EmployeeDTO;
 import com.shop.dto.EmployeeLoginDTO;
 import com.shop.dto.EmployeePageQueryDTO;
@@ -97,7 +97,7 @@ public class EmployeeController {
     @GetMapping("/current")
     public Result<LoginUser> getCurrentUser() {
         // TODO RBAC 基于角色的访问控制。此处简化处理
-        LoginUser loginUser = BaseContext.getCurrentUser();
+        LoginUser loginUser = UserContext.getCurrentUser();
         String role = null;
         Set<String> permissions = new HashSet<>();
         if ("admin".equals(loginUser.getUsername())) {
@@ -118,9 +118,9 @@ public class EmployeeController {
      * @return
      */
     @GetMapping("page")
-    public Result<PageResult> page(EmployeePageQueryDTO employeePageQueryDTO) {
+    public Result<PageResult<Employee>> page(EmployeePageQueryDTO employeePageQueryDTO) {
         log.info("员工分页查询: {}", employeePageQueryDTO);
-        PageResult pageResult = employeeService.pageQuery(employeePageQueryDTO);
+        PageResult<Employee> pageResult = employeeService.pageQuery(employeePageQueryDTO);
         return Result.success(pageResult);
     }
 

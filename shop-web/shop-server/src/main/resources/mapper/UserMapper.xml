@@ -5,7 +5,8 @@
 <mapper namespace="com.shop.mapper.UserMapper">
 
     <select id="getByOpenId" resultType="com.shop.entity.User">
-        select * from user where openid = #{openid}
+        select id, openid, name, phone, sex, id_number, avatar, create_time
+        from user where openid = #{openid}
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">

@@ -4,7 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.shop.auth.LoginUser;
 import com.shop.constant.StatusConstant;
-import com.shop.context.BaseContext;
+import com.shop.context.UserContext;
 import com.shop.dto.OrderItemDTO;
 import com.shop.dto.OrderPageQueryDTO;
 import com.shop.dto.OrderSubmitDTO;
@@ -169,7 +169,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public PageResult pageQuery(OrderPageQueryDTO dto) {
+    public PageResult<OrderVO> pageQuery(OrderPageQueryDTO dto) {
         dto.setUserId(currentUserId());
         PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         Page<Order> page = orderMapper.pageQuery(dto);
@@ -186,7 +186,7 @@ public class OrderServiceImpl implements OrderService {
             records.forEach(vo -> vo.setItems(grouped.getOrDefault(vo.getId(), new ArrayList<>())));
         }
 
-        return new PageResult(page.getTotal(), records);
+        return new PageResult<>(page.getTotal(), records);
     }
 
     @Override
@@ -228,7 +228,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private Long currentUserId() {
-        LoginUser loginUser = BaseContext.getCurrentUser();
+        LoginUser loginUser = UserContext.getCurrentUser();
         if (loginUser == null || loginUser.getUserId() == null) {
             throw new BaseException("未登录");
         }

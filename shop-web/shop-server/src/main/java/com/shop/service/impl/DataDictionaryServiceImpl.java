@@ -1,6 +1,6 @@
 package com.shop.service.impl;
 
-import com.shop.context.BaseContext;
+import com.shop.context.UserContext;
 import com.shop.entity.DataDictionary;
 import com.shop.mapper.DataDictionaryMapper;
 import com.shop.service.DataDictionaryService;
@@ -19,7 +19,7 @@ public class DataDictionaryServiceImpl implements DataDictionaryService {
 
     @Override
     public void update(DataDictionary dataDictionary) {
-        dataDictionary.setUpdateUser(BaseContext.getCurrentUser().getUserId());
+        dataDictionary.setUpdateUser(UserContext.getCurrentUser().getUserId());
         dataDictionaryMapper.update(dataDictionary);
     }
 }

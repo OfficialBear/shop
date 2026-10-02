@@ -2,7 +2,7 @@ package com.shop.interceptor;
 
 import com.shop.auth.LoginUser;
 import com.shop.constant.JwtClaimsConstant;
-import com.shop.context.BaseContext;
+import com.shop.context.UserContext;
 import com.shop.properties.JwtProperties;
 import com.shop.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -50,7 +50,7 @@ public class JwtTokenUserInterceptor implements HandlerInterceptor {
             Long userId = Long.valueOf(claims.get(JwtClaimsConstant.USER_ID).toString());
             LoginUser loginUser = new LoginUser();
             loginUser.setUserId(userId);
-            BaseContext.setCurrentUser(loginUser);
+            UserContext.setCurrentUser(loginUser);
             //3、通过，放行
             return true;
         } catch (Exception ex) {
@@ -66,6 +66,6 @@ public class JwtTokenUserInterceptor implements HandlerInterceptor {
                                 Object handler,
                                 Exception ex) {
         // 必须清理，防止线程池复用导致内存泄漏/串数据
-        BaseContext.clear();
+        UserContext.clear();
     }
 }
