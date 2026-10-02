@@ -1,7 +1,5 @@
 import { request } from '@umijs/max';
 
-const TOKEN_STORAGE_KEY = 'token';
-
 export class ApiError extends Error {
   constructor(
     msg: string,
@@ -14,29 +12,11 @@ export class ApiError extends Error {
 }
 
 /**
- * Get JWT from session storage.
- */
-export function getToken(): string {
-  return sessionStorage.getItem(TOKEN_STORAGE_KEY) ?? '';
-}
-
-/**
- * Store JWT in session storage.
- */
-export function setToken(token: string): void {
-  sessionStorage.setItem(TOKEN_STORAGE_KEY, token);
-}
-
-/**
- * Remove JWT from session storage.
- */
-export function clearToken(): void {
-  sessionStorage.removeItem(TOKEN_STORAGE_KEY);
-}
-
-/**
  * Redirect to the login page after authentication expires, keeping the
  * current location so the user can be sent back after signing in.
+ *
+ * The JWT itself lives in an HttpOnly cookie managed by the backend, so the
+ * frontend never reads or stores it.
  */
 export function redirectToLogin(): void {
   if (window.location.pathname === '/login') {

@@ -6,6 +6,7 @@ import com.shop.context.BaseContext;
 import com.shop.properties.JwtProperties;
 import com.shop.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +42,8 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        //1、从请求头中获取令牌
-        String token = request.getHeader(jwtProperties.getAdminTokenName());
+        //1、从 Cookie 中获取令牌
+        String token = resolveToken(request);
 
         //2、校验令牌
         try {
@@ -70,5 +71,20 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
                                 Exception ex) {
         // 必须清理，防止线程池复用导致内存泄漏/串数据
         BaseContext.clear();
+    }
+
+    /**
+     * 从 Cookie 中读取令牌，不存在时返回 null（校验阶段会拒绝并返回 401）。
+     */
+    private String resolveToken(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (jwtProperties.getAdminTokenName().equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }

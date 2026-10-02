@@ -3,22 +3,15 @@
 // 全局初始化数据配置，用于 Layout 用户信息和权限初始化
 // 更多信息见文档：https://umijs.org/docs/api/runtime-config#getinitialstate
 
+import UnAccessible from '@/components/UnAccessible';
 import { getCurrentUser, UserInfo } from '@/services/auth';
 import type { Result } from '@/types';
-import UnAccessible from '@/components/UnAccessible';
-import {
-  ApiError,
-  clearToken,
-  getToken,
-  redirectToLogin,
-} from '@/utils/request';
+import { ApiError, redirectToLogin } from '@/utils/request';
 import type {
   AxiosError,
   AxiosResponse,
   ErrorInterceptor,
   RequestConfig,
-  RequestInterceptor,
-  RequestOptions,
   ResponseInterceptor,
 } from '@umijs/max';
 import { message } from 'antd';
@@ -52,18 +45,6 @@ function resolveErrorMessage(error: Error, status?: number): string {
   return error.message || '请求失败';
 }
 
-// 注入 JWT
-const injectToken: RequestInterceptor = (config: RequestOptions) => {
-  const token = getToken();
-  if (token) {
-    config.headers = {
-      ...(config.headers ?? {}),
-      token,
-    } as typeof config.headers;
-  }
-  return config;
-};
-
 // 解包业务 Result，并对业务错误抛出 ApiError
 const unwrapResponse = ((response: AxiosResponse<Result<unknown>>) => {
   const res = response.data;
@@ -76,11 +57,10 @@ const unwrapResponse = ((response: AxiosResponse<Result<unknown>>) => {
   return response;
 }) as unknown as ResponseInterceptor;
 
-// HTTP 层错误：401 清理登录态并跳转登录页
+// HTTP 层错误：401 跳转登录页（令牌在 HttpOnly Cookie 中，前端无需清理）
 const handleHttpError = ((error: Error) => {
   const axiosError = error as AxiosError;
   if (axiosError.response?.status === 401) {
-    clearToken();
     redirectToLogin();
   }
   return Promise.reject(error);
@@ -108,13 +88,14 @@ export const layout = () => {
 };
 
 /**
- * 全局请求配置：统一 baseURL、JWT 注入、业务码解包、HTTP 错误与 401 处理。
- * 业务层只需 `request<T>(url, options)`，无需再关心 token / Result 包装。
+ * 全局请求配置：统一 baseURL、业务码解包、HTTP 错误与 401 处理。
+ * 管理员令牌由后端写入 HttpOnly Cookie，浏览器自动携带，前端不存储令牌。
  */
 export const request: RequestConfig = {
   baseURL: '/api',
   timeout: 10000,
-  requestInterceptors: [injectToken],
+  // 跨域部署时也要携带 Cookie（同源部署下无副作用）
+  withCredentials: true,
   responseInterceptors: [[unwrapResponse, handleHttpError]],
   errorConfig: {
     errorHandler: (error, opts) => {

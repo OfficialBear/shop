@@ -14,6 +14,10 @@ public class JwtProperties {
     private String adminSecretKey;
     private long adminTtl;
     private String adminTokenName;
+    /**
+     * 管理端 JWT Cookie 是否仅通过 HTTPS 传输（生产环境应设为 true）
+     */
+    private boolean adminCookieSecure = false;
 
     /**
      * 用户端微信用户生成jwt令牌相关配置

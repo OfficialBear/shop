@@ -13,9 +13,12 @@ import com.shop.result.Result;
 import com.shop.service.EmployeeService;
 import com.shop.utils.JwtUtil;
 import com.shop.vo.EmployeeLoginVO;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -53,7 +56,8 @@ public class EmployeeController {
      * @return
      */
     @PostMapping("/login")
-    public Result<EmployeeLoginVO> login(@RequestBody EmployeeLoginDTO employeeLoginDTO) {
+    public Result<EmployeeLoginVO> login(@RequestBody EmployeeLoginDTO employeeLoginDTO,
+                                         HttpServletResponse response) {
         log.info("员工登录：{}", employeeLoginDTO);
 
         Employee employee = employeeService.login(employeeLoginDTO);
@@ -67,11 +71,13 @@ public class EmployeeController {
                 claims,
                 jwtProperties.getAdminTtl());
 
+        // 通过 HttpOnly Cookie 下发令牌，前端 JS 不可读取，降低 XSS 窃取风险
+        writeTokenCookie(response, token);
+
         EmployeeLoginVO employeeLoginVO = EmployeeLoginVO.builder()
                 .id(employee.getId())
                 .userName(employee.getUsername())
                 .name(employee.getName())
-                .token(token)
                 .build();
 
         return Result.success(employeeLoginVO);
@@ -83,7 +89,8 @@ public class EmployeeController {
      * @return
      */
     @PostMapping("/logout")
-    public Result<String> logout() {
+    public Result<String> logout(HttpServletResponse response) {
+        clearTokenCookie(response);
         return Result.success();
     }
 
@@ -168,5 +175,35 @@ public class EmployeeController {
         log.info("批量删除员工: {}", ids);
         employeeService.deleteBatch(ids);
         return Result.success();
+    }
+
+    /**
+     * 下发 JWT Cookie（HttpOnly，前端 JS 不可读取）。
+     */
+    private void writeTokenCookie(HttpServletResponse response, String token) {
+        ResponseCookie cookie = ResponseCookie
+                .from(jwtProperties.getAdminTokenName(), token)
+                .httpOnly(true)
+                .secure(jwtProperties.isAdminCookieSecure())
+                .path("/")
+                .sameSite("Lax")
+                .maxAge(jwtProperties.getAdminTtl() / 1000)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    }
+
+    /**
+     * 清除 JWT Cookie。
+     */
+    private void clearTokenCookie(HttpServletResponse response) {
+        ResponseCookie cookie = ResponseCookie
+                .from(jwtProperties.getAdminTokenName(), "")
+                .httpOnly(true)
+                .secure(jwtProperties.isAdminCookieSecure())
+                .path("/")
+                .sameSite("Lax")
+                .maxAge(0)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 }

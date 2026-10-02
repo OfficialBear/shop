@@ -1,5 +1,4 @@
 import { login } from '@/services/auth';
-import { setToken } from '@/utils/request';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { history, useModel, useSearchParams } from '@umijs/max';
 import { Button, Checkbox, Form, Input, message } from 'antd';
@@ -26,17 +25,13 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      const user = await login({
+      await login({
         username: values.username.trim(),
         password: values.password,
       });
-      if (user.token) {
-        setToken(user.token);
-        // 关键：重新执行 getInitialState，刷新 currentUser 和权限
-        // 原因：getInitialState 只会在应用启动时执行一次。SPA 内部路由切换不会重新执行它。
-        // Token 过期后跳转登录页再登录，initialState.currentUser 依然是旧的或空的，access.ts 计算出的权限自然也不对。
-        await refresh();
-      }
+      // 登录成功后后端通过 HttpOnly Cookie 下发令牌，前端不接触令牌；
+      // 刷新 initialState 以更新 currentUser 与权限。
+      await refresh();
       message.success('Signed in successfully.');
 
       const redirect = searchParams.get('redirect');
