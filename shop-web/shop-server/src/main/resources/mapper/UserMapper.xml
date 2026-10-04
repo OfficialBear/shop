@@ -14,6 +14,19 @@
         from user where id = #{id}
     </select>
 
+    <select id="countNewUsersGroupByDay" resultType="com.shop.vo.UserReportVO">
+        select DATE_FORMAT(create_time, '%Y-%m-%d') as day,
+        count(id) as value
+        from user
+        where create_time &gt;= #{begin}
+        and create_time &lt; #{endExclusive}
+        group by day
+    </select>
+
+    <select id="countUsersBefore" resultType="java.lang.Integer">
+        select count(id) from user where create_time &lt; #{begin}
+    </select>
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         insert into user (openid, name, phone, sex, id_number, avatar, create_time)
         values (#{openid}, #{name}, #{phone}, #{sex}, #{idNumber}, #{avatar}, #{createTime})
