@@ -11,6 +11,7 @@ import com.shop.mapper.OrderMapper;
 import com.shop.properties.WechatProperties;
 import com.shop.utils.WechatPayUtil;
 import com.shop.vo.PrepayVO;
+import com.shop.websocket.WebSocketServer;
 import com.wechat.pay.java.service.payments.model.Transaction;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 微信支付业务：预支付、异步通知。
@@ -35,6 +38,9 @@ public class WechatPayService {
 
     @Autowired
     private OrderMapper orderMapper;
+
+    @Autowired
+    private WebSocketServer webSocketServer;
 
     /**
      * 创建预支付，返回小程序支付参数。
@@ -110,6 +116,14 @@ public class WechatPayService {
         int updated = orderMapper.markPaid(order.getId(), LocalDateTime.now());
         if (updated > 0) {
             log.info("订单支付成功: {} -> {}", outTradeNo, transactionId);
+
+            Map map = new HashMap();
+            map.put("type", 1);//消息类型，1表示来单提醒
+            map.put("orderId", order.getId());
+            map.put("content", "订单号：" + outTradeNo);
+
+            // 通过WebSocket实现来单提醒，向客户端浏览器推送消息
+            webSocketServer.sendToAllClient(JSON.toJSONString(map));
         }
     }
 }

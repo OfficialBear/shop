@@ -21,4 +21,7 @@ public class MessageConstant {
     public static final String LOGIN_FAILED = "登录失败";
 
     public static final String SETMEAL_ON_SALE = "起售中的套餐不能删除";
+
+    public static final String ORDER_STATUS_ERROR = "订单状态错误";
+    public static final String ORDER_NOT_FOUND = "订单不存在";
 }

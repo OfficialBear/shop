@@ -1,8 +1,11 @@
 package com.shop.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.shop.auth.LoginUser;
+import com.shop.constant.MessageConstant;
+import com.shop.constant.OrderConstant;
 import com.shop.constant.StatusConstant;
 import com.shop.context.UserContext;
 import com.shop.dto.OrderItemDTO;
@@ -13,6 +16,7 @@ import com.shop.entity.Order;
 import com.shop.entity.OrderDetail;
 import com.shop.entity.User;
 import com.shop.exception.BaseException;
+import com.shop.exception.OrderBusinessException;
 import com.shop.mapper.DishMapper;
 import com.shop.mapper.OrderDetailMapper;
 import com.shop.mapper.OrderMapper;
@@ -25,6 +29,7 @@ import com.shop.vo.OrderSubmitVO;
 import com.shop.vo.OrderVO;
 import com.shop.vo.PrepayVO;
 import com.shop.vo.SetmealVO;
+import com.shop.websocket.WebSocketServer;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +40,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -42,15 +48,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
-
-    // 订单状态
-    private static final Integer STATUS_PENDING_PAYMENT = 1;
-    private static final Integer STATUS_PENDING_ACCEPT = 2;
-    private static final Integer STATUS_CANCELLED = 6;
-
-    // 支付状态
-    private static final Integer PAY_STATUS_UNPAID = 0;
-    private static final Integer PAY_STATUS_PAID = 1;
 
     // 支付方式：微信
     private static final Integer PAY_METHOD_WECHAT = 1;
@@ -75,6 +72,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private WechatPayService wechatPayService;
+
+    @Autowired
+    private WebSocketServer webSocketServer;
 
     @Override
     @Transactional
@@ -130,12 +130,12 @@ public class OrderServiceImpl implements OrderService {
         Order order = Order.builder()
                 .number(generateOrderNumber())
                 .tableNo(dto.getTableNo())
-                .status(STATUS_PENDING_PAYMENT)
+                .status(OrderConstant.PENDING_PAYMENT)
                 .userId(userId)
                 .addressBookId(0L)
                 .orderTime(LocalDateTime.now())
                 .payMethod(PAY_METHOD_WECHAT)
-                .payStatus(PAY_STATUS_UNPAID)
+                .payStatus(OrderConstant.UN_PAID)
                 .amount(total)
                 .remark(dto.getRemark())
                 .build();
@@ -160,7 +160,7 @@ public class OrderServiceImpl implements OrderService {
         if (order == null || !order.getUserId().equals(userId)) {
             throw new BaseException("订单不存在");
         }
-        if (!STATUS_PENDING_PAYMENT.equals(order.getStatus())) {
+        if (!OrderConstant.PENDING_PAYMENT.equals(order.getStatus())) {
             throw new BaseException("订单状态异常，无法支付");
         }
 
@@ -212,17 +212,33 @@ public class OrderServiceImpl implements OrderService {
         if (order == null || !order.getUserId().equals(userId)) {
             throw new BaseException("订单不存在");
         }
-        if (!STATUS_PENDING_PAYMENT.equals(order.getStatus())) {
+        if (!OrderConstant.PENDING_PAYMENT.equals(order.getStatus())) {
             throw new BaseException("订单状态异常，无法取消");
         }
 
         Order update = Order.builder()
                 .id(id)
-                .status(STATUS_CANCELLED)
+                .status(OrderConstant.CANCELLED)
                 .cancelTime(LocalDateTime.now())
                 .cancelReason("用户取消")
                 .build();
         orderMapper.update(update);
+    }
+
+    @Override
+    public void reminder(Long id) {
+        // 查询订单是否存在
+        Order orders = orderMapper.getById(id);
+        if (orders == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+
+        //基于WebSocket实现催单
+        Map map = new HashMap();
+        map.put("type", 2);//2代表用户催单
+        map.put("orderId", id);
+        map.put("content", "订单号：" + orders.getNumber());
+        webSocketServer.sendToAllClient(JSON.toJSONString(map));
     }
 
     private OrderVO toVO(Order order) {
