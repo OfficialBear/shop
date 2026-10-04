@@ -1,6 +1,6 @@
 import { login } from '@/services/auth';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { history, useModel, useSearchParams } from '@umijs/max';
+import { useSearchParams } from '@umijs/max';
 import { Button, Checkbox, Form, Input, message } from 'antd';
 import { useState } from 'react';
 import styles from './index.less';
@@ -11,12 +11,13 @@ interface LoginFormValues {
   remember: boolean;
 }
 
+/** 登录成功提示的展示时长，之后整页跳转（毫秒） */
+const SUCCESS_REDIRECT_DELAY = 500;
+
 const LoginPage = () => {
   const [form] = Form.useForm<LoginFormValues>();
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
-  // 从 @@initialState model 中取出 refresh 方法
-  const { refresh } = useModel('@@initialState');
   const handleSubmit = async (values: LoginFormValues) => {
     if (loading) {
       return;
@@ -29,21 +30,23 @@ const LoginPage = () => {
         username: values.username.trim(),
         password: values.password,
       });
-      // 登录成功后后端通过 HttpOnly Cookie 下发令牌，前端不接触令牌；
-      // 刷新 initialState 以更新 currentUser 与权限。
-      await refresh();
       message.success('Signed in successfully.');
 
+      // 登录成功后后端通过 HttpOnly Cookie 下发令牌，前端不接触令牌。
+      // 这里使用整页跳转（而非 history.replace）：让应用携带新 Cookie 重新引导，
+      // 待 getInitialState 完成后再渲染受保护路由，从根本上避免
+      // “客户端 refresh() 的派发时机” 与 “路由守卫读取 access” 之间的竞态
+      //（该竞态曾导致登录成功后需要再登录一次才能跳转）。
       const redirect = searchParams.get('redirect');
+      const target = redirect?.startsWith('/') ? redirect : '/';
 
-      if (redirect?.startsWith('/')) {
-        history.replace(redirect);
-      } else {
-        history.replace('/');
-      }
+      // 稍作停留，让「登录成功」提示可见后再整页跳转；
+      // 期间保持 loading=true，按钮与表单继续禁用，避免短暂可交互。
+      window.setTimeout(() => {
+        window.location.replace(target);
+      }, SUCCESS_REDIRECT_DELAY);
     } catch {
       // 错误提示由全局请求层统一处理
-    } finally {
       setLoading(false);
     }
   };
