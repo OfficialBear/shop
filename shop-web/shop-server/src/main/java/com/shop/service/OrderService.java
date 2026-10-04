@@ -5,6 +5,7 @@ import com.shop.dto.OrderSubmitDTO;
 import com.shop.result.PageResult;
 import com.shop.vo.OrderSubmitVO;
 import com.shop.vo.OrderVO;
+import com.shop.vo.PrepayVO;
 
 public interface OrderService {
 
@@ -17,12 +18,12 @@ public interface OrderService {
     OrderSubmitVO submit(OrderSubmitDTO dto);
 
     /**
-     * 模拟支付
+     * 发起预支付：返回小程序支付参数。
      *
      * @param id
      * @return
      */
-    OrderSubmitVO pay(Long id);
+    PrepayVO prepay(Long id);
 
     /**
      * 当前用户订单分页查询

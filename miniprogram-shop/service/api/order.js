@@ -6,9 +6,9 @@ export const submitOrder = (data) => {
   return request.post('/user/order/submit', data);
 };
 
-// 模拟支付
-export const payOrder = (id) => {
-  return request.post(`/user/order/pay/${id}`);
+// 发起预支付：返回小程序支付参数
+export const prepayOrder = (id) => {
+  return request.post(`/user/order/prepay/${id}`);
 };
 
 // 我的订单分页查询

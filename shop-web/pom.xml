@@ -37,6 +37,7 @@
         <pagehelper.version>2.1.0</pagehelper.version>
         <aliyun-sdk-oss.version>3.18.4</aliyun-sdk-oss.version>
         <httpclient5.version>5.5.1</httpclient5.version>
+        <wechatpay-java.version>0.2.17</wechatpay-java.version>
     </properties>
 
     <dependencyManagement>
@@ -105,6 +106,13 @@
                 <groupId>org.apache.httpcomponents.client5</groupId>
                 <artifactId>httpclient5</artifactId>
                 <version>${httpclient5.version}</version>
+            </dependency>
+
+            <!-- 微信支付 APIv3 官方 Java SDK -->
+            <dependency>
+                <groupId>com.github.wechatpay-apiv3</groupId>
+                <artifactId>wechatpay-java</artifactId>
+                <version>${wechatpay-java.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

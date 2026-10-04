@@ -15,21 +15,27 @@
         #{cancelReason}, #{cancelTime})
     </insert>
 
-    <select id="getById" resultType="com.shop.entity.Order">
-        select id, number, table_no, status, user_id, address_book_id, order_time,
+    <sql id="columns">
+        id, number, table_no, status, user_id, address_book_id, order_time,
         checkout_time, pay_method, pay_status, amount, remark, phone, address,
-        user_name, consignee, cancel_reason, rejection_reason, cancel_time,
-        estimated_delivery_time, delivery_status, delivery_time, pack_amount,
-        tableware_number, tableware_status
+        user_name, consignee, cancel_reason, cancel_time
+    </sql>
+
+    <select id="getById" resultType="com.shop.entity.Order">
+        select
+        <include refid="columns"/>
         from orders where id = #{id}
     </select>
 
+    <select id="getByNumber" resultType="com.shop.entity.Order">
+        select
+        <include refid="columns"/>
+        from orders where number = #{number} and user_id= #{userId}
+    </select>
+
     <select id="pageQuery" resultType="com.shop.entity.Order">
-        select id, number, table_no, status, user_id, address_book_id, order_time,
-        checkout_time, pay_method, pay_status, amount, remark, phone, address,
-        user_name, consignee, cancel_reason, rejection_reason, cancel_time,
-        estimated_delivery_time, delivery_status, delivery_time, pack_amount,
-        tableware_number, tableware_status
+        select
+        <include refid="columns"/>
         from orders
         <where>
             <if test="userId != null">
@@ -41,6 +47,12 @@
         </where>
         order by order_time desc, id desc
     </select>
+
+    <update id="markPaid">
+        update orders
+        set status = 2, pay_status = 1, checkout_time = #{checkoutTime}
+        where id = #{id} and status = 1 and pay_status = 0
+    </update>
 
     <update id="update">
         update orders

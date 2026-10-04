@@ -11,20 +11,25 @@ import com.shop.dto.OrderSubmitDTO;
 import com.shop.entity.Dish;
 import com.shop.entity.Order;
 import com.shop.entity.OrderDetail;
+import com.shop.entity.User;
 import com.shop.exception.BaseException;
 import com.shop.mapper.DishMapper;
 import com.shop.mapper.OrderDetailMapper;
 import com.shop.mapper.OrderMapper;
 import com.shop.mapper.SetmealMapper;
+import com.shop.mapper.UserMapper;
+import com.shop.pay.WechatPayService;
 import com.shop.result.PageResult;
 import com.shop.service.OrderService;
 import com.shop.vo.OrderSubmitVO;
 import com.shop.vo.OrderVO;
+import com.shop.vo.PrepayVO;
 import com.shop.vo.SetmealVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -64,6 +69,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private SetmealMapper setmealMapper;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private WechatPayService wechatPayService;
 
     @Override
     @Transactional
@@ -143,7 +154,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderSubmitVO pay(Long id) {
+    public PrepayVO prepay(Long id) {
         Long userId = currentUserId();
         Order order = orderMapper.getById(id);
         if (order == null || !order.getUserId().equals(userId)) {
@@ -153,19 +164,12 @@ public class OrderServiceImpl implements OrderService {
             throw new BaseException("订单状态异常，无法支付");
         }
 
-        Order update = Order.builder()
-                .id(id)
-                .status(STATUS_PENDING_ACCEPT)
-                .payStatus(PAY_STATUS_PAID)
-                .checkoutTime(LocalDateTime.now())
-                .build();
-        orderMapper.update(update);
+        User user = userMapper.getById(order.getUserId());
+        if (user == null || !StringUtils.hasText(user.getOpenid())) {
+            throw new BaseException("用户未绑定微信，无法发起支付");
+        }
 
-        return OrderSubmitVO.builder()
-                .id(order.getId())
-                .number(order.getNumber())
-                .amount(order.getAmount())
-                .build();
+        return wechatPayService.prepay(order, user.getOpenid());
     }
 
     @Override

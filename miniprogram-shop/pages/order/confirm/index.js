@@ -1,4 +1,5 @@
-import { submitOrder, payOrder } from '@/service/api/order';
+import { submitOrder } from '@/service/api/order';
+import { payOrder } from '@/service/pay';
 
 Page({
   data: {
@@ -46,18 +47,26 @@ Page({
         items
       });
 
-      // 模拟支付：提交后立即支付
-      await payOrder(submitted.id);
+      // 预支付 + 拉起收银台 + 轮询确认
+      const paid = await payOrder(submitted.id);
 
       wx.removeStorageSync('pending_order');
       // 标记需要清空菜单页购物车（tab 页常驻内存，onShow 时处理）
       const app = getApp();
       if (app && app.globalData) app.globalData.clearCartOnShow = true;
-      wx.redirectTo({
-        url: `/pages/order/result/index?id=${submitted.id}&number=${submitted.number}&amount=${submitted.amount}&tableNo=${this.data.tableNo}`
-      });
+
+      if (paid) {
+        wx.redirectTo({
+          url: `/pages/order/result/index?id=${submitted.id}&number=${submitted.number}&amount=${submitted.amount}&tableNo=${this.data.tableNo}`
+        });
+      } else {
+        wx.showToast({ title: '支付确认中，请在订单列表查看', icon: 'none' });
+        setTimeout(() => {
+          wx.redirectTo({ url: '/pages/order/list/index' });
+        }, 1200);
+      }
     } catch (e) {
-      // 请求层已提示错误
+      // 请求层已提示错误（支付取消/失败也会走到这里）
     } finally {
       this.setData({ submitting: false });
     }

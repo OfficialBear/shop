@@ -1,4 +1,5 @@
-import { getOrderList, payOrder, cancelOrder } from '@/service/api/order';
+import { getOrderList, cancelOrder } from '@/service/api/order';
+import { payOrder } from '@/service/pay';
 
 const STATUS_TEXT = {
   1: '待付款',

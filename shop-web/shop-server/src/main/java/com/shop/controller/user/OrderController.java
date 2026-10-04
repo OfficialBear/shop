@@ -7,6 +7,7 @@ import com.shop.result.Result;
 import com.shop.service.OrderService;
 import com.shop.vo.OrderSubmitVO;
 import com.shop.vo.OrderVO;
+import com.shop.vo.PrepayVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,12 +39,12 @@ public class OrderController {
     }
 
     /**
-     * 模拟支付
+     * 发起预支付：返回小程序支付参数
      */
-    @PostMapping("/pay/{id}")
-    public Result<OrderSubmitVO> pay(@PathVariable Long id) {
-        log.info("订单支付: {}", id);
-        return Result.success(orderService.pay(id));
+    @PostMapping("/prepay/{id}")
+    public Result<PrepayVO> prepay(@PathVariable Long id) {
+        log.info("订单预支付: {}", id);
+        return Result.success(orderService.prepay(id));
     }
 
     /**
