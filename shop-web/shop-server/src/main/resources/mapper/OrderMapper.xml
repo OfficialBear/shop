@@ -48,6 +48,13 @@
         order by order_time desc, id desc
     </select>
 
+    <select id="getByStatusAndOrdertimeLT" resultType="com.shop.entity.Order">
+        select
+        <include refid="columns"/>
+        from orders
+        where status = #{status} and order_time &lt; #{orderTime}
+    </select>
+
     <update id="markPaid">
         update orders
         set status = 2, pay_status = 1, checkout_time = #{checkoutTime}

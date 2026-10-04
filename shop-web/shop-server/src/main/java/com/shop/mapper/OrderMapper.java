@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Mapper
 public interface OrderMapper {
@@ -28,6 +29,7 @@ public interface OrderMapper {
 
     /**
      * 根据订单号和用户id查询订单
+     *
      * @param number
      * @param userId
      * @return
@@ -54,4 +56,13 @@ public interface OrderMapper {
      * @param order
      */
     void update(Order order);
+
+    /**
+     * 根据状态和下单时间查询订单
+     *
+     * @param status    订单状态
+     * @param orderTime 下单时间上界（不含）
+     * @return 符合条件的订单
+     */
+    List<Order> getByStatusAndOrdertimeLT(Integer status, LocalDateTime orderTime);
 }
