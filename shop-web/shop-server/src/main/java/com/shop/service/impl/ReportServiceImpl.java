@@ -1,16 +1,20 @@
 package com.shop.service.impl;
 
 import com.shop.constant.OrderConstant;
+import com.shop.exception.BaseException;
 import com.shop.mapper.OrderMapper;
 import com.shop.mapper.UserMapper;
 import com.shop.service.ReportService;
 import com.shop.vo.SalesTop10ReportVO;
 import com.shop.vo.TurnoverReportVO;
 import com.shop.vo.UserReportVO;
+import com.shop.utils.ReportExcelWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -112,5 +116,17 @@ public class ReportServiceImpl implements ReportService {
         LocalDateTime endExclusive = end.plusDays(1).atStartOfDay();
 
         return orderMapper.getSalesTop10(beginTime, endExclusive);
+    }
+
+    @Override
+    public void exportReport(LocalDate begin, LocalDate end, OutputStream outputStream) {
+        List<TurnoverReportVO> turnover = getTurnover(begin, end);
+        List<UserReportVO> users = getUserStatistics(begin, end);
+        List<SalesTop10ReportVO> top10 = getSalesTop10(begin, end);
+        try {
+            ReportExcelWriter.write(outputStream, begin, end, turnover, users, top10);
+        } catch (IOException e) {
+            throw new BaseException("导出报表失败: " + e.getMessage());
+        }
     }
 }
