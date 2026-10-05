@@ -3,8 +3,9 @@ import type { TurnoverReport } from '@/types';
 import type { LineConfig } from '@ant-design/plots';
 import { Line } from '@ant-design/plots';
 import { useRequest } from 'ahooks';
-import { Card, Empty, Space, Spin, Statistic } from 'antd';
+import { Space, Statistic } from 'antd';
 import React, { useMemo } from 'react';
+import ChartCard from './ChartCard';
 
 interface TurnoverTrendCardProps {
   begin: string;
@@ -68,8 +69,10 @@ const TurnoverTrendCard: React.FC<TurnoverTrendCardProps> = ({
   };
 
   return (
-    <Card
+    <ChartCard
       title="营业额趋势"
+      loading={loading}
+      empty={chartData.length === 0}
       extra={
         <Space size={32}>
           <Statistic
@@ -87,23 +90,8 @@ const TurnoverTrendCard: React.FC<TurnoverTrendCardProps> = ({
         </Space>
       }
     >
-      {loading ? (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: 360,
-          }}
-        >
-          <Spin />
-        </div>
-      ) : chartData.length === 0 ? (
-        <Empty description="暂无数据" style={{ padding: '80px 0' }} />
-      ) : (
-        <Line {...config} />
-      )}
-    </Card>
+      <Line {...config} />
+    </ChartCard>
   );
 };
 

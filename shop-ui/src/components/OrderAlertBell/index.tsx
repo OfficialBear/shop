@@ -1,4 +1,5 @@
 import { BellOutlined } from '@ant-design/icons';
+import { isSoundEnabled, setSoundEnabled } from '@/utils/orderSound';
 import { history, useModel } from '@umijs/max';
 import {
   Badge,
@@ -7,10 +8,11 @@ import {
   List,
   Popover,
   Space,
+  Switch,
   Tag,
   Typography,
 } from 'antd';
-import React from 'react';
+import React, { useState } from 'react';
 
 const TYPE_META: Record<number, { text: string; color: string }> = {
   1: { text: '来单', color: 'blue' },
@@ -21,11 +23,17 @@ const formatTime = (time: number): string =>
   new Date(time).toLocaleTimeString('zh-CN', { hour12: false });
 
 /**
- * 顶部「通知中心」：铃铛 + 未读徽标，点开查看最近订单提醒。
+ * 顶部「通知中心」：铃铛 + 未读徽标，点开查看最近订单提醒与语音开关。
  * 点击某条可跳到订单管理页并打开该订单详情。
  */
 const OrderAlertBell: React.FC = () => {
   const { alerts, unread, markAllRead, clear } = useModel('orderAlert');
+  const [soundOn, setSoundOn] = useState<boolean>(isSoundEnabled());
+
+  const handleSoundChange = (checked: boolean) => {
+    setSoundOn(checked);
+    setSoundEnabled(checked);
+  };
 
   const content = (
     <div style={{ width: 320 }}>
@@ -56,6 +64,19 @@ const OrderAlertBell: React.FC = () => {
             清空
           </Button>
         </Space>
+      </div>
+
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '6px 0 10px',
+          borderBottom: '1px solid #f0f0f0',
+        }}
+      >
+        <Typography.Text type="secondary">语音提醒</Typography.Text>
+        <Switch size="small" checked={soundOn} onChange={handleSoundChange} />
       </div>
 
       {alerts.length === 0 ? (

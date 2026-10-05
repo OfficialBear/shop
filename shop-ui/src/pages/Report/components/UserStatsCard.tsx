@@ -3,8 +3,9 @@ import type { UserReport } from '@/types';
 import type { DualAxesConfig } from '@ant-design/plots';
 import { DualAxes } from '@ant-design/plots';
 import { useRequest } from 'ahooks';
-import { Card, Empty, Space, Spin, Statistic } from 'antd';
+import { Space, Statistic } from 'antd';
 import React, { useMemo } from 'react';
+import ChartCard from './ChartCard';
 
 interface UserStatsCardProps {
   begin: string;
@@ -22,10 +23,8 @@ interface NewUserPoint {
 }
 
 /**
- * 用户统计（双 Y 轴折线图）。
- *
- * 总用户数与新增用户量级差异大，故用双 Y 轴：左轴=总用户数，右轴=新增用户数。
- * 随全局时间范围变化自动重新请求。
+ * 用户统计（双 Y 轴折线图）：
+ * 总用户数与新增用户量级差异大，故左轴=总用户数、右轴=新增用户数。
  */
 const UserStatsCard: React.FC<UserStatsCardProps> = ({ begin, end }) => {
   const { data, loading } = useRequest(() => getUserStatistics(begin, end), {
@@ -43,7 +42,6 @@ const UserStatsCard: React.FC<UserStatsCardProps> = ({ begin, end }) => {
     list.forEach((item) => {
       const value = item.value ?? 0;
       if (item.category === 'all') {
-        // all 为截至当日的累计总用户数，取最大值即区间末的总量
         total = Math.max(total, value);
         totals.push({ day: item.day, total: value });
       } else if (item.category === 'new') {
@@ -64,13 +62,7 @@ const UserStatsCard: React.FC<UserStatsCardProps> = ({ begin, end }) => {
     height: 360,
     autoFit: true,
     xField: 'day',
-    // 图例用矩形色块，替代折线默认的线条符号，更直观
-    legend: {
-      color: {
-        itemMarker: 'rect',
-        itemMarkerSize: 12,
-      },
-    },
+    legend: true,
     children: [
       {
         data: totalData,
@@ -102,8 +94,10 @@ const UserStatsCard: React.FC<UserStatsCardProps> = ({ begin, end }) => {
   const isEmpty = totalData.length === 0 && newData.length === 0;
 
   return (
-    <Card
+    <ChartCard
       title="用户统计"
+      loading={loading}
+      empty={isEmpty}
       extra={
         <Space size={32}>
           <Statistic title="总用户数" value={totalUsers} />
@@ -111,23 +105,8 @@ const UserStatsCard: React.FC<UserStatsCardProps> = ({ begin, end }) => {
         </Space>
       }
     >
-      {loading ? (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: 360,
-          }}
-        >
-          <Spin />
-        </div>
-      ) : isEmpty ? (
-        <Empty description="暂无数据" style={{ padding: '80px 0' }} />
-      ) : (
-        <DualAxes {...config} />
-      )}
-    </Card>
+      <DualAxes {...config} />
+    </ChartCard>
   );
 };
 

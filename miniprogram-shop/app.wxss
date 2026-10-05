@@ -1,7 +1,7 @@
 /**
  * 全局设计系统（Apple 风格：清晰、克制、留白、层次）
  * - 覆盖 TDesign 主题变量，让所有 t-* 组件统一到新视觉
- * - 提供共享 token 与基础排版/卡片工具类
+ * - 提供共享设计 token（各页面自定义样式统一引用）
  */
 
 page {
@@ -54,8 +54,6 @@ page {
   --surface-2: #f5f6f7;
   --shadow-card: 0 2rpx 8rpx rgba(17, 18, 20, 0.03),
     0 12rpx 32rpx rgba(17, 18, 20, 0.05);
-  --shadow-float: 0 6rpx 20rpx rgba(17, 18, 20, 0.08),
-    0 20rpx 56rpx rgba(17, 18, 20, 0.12);
   --radius-card: 28rpx;
   --radius-pill: 999rpx;
 
@@ -65,77 +63,4 @@ page {
   font-size: 28rpx;
   line-height: 1.45;
   -webkit-font-smoothing: antialiased;
-}
-
-/* ---------- 卡片 ---------- */
-.card {
-  background: var(--surface);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
-}
-
-.hairline-top {
-  border-top: 1rpx solid var(--hairline);
-}
-
-.hairline-bottom {
-  border-bottom: 1rpx solid var(--hairline);
-}
-
-/* ---------- 价格 ---------- */
-.price {
-  color: var(--ink);
-  font-weight: 600;
-  letter-spacing: -0.4rpx;
-}
-
-.price .symbol {
-  font-size: 0.68em;
-  font-weight: 600;
-  margin-right: 2rpx;
-}
-
-.price-accent {
-  color: var(--accent);
-}
-
-/* ---------- 按钮（自绘，Apple 风） ---------- */
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 88rpx;
-  padding: 0 48rpx;
-  border-radius: var(--radius-pill);
-  background: var(--accent);
-  color: #fff;
-  font-size: 30rpx;
-  font-weight: 600;
-  letter-spacing: 0.2rpx;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.btn-primary:active {
-  opacity: 0.86;
-  transform: scale(0.985);
-}
-
-.btn-ghost {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 88rpx;
-  padding: 0 48rpx;
-  border-radius: var(--radius-pill);
-  border: 1rpx solid var(--hairline);
-  background: var(--surface);
-  color: var(--ink);
-  font-size: 30rpx;
-  font-weight: 600;
-}
-
-/* ---------- 通用页面容器 ---------- */
-.page-scroll {
-  min-height: 100vh;
-  box-sizing: border-box;
 }
