@@ -19,6 +19,12 @@ export default defineConfig({
         '^/api': '',
       },
     },
+    // WebSocket 来单提醒/催单，开发环境转发到后端
+    '/ws': {
+      target: 'http://localhost:8080',
+      ws: true,
+      changeOrigin: true,
+    },
   },
   routes: [
     {
@@ -40,6 +46,12 @@ export default defineConfig({
       name: '数据统计',
       path: '/report',
       component: './Report',
+      access: 'canAccess',
+    },
+    {
+      name: '订单管理',
+      path: '/order',
+      component: './Order',
       access: 'canAccess',
     },
     {

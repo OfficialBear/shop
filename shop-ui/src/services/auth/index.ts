@@ -5,12 +5,24 @@ export interface LoginParams {
   password: string;
 }
 
-export interface UserInfo {
+/**
+ * 登录接口返回。
+ * 对应后端 EmployeeLoginVO：{ id, userName, name }
+ */
+export interface LoginResult {
   id: number;
-  username: string;
+  userName: string;
   name: string;
-  token?: string;
-  role: string;
+}
+
+/**
+ * 当前登录用户。
+ * 对应后端 /admin/employee/current 返回的 LoginUser：{ userId, username, role, permissions }
+ */
+export interface CurrentUser {
+  userId: number;
+  username: string;
+  role: string | null;
   permissions: string[];
 }
 
@@ -20,7 +32,7 @@ export interface UserInfo {
  * POST /admin/employee/login
  */
 export function login(data: LoginParams) {
-  return request<UserInfo>('/admin/employee/login', {
+  return request<LoginResult>('/admin/employee/login', {
     method: 'POST',
     data,
   });
@@ -43,7 +55,7 @@ export function logout() {
  * GET /admin/employee/current
  */
 export function getCurrentUser() {
-  return request<UserInfo>('/admin/employee/current', {
+  return request<CurrentUser>('/admin/employee/current', {
     method: 'GET',
   });
 }

@@ -3,8 +3,10 @@
 // 全局初始化数据配置，用于 Layout 用户信息和权限初始化
 // 更多信息见文档：https://umijs.org/docs/api/runtime-config#getinitialstate
 
+import OrderAlertBell from '@/components/OrderAlertBell';
+import OrderNotification from '@/components/OrderNotification';
 import UnAccessible from '@/components/UnAccessible';
-import { getCurrentUser, UserInfo } from '@/services/auth';
+import { CurrentUser, getCurrentUser } from '@/services/auth';
 import type { Result } from '@/types';
 import { ApiError, redirectToLogin } from '@/utils/request';
 import type {
@@ -66,7 +68,9 @@ const handleHttpError = ((error: Error) => {
   return Promise.reject(error);
 }) as unknown as ErrorInterceptor;
 
-export async function getInitialState(): Promise<{ currentUser?: UserInfo }> {
+export async function getInitialState(): Promise<{
+  currentUser?: CurrentUser;
+}> {
   try {
     const currentUser = await getCurrentUser();
     return { currentUser };
@@ -84,6 +88,22 @@ export const layout = () => {
     siderWidth: 180,
     // 未登录/无权限访问受保护路由时，重定向到登录页
     unAccessible: React.createElement(UnAccessible),
+    // 登录后（布局内）挂载 WebSocket 来单提醒 / 客户催单
+    childrenRender: (children: React.ReactNode) =>
+      React.createElement(
+        React.Fragment,
+        null,
+        children,
+        React.createElement(OrderNotification),
+      ),
+    // 顶部右侧：通知中心（铃铛 + 未读徽标）
+    rightContentRender: (_layoutProps: unknown, dom?: React.ReactNode) =>
+      React.createElement(
+        React.Fragment,
+        null,
+        React.createElement(OrderAlertBell),
+        dom,
+      ),
   };
 };
 
