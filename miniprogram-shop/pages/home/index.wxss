@@ -1,0 +1,169 @@
+.home {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 48rpx 40rpx 0;
+  background: var(--surface-2);
+}
+
+.home-hero {
+  padding: 24rpx 8rpx 48rpx;
+}
+
+.home-title {
+  font-size: 56rpx;
+  font-weight: 700;
+  letter-spacing: -1.2rpx;
+  color: var(--ink);
+}
+
+.home-sub {
+  margin-top: 12rpx;
+  font-size: 28rpx;
+  color: var(--ink-3);
+}
+
+.mode-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.mode-card {
+  display: flex;
+  align-items: center;
+  padding: 44rpx 36rpx;
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mode-card-hover {
+  transform: scale(0.985);
+  box-shadow: 0 2rpx 8rpx rgba(17, 18, 20, 0.04);
+}
+
+.mode-icon {
+  width: 96rpx;
+  height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 28rpx;
+  background: var(--accent-soft);
+  font-size: 48rpx;
+  margin-right: 28rpx;
+}
+
+.mode-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.mode-name {
+  font-size: 36rpx;
+  font-weight: 600;
+  letter-spacing: -0.4rpx;
+  color: var(--ink);
+}
+
+.mode-desc {
+  margin-top: 8rpx;
+  font-size: 26rpx;
+  color: var(--ink-3);
+}
+
+.mode-arrow {
+  font-size: 48rpx;
+  line-height: 1;
+  color: var(--ink-4);
+}
+
+.scan-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  margin-top: 32rpx;
+  padding: 30rpx 0;
+  border-radius: var(--radius-card);
+  border: 1rpx solid var(--hairline);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.scan-btn-hover {
+  background: var(--surface-2);
+}
+
+.scan-icon {
+  font-size: 34rpx;
+  color: var(--accent);
+}
+
+/* 就餐人数选择 */
+.diners-panel {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 32rpx 32rpx 0 0;
+  padding: 36rpx 32rpx;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+}
+
+.diners-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32rpx;
+}
+
+.diners-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  letter-spacing: -0.4rpx;
+  color: var(--ink);
+}
+
+.diners-close {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: 28rpx;
+}
+
+.diners-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+}
+
+.chip {
+  min-width: 132rpx;
+  box-sizing: border-box;
+  padding: 22rpx 0;
+  text-align: center;
+  border-radius: 20rpx;
+  background: var(--surface-2);
+  color: var(--ink);
+  font-size: 28rpx;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.chip.active {
+  background: var(--ink);
+  color: #fff;
+  font-weight: 600;
+}
+
+.diners-footer {
+  margin-top: 40rpx;
+}

@@ -1,8 +1,15 @@
 <view class="container">
-  <!-- 顶部搜索 -->
+  <!-- 顶部：大标题 + 搜索 -->
   <view class="header">
+    <view class="hero">
+      <text class="hero-title">点餐</text>
+      <view class="table-tag">
+        <block wx:if="{{tableNo}}">桌号 {{tableNo}}</block>
+        <block wx:elif="{{mode === 'dinein'}}">堂食<block wx:if="{{diners}}"> · {{diners}}人</block></block>
+        <block wx:else>外送</block>
+      </view>
+    </view>
     <t-search placeholder="搜索菜品" shape="round" value="{{keyword}}" bind:change="onSearchChange" bind:submit="onSearchSubmit" bind:clear="onSearchClear" />
-    <view wx:if="{{tableNo}}" class="table-tag">桌号 {{tableNo}}</view>
   </view>
 
   <!-- 双栏主体 -->
@@ -54,8 +61,8 @@
     </scroll-view>
   </view>
 
-  <!-- 底部购物车栏 -->
-  <view class="cart-bar" bindtap="onOpenCart">
+  <!-- 底部购物车栏（有商品才显示） -->
+  <view wx:if="{{totalCount}}" class="cart-bar" bindtap="onOpenCart">
     <view class="cart-icon">
       🛒
       <t-badge wx:if="{{totalCount}}" count="{{totalCount}}" offset="{{[-8, -8]}}" />

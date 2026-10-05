@@ -9,6 +9,11 @@ Page({
     sidebarIntoView: '',
     keyword: '',
     tableNo: '',
+    // 用餐方式：dinein=堂食，delivery=外送
+    mode: 'dinein',
+    modeText: '堂食',
+    // 堂食就餐人数
+    diners: '',
     // 购物车（按行存储，支持同一菜品不同规格各占一行）
     cartLines: [],
     // 派生：dishId -> 该菜品总数量（控制按钮/步进器与角标）
@@ -37,7 +42,13 @@ Page({
   flavorCache: {},
 
   async onLoad(options) {
-    this.setData({ tableNo: (options && options.tableNo) || '' });
+    const mode = (options && options.mode) || 'dinein';
+    this.setData({
+      mode,
+      modeText: mode === 'delivery' ? '外送' : '堂食',
+      diners: (options && options.diners) || '',
+      tableNo: (options && options.tableNo) || ''
+    });
     await this.loadMenu();
   },
 

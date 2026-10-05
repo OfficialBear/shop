@@ -20,6 +20,6 @@ Page({
   },
 
   goMenu() {
-    wx.switchTab({ url: '/pages/index/index' });
+    wx.reLaunch({ url: '/pages/home/index' });
   }
 });

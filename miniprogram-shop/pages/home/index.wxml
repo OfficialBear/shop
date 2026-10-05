@@ -1,0 +1,55 @@
+<view class="home">
+  <view class="home-hero">
+    <view class="home-title">欢迎光临</view>
+    <view class="home-sub">请选择用餐方式</view>
+  </view>
+
+  <view class="mode-list">
+    <view class="mode-card" hover-class="mode-card-hover" bindtap="onChooseDinein">
+      <view class="mode-icon">🍽️</view>
+      <view class="mode-text">
+        <view class="mode-name">堂食</view>
+        <view class="mode-desc">店内就座点餐</view>
+      </view>
+      <view class="mode-arrow">›</view>
+    </view>
+
+    <view class="mode-card" hover-class="mode-card-hover" bindtap="onChooseDelivery">
+      <view class="mode-icon">🛵</view>
+      <view class="mode-text">
+        <view class="mode-name">外送</view>
+        <view class="mode-desc">送到指定地址</view>
+      </view>
+      <view class="mode-arrow">›</view>
+    </view>
+  </view>
+
+  <view class="scan-btn" hover-class="scan-btn-hover" bindtap="onScan">
+    <text class="scan-icon">⛶</text>
+    <text>扫码点餐</text>
+  </view>
+
+  <!-- 就餐人数选择 -->
+  <t-popup visible="{{dinersVisible}}" placement="bottom" bind:visible-change="onDinersVisibleChange">
+    <view class="diners-panel">
+      <view class="diners-head">
+        <text class="diners-title">请选择就餐人数</text>
+        <view class="diners-close" bindtap="onCloseDiners">✕</view>
+      </view>
+
+      <view class="diners-chips">
+        <view
+          wx:for="{{dinersOptions}}"
+          wx:key="*this"
+          class="chip {{diners === item ? 'active' : ''}}"
+          data-value="{{item}}"
+          bindtap="onPickDiners"
+        >{{item}} 人</view>
+      </view>
+
+      <view class="diners-footer">
+        <t-button theme="primary" size="large" block bind:tap="onConfirmDiners">开始点餐</t-button>
+      </view>
+    </view>
+  </t-popup>
+</view>

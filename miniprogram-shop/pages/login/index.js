@@ -33,7 +33,7 @@ Page({
     if (pages.length > 1) {
       wx.navigateBack();
     } else {
-      wx.switchTab({ url: '/pages/index/index' });
+      wx.reLaunch({ url: '/pages/home/index' });
     }
   }
 });

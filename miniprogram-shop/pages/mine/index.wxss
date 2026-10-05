@@ -1,24 +1,25 @@
 .mine-page {
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 24rpx;
-  background: #f5f6f8;
+  padding: 32rpx;
+  background: var(--surface-2);
 }
 
 .profile {
   display: flex;
   align-items: center;
-  padding: 32rpx 24rpx;
-  border-radius: 16rpx;
-  background: #fff;
+  padding: 40rpx 32rpx;
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
 }
 
 .avatar {
-  width: 120rpx;
-  height: 120rpx;
+  width: 128rpx;
+  height: 128rpx;
   flex-shrink: 0;
   border-radius: 50%;
-  background: #f5f5f5;
+  background: var(--surface-2);
 }
 
 .avatar-default {
@@ -26,30 +27,32 @@
   align-items: center;
   justify-content: center;
   font-size: 60rpx;
-  background: #fff3e8;
+  background: var(--accent-soft);
 }
 
 .profile-info {
   flex: 1;
-  margin-left: 24rpx;
+  margin-left: 28rpx;
   min-width: 0;
 }
 
 .name {
-  font-size: 34rpx;
+  font-size: 38rpx;
   font-weight: 600;
-  color: #222;
+  letter-spacing: -0.5rpx;
+  color: var(--ink);
 }
 
 .sub {
-  margin-top: 8rpx;
-  font-size: 24rpx;
-  color: #999;
+  margin-top: 10rpx;
+  font-size: 26rpx;
+  color: var(--ink-3);
 }
 
 .menu {
   display: block;
-  margin-top: 24rpx;
-  border-radius: 16rpx;
+  margin-top: 32rpx;
+  border-radius: var(--radius-card);
   overflow: hidden;
+  box-shadow: var(--shadow-card);
 }

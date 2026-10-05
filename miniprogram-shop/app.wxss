@@ -1,3 +1,141 @@
+/**
+ * 全局设计系统（Apple 风格：清晰、克制、留白、层次）
+ * - 覆盖 TDesign 主题变量，让所有 t-* 组件统一到新视觉
+ * - 提供共享 token 与基础排版/卡片工具类
+ */
+
 page {
   height: 100%;
+
+  /* ---------- TDesign 主题覆盖 ---------- */
+  /* 品牌色：克制的深墨绿，仅用于强调与主操作 */
+  --td-brand-color: #0f6b4f;
+  --td-brand-color-hover: #0c5940;
+  --td-brand-color-active: #0a4a35;
+  --td-brand-color-focus: rgba(15, 107, 79, 0.12);
+  --td-brand-color-light: rgba(15, 107, 79, 0.08);
+  --td-brand-color-light-active: rgba(15, 107, 79, 0.14);
+  --td-brand-color-disabled: rgba(15, 107, 79, 0.35);
+
+  --td-text-color-primary: #1d1d1f;
+  --td-text-color-secondary: #6e6e73;
+  --td-text-color-placeholder: #a1a1a6;
+  --td-text-color-disabled: #c7c7cc;
+
+  --td-bg-color-page: #f5f5f7;
+  --td-bg-color-container: #ffffff;
+  --td-bg-color-container-active: #f2f2f7;
+  --td-bg-color-secondarycontainer: #f2f2f7;
+
+  --td-border-level-1-color: #ececf1;
+  --td-border-level-2-color: #e2e2e7;
+
+  --td-radius-small: 8rpx;
+  --td-radius-default: 16rpx;
+  --td-radius-large: 24rpx;
+  --td-radius-extra-large: 32rpx;
+
+  --td-font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text',
+    'PingFang SC', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --td-font-family-medium: -apple-system, BlinkMacSystemFont, 'SF Pro Display',
+    'PingFang SC', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  /* ---------- 自定义设计 token ---------- */
+  --ink: #111214;
+  --ink-2: #5f6368;
+  --ink-3: #9aa0a6;
+  --ink-4: #c4c7cc;
+  --accent: #0f6b4f;
+  --accent-soft: #e9f3ef;
+  --accent-shadow: rgba(15, 107, 79, 0.28);
+  --success: #2e7d32;
+  --hairline: #ececef;
+  --surface: #ffffff;
+  --surface-2: #f5f6f7;
+  --shadow-card: 0 2rpx 8rpx rgba(17, 18, 20, 0.03),
+    0 12rpx 32rpx rgba(17, 18, 20, 0.05);
+  --shadow-float: 0 6rpx 20rpx rgba(17, 18, 20, 0.08),
+    0 20rpx 56rpx rgba(17, 18, 20, 0.12);
+  --radius-card: 28rpx;
+  --radius-pill: 999rpx;
+
+  background: var(--surface-2);
+  color: var(--ink);
+  font-family: var(--td-font-family);
+  font-size: 28rpx;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- 卡片 ---------- */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.hairline-top {
+  border-top: 1rpx solid var(--hairline);
+}
+
+.hairline-bottom {
+  border-bottom: 1rpx solid var(--hairline);
+}
+
+/* ---------- 价格 ---------- */
+.price {
+  color: var(--ink);
+  font-weight: 600;
+  letter-spacing: -0.4rpx;
+}
+
+.price .symbol {
+  font-size: 0.68em;
+  font-weight: 600;
+  margin-right: 2rpx;
+}
+
+.price-accent {
+  color: var(--accent);
+}
+
+/* ---------- 按钮（自绘，Apple 风） ---------- */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 88rpx;
+  padding: 0 48rpx;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 600;
+  letter-spacing: 0.2rpx;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.btn-primary:active {
+  opacity: 0.86;
+  transform: scale(0.985);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 88rpx;
+  padding: 0 48rpx;
+  border-radius: var(--radius-pill);
+  border: 1rpx solid var(--hairline);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+/* ---------- 通用页面容器 ---------- */
+.page-scroll {
+  min-height: 100vh;
+  box-sizing: border-box;
 }

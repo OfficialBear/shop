@@ -21,7 +21,7 @@
   </view>
 
   <view class="actions">
-    <t-button theme="light" size="large" block bind:tap="goMenu">返回点餐</t-button>
+    <t-button theme="light" size="large" block bind:tap="goMenu">返回首页</t-button>
     <t-button theme="primary" size="large" block bind:tap="goDetail">查看订单</t-button>
   </view>
 </view>
