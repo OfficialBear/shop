@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.shop</groupId>
         <artifactId>shop-web</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>shop-server</artifactId>
@@ -18,17 +18,15 @@
     </properties>
 
     <dependencies>
-        <!-- 项目模块 -->
+        <!-- 项目模块（版本由父 pom 的 dependencyManagement 统一管理） -->
         <dependency>
             <groupId>com.shop</groupId>
             <artifactId>shop-common</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>com.shop</groupId>
             <artifactId>shop-pojo</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -154,6 +152,50 @@
             <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <!-- 可执行 fat jar（Spring Boot repackage） -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.shop.App</mainClass>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- 发布包：bin/ conf/ lib/（包名带版本，如 shop-server-1.0.0.tar.gz） -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.7.1</version>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/main/assembly/assembly.xml</descriptor>
+                    </descriptors>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <tarLongFileMode>posix</tarLongFileMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-distribution</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
     <profiles>
         <profile>
             <id>dev</id>
@@ -164,12 +206,7 @@
                 <spring.profiles.active>dev</spring.profiles.active>
             </properties>
         </profile>
-        <profile>
-            <id>sit</id>
-            <properties>
-                <spring.profiles.active>sit</spring.profiles.active>
-            </properties>
-        </profile>
+
         <profile>
             <id>prod</id>
             <properties>
@@ -177,4 +214,5 @@
             </properties>
         </profile>
     </profiles>
+
 </project>

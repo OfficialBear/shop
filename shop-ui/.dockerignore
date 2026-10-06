@@ -1,0 +1,7 @@
+# 方案 B：镜像只需 dist 与 nginx.conf，源码/依赖不进上下文
+node_modules
+src
+.turbopack
+.git
+.idea
+.DS_Store
