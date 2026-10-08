@@ -44,6 +44,21 @@
             <if test="status != null">
                 and status = #{status}
             </if>
+            <if test="statuses != null and statuses.size() > 0">
+                and status in
+                <foreach collection="statuses" item="s" open="(" separator="," close=")">
+                    #{s}
+                </foreach>
+            </if>
+            <if test="number != null and number != ''">
+                and number like concat('%', #{number}, '%')
+            </if>
+            <if test="beginTime != null and beginTime != ''">
+                and order_time &gt;= #{beginTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                and order_time &lt; DATE_ADD(#{endTime}, INTERVAL 1 DAY)
+            </if>
         </where>
         order by order_time desc, id desc
     </select>

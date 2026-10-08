@@ -1,27 +1,75 @@
 <view class="page">
-  <view wx:for="{{orders}}" wx:key="id" class="order-card" data-id="{{item.id}}" bindtap="goDetail">
-    <view class="order-head">
-      <text class="order-no">No.{{item.number}}</text>
-      <text class="status status-{{item.status}}">{{item.statusText}}</text>
+  <view class="tabs">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="key"
+      class="tab {{activeTab === item.key ? 'tab-active' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="onTabChange"
+    >
+      <text class="tab-text">{{item.label}}</text>
+      <view class="tab-bar"></view>
     </view>
+  </view>
 
-    <view class="order-summary">{{item.summary}}</view>
+  <view class="list">
+    <view
+      wx:for="{{orders}}"
+      wx:key="id"
+      class="order-card"
+      data-id="{{item.id}}"
+      bindtap="goDetail"
+    >
+      <view class="order-head">
+        <text class="order-table">{{item.tableNo ? '桌号 ' + item.tableNo : '堂食订单'}}</text>
+        <text class="status status-{{item.status}}">{{item.statusText}}</text>
+      </view>
 
-    <view class="order-meta">
-      <text wx:if="{{item.tableNo}}">桌号 {{item.tableNo}}</text>
-      <text class="order-time">{{item.orderTime}}</text>
-    </view>
+      <view class="order-body">
+        <view class="thumbs">
+          <image
+            wx:for="{{item.thumbs}}"
+            wx:for-item="thumb"
+            wx:key="*this"
+            class="thumb"
+            src="{{thumb}}"
+            mode="aspectFill"
+          />
+          <view wx:if="{{item.moreCount > 0}}" class="thumb thumb-more">+{{item.moreCount}}</view>
+        </view>
+        <view class="order-main">
+          <text class="order-title">{{item.firstName}}</text>
+          <text wx:if="{{item.nameSuffix}}" class="order-sub">{{item.nameSuffix}}</text>
+        </view>
+      </view>
 
-    <view class="order-foot">
-      <view class="amount">合计 <text class="amount-price">¥{{item.amount}}</text></view>
-      <view wx:if="{{item.status === 1}}" class="order-actions">
-        <view class="btn btn-plain" data-id="{{item.id}}" catchtap="onCancel">取消订单</view>
-        <view class="btn btn-primary" data-id="{{item.id}}" catchtap="onPay">去支付</view>
+      <view class="order-time">{{item.timeText}}</view>
+
+      <view class="order-foot">
+        <view class="order-amount">
+          <text class="order-count">共 {{item.itemCount}} 件</text>
+          <text class="amount-price">¥{{item.amount}}</text>
+        </view>
+        <view wx:if="{{item.actions.length}}" class="order-actions">
+          <view
+            wx:for="{{item.actions}}"
+            wx:for-item="act"
+            wx:key="key"
+            class="btn {{act.primary ? 'btn-primary' : 'btn-plain'}}"
+            data-id="{{item.id}}"
+            data-action="{{act.key}}"
+            catchtap="onAction"
+          >{{act.text}}</view>
+        </view>
       </view>
     </view>
   </view>
 
-  <view wx:if="{{!orders.length && !loading}}" class="empty">暂无订单</view>
+  <view wx:if="{{!orders.length && !loading}}" class="empty">
+    <view class="empty-icon">🧾</view>
+    <view class="empty-text">还没有订单</view>
+    <view class="empty-btn" bindtap="goMenu">去点餐</view>
+  </view>
   <view wx:if="{{loading}}" class="loading">加载中...</view>
   <view wx:if="{{orders.length && finished}}" class="loading">没有更多了</view>
 </view>

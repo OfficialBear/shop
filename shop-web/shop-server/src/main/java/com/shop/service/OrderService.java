@@ -54,4 +54,20 @@ public interface OrderService {
      * @param id
      */
     void reminder(Long id);
+
+    /**
+     * 管理端订单分页查询（不限制下单用户）
+     *
+     * @param dto
+     * @return
+     */
+    PageResult<OrderVO> pageQueryForAdmin(OrderPageQueryDTO dto);
+
+    /**
+     * 管理端订单详情（不校验订单归属）
+     *
+     * @param id
+     * @return
+     */
+    OrderVO getDetailForAdmin(Long id);
 }

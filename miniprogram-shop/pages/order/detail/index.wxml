@@ -42,4 +42,8 @@
     <t-button theme="light" size="large" block bind:tap="onCancel">取消订单</t-button>
     <t-button theme="primary" size="large" block bind:tap="onPay">去支付</t-button>
   </view>
+
+  <view wx:if="{{order.status === 5 || order.status === 6}}" class="actions">
+    <t-button theme="primary" size="large" block bind:tap="onReorder">再来一单</t-button>
+  </view>
 </view>

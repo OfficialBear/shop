@@ -50,6 +50,7 @@ Page({
       tableNo: (options && options.tableNo) || ''
     });
     await this.loadMenu();
+    this.applyReorder();
   },
 
   onShow() {
@@ -69,6 +70,51 @@ Page({
     } catch (e) {
       console.error('菜单加载失败', e);
     }
+  },
+
+  /**
+   * 从「再来一单」带入的购物车：按菜品 id 解析当前菜单数据并合并到购物车
+   */
+  applyReorder() {
+    const pending = wx.getStorageSync('reorder_cart');
+    if (!pending || !pending.lines || !pending.lines.length) return;
+    wx.removeStorageSync('reorder_cart');
+
+    const lines = this.data.cartLines.slice();
+    let added = 0;
+    pending.lines.forEach(reorderLine => {
+      const dish = this.dishMap[reorderLine.dishId];
+      if (!dish) return;
+
+      const spec = reorderLine.spec || [];
+      const specKey = spec.map(s => `${s.name}:${s.value}`).join('|');
+      const lineId = spec.length ? `dish-${dish.id}#${specKey}` : `dish-${dish.id}`;
+      const index = lines.findIndex(line => line.lineId === lineId);
+      if (index >= 0) {
+        lines[index] = { ...lines[index], quantity: lines[index].quantity + reorderLine.quantity };
+      } else {
+        lines.push({
+          lineId,
+          dishId: dish.id,
+          type: dish.type,
+          categoryId: dish.categoryId,
+          name: dish.name,
+          price: dish.price,
+          image: dish.image,
+          spec,
+          specText: reorderLine.specText || '',
+          quantity: reorderLine.quantity
+        });
+      }
+      added += 1;
+    });
+
+    if (!added) return;
+    if (pending.tableNo && !this.data.tableNo) {
+      this.setData({ tableNo: pending.tableNo });
+    }
+    this.commitCart(lines);
+    wx.showToast({ title: '已加入购物车', icon: 'none' });
   },
 
   /**

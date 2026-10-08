@@ -83,7 +83,17 @@ const OrderPage: React.FC = () => {
     {
       title: '下单时间',
       dataIndex: 'orderTime',
-      search: false,
+      valueType: 'dateRange',
+      colSize: 2,
+      fieldProps: {
+        style: { width: '100%' },
+      },
+      search: {
+        transform: (value) => ({
+          beginTime: value?.[0],
+          endTime: value?.[1],
+        }),
+      },
       render: (_, record) => record.orderTime || '-',
     },
     {

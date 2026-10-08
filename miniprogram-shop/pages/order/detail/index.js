@@ -60,5 +60,18 @@ Page({
         }
       }
     });
+  },
+
+  onReorder() {
+    const order = this.data.order;
+    if (!order || !order.items || !order.items.length) return;
+    const lines = order.items.map(item => ({
+      dishId: item.dishId || item.setmealId,
+      spec: [],
+      specText: item.dishFlavor || '',
+      quantity: item.number || 1
+    }));
+    wx.setStorageSync('reorder_cart', { tableNo: order.tableNo || '', lines });
+    wx.navigateTo({ url: '/pages/index/index' });
   }
 });

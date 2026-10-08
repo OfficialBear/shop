@@ -174,7 +174,19 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public PageResult<OrderVO> pageQuery(OrderPageQueryDTO dto) {
+        // 用户端仅能查看自己的订单
         dto.setUserId(currentUserId());
+        return pageQueryInternal(dto, true);
+    }
+
+    @Override
+    public PageResult<OrderVO> pageQueryForAdmin(OrderPageQueryDTO dto) {
+        // 管理端查看全部订单；列表只返回订单摘要，明细由详情接口按需查询
+        dto.setUserId(null);
+        return pageQueryInternal(dto, false);
+    }
+
+    private PageResult<OrderVO> pageQueryInternal(OrderPageQueryDTO dto, boolean withItems) {
         PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         Page<Order> page = orderMapper.pageQuery(dto);
 
@@ -182,7 +194,7 @@ public class OrderServiceImpl implements OrderService {
                 .map(this::toVO)
                 .collect(Collectors.toList());
 
-        if (!records.isEmpty()) {
+        if (withItems && !records.isEmpty()) {
             List<Long> orderIds = records.stream().map(OrderVO::getId).collect(Collectors.toList());
             List<OrderDetail> allDetails = orderDetailMapper.getByOrderIds(orderIds);
             Map<Long, List<OrderDetail>> grouped = allDetails.stream()
@@ -200,8 +212,21 @@ public class OrderServiceImpl implements OrderService {
         if (order == null || !order.getUserId().equals(userId)) {
             throw new BaseException("订单不存在");
         }
+        return getDetailWithItems(order);
+    }
+
+    @Override
+    public OrderVO getDetailForAdmin(Long id) {
+        Order order = orderMapper.getById(id);
+        if (order == null) {
+            throw new BaseException("订单不存在");
+        }
+        return getDetailWithItems(order);
+    }
+
+    private OrderVO getDetailWithItems(Order order) {
         OrderVO vo = toVO(order);
-        vo.setItems(orderDetailMapper.getByOrderId(id));
+        vo.setItems(orderDetailMapper.getByOrderId(order.getId()));
         return vo;
     }
 
