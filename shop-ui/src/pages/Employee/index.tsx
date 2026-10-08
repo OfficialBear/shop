@@ -7,7 +7,6 @@ import {
 import type { Employee } from '@/types';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { PageContainer, ProTable } from '@ant-design/pro-components';
-import { Access, useAccess } from '@umijs/max';
 import { Button, Modal, message } from 'antd';
 import React, { useRef, useState } from 'react';
 import CreateForm from './components/CreateForm';
@@ -15,7 +14,6 @@ import UpdateForm from './components/UpdateForm';
 
 const EmployeePage: React.FC = () => {
   const actionRef = useRef<ActionType>();
-  const access = useAccess();
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [createModalVisible, setCreateModalVisible] = useState(false);
@@ -145,9 +143,7 @@ const EmployeePage: React.FC = () => {
           >
             新增
           </Button>,
-          <Access key="batch-delete" accessible={access.canDeleteFoo}>
-            <Button onClick={handleDelete}>批量删除</Button>
-          </Access>,
+          <Button onClick={handleDelete}>批量删除</Button>,
         ]}
       />
 

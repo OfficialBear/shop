@@ -4,7 +4,6 @@ import { batchDeleteDishes, getPage, updateDishStatus } from '@/services/dish';
 import type { Dish } from '@/types';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { PageContainer, ProTable } from '@ant-design/pro-components';
-import { Access, useAccess } from '@umijs/max';
 import { Button, Image, Modal, message } from 'antd';
 import React, { useRef, useState } from 'react';
 import CreateForm from './components/CreateForm';
@@ -12,7 +11,6 @@ import UpdateForm from './components/UpdateForm';
 
 const DishPage: React.FC = () => {
   const actionRef = useRef<ActionType>();
-  const access = useAccess();
   const { options: categoryOptions, loading: categoryLoading } =
     useCategoryOptions(1);
 
@@ -173,9 +171,7 @@ const DishPage: React.FC = () => {
           >
             新增
           </Button>,
-          <Access key="batch-delete" accessible={access.canDeleteFoo}>
-            <Button onClick={handleBatchDelete}>批量删除</Button>
-          </Access>,
+          <Button onClick={handleBatchDelete}>批量删除</Button>,
         ]}
       />
 

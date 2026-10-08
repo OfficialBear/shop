@@ -21,6 +21,6 @@ public class LoginUser implements Serializable {
     private String username;
     // 单个角色
     private String role;
-    // 权限码集合，如 ["foo:read", "foo:delete"]
+    // 权限码集合（RBAC 落地前暂不启用）
     private Set<String> permissions;
 }

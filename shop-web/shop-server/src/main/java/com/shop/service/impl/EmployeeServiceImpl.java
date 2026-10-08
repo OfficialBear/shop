@@ -18,10 +18,9 @@ import com.shop.result.PageResult;
 import com.shop.service.EmployeeService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.DigestUtils;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,6 +28,9 @@ import java.util.Objects;
 public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     private EmployeeMapper employeeMapper;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     /**
      * 员工登录
@@ -50,9 +52,8 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new AccountNotFoundException(MessageConstant.ACCOUNT_NOT_FOUND);
         }
 
-        // 进行md5加密，然后再进行比对
-        String encryptedPassword = DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
-        if (!Objects.equals(encryptedPassword, employee.getPassword())) {
+        if (employee.getPassword() == null
+                || !passwordEncoder.matches(password, employee.getPassword())) {
             //密码错误
             throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
         }
@@ -102,7 +103,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         BeanUtils.copyProperties(employeeDTO, employee);
         // 账号状态默认为1，正常状态
         employee.setStatus(StatusConstant.ENABLE);
-        employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
+        employee.setPassword(passwordEncoder.encode(PasswordConstant.DEFAULT_PASSWORD));
 
         employeeMapper.insert(employee);
     }

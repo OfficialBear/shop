@@ -15,7 +15,6 @@ import com.shop.utils.JwtUtil;
 import com.shop.vo.EmployeeLoginVO;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -30,10 +29,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * 员工管理
@@ -96,19 +93,7 @@ public class EmployeeController {
 
     @GetMapping("/current")
     public Result<LoginUser> getCurrentUser() {
-        // TODO RBAC 基于角色的访问控制。此处简化处理
-        LoginUser loginUser = UserContext.getCurrentUser();
-        String role = null;
-        Set<String> permissions = new HashSet<>();
-        if ("admin".equals(loginUser.getUsername())) {
-            role = "admin";
-            permissions.add("foo:delete");
-        }
-        LoginUser currentUser = new LoginUser();
-        BeanUtils.copyProperties(loginUser, currentUser);
-        currentUser.setRole(role);
-        currentUser.setPermissions(permissions);
-        return Result.success(currentUser);
+        return Result.success(UserContext.getCurrentUser());
     }
 
     /**
