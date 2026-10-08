@@ -1,0 +1,69 @@
+# shop-server：非敏感配置(ConfigMap) + 部署(Deployment) + 服务(Service)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shop-server-config
+data:
+  SPRING_PROFILES_ACTIVE: "prod"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shop-server
+  labels:
+    app: shop-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shop-server
+  template:
+    metadata:
+      labels:
+        app: shop-server
+    spec:
+      containers:
+        - name: shop-server
+          image: shop-server:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: shop-server-config
+            - secretRef:
+                name: shop-server-secret
+          volumeMounts:
+            - name: logs
+              mountPath: /app/logs
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+      volumes:
+        - name: logs
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shop-server
+spec:
+  selector:
+    app: shop-server
+  ports:
+    - port: 8080
+      targetPort: 8080

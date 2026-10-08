@@ -1,0 +1,40 @@
+# shop-ui：部署(nginx 托管静态 + 反代 /api、/ws 到 shop-server) + 服务(Service)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shop-ui
+  labels:
+    app: shop-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shop-ui
+  template:
+    metadata:
+      labels:
+        app: shop-ui
+    spec:
+      containers:
+        - name: shop-ui
+          image: shop-ui:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shop-ui
+spec:
+  selector:
+    app: shop-ui
+  ports:
+    - port: 8000
+      targetPort: 8000

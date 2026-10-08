@@ -1,0 +1,103 @@
+# ============================================================
+# shop 一体式 Docker 部署
+#
+# 用法（在本文件所在目录 deploy/docker 下执行）：
+#   1. 如需自定义密码/密钥：cp .env.example .env 并修改
+#   2. docker compose up -d
+#   3. 访问 http://<宿主机IP>/   （默认 UI_PORT=8000）
+#
+# 前置：本机（或镜像仓库）已具备两个镜像
+#   shop-server:1.0.0   —— 由 shop-web/shop-server/Dockerfile 构建
+#   shop-ui:1.0.0       —— 由 shop-ui/Dockerfile 构建
+#
+# 关键约定（不要随意改动）：
+#   - 后端服务名必须叫 shop-server：nginx 里写死了 proxy_pass http://shop-server:8080。
+#   - shop-server 强依赖 MySQL 与 Redis，二者服务名固定为 mysql / redis。
+#   - prod 配置里 spring.datasource.url 是占位符 "xxx" 且无 redis 配置，
+#     因此下面的环境变量覆盖是必须的。
+# ============================================================
+
+services:
+  mysql:
+    image: mysql:8
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-yourpass}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-shop}
+      TZ: Asia/Shanghai
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_bin
+    volumes:
+      # 首次启动自动执行建表脚本（相对路径以本 compose 文件所在目录为基准）
+      - ../../shop-web/shop-server/sql/shop.sql:/docker-entrypoint-initdb.d/shop.sql:ro
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      # 用 TCP(127.0.0.1) 探测：MySQL 首次初始化时的临时实例不开网络，
+      # 因此只有真正就绪后健康检查才会通过。
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p${MYSQL_ROOT_PASSWORD:-yourpass}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+
+  # 服务名必须为 shop-server（nginx 反代依赖该域名）
+  shop-server:
+    image: shop-server:1.0.0
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      TZ: Asia/Shanghai
+      SPRING_PROFILES_ACTIVE: prod
+      # 数据源：覆盖 application-prod.properties 里的占位地址
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-shop}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai"
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD:-yourpass}
+      # Redis：prod 配置未提供，默认 localhost:6379 会失败，必须指定
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: "6379"
+      # JWT 密钥（字段 adminSecretKey -> 属性 jwt.admin-secret-key -> 环境变量 JWT_ADMINSECRETKEY）
+      JWT_ADMINSECRETKEY: ${JWT_ADMINSECRETKEY:-please-change-me-32bytes-min-secret}
+      JWT_USERSECRETKEY: ${JWT_USERSECRETKEY:-please-change-me-32bytes-min-secret}
+      # 纯 HTTP 测试设为 false；正式走 HTTPS 时应为 true
+      JWT_ADMINCOOKIESECURE: ${JWT_ADMINCOOKIESECURE:-false}
+      # 微信（按需填写，留空则相关功能不可用）
+      WECHAT_APPID: ${WECHAT_APPID:-}
+      WECHAT_SECRET: ${WECHAT_SECRET:-}
+      WECHAT_MCHID: ${WECHAT_MCHID:-}
+      WECHAT_MCHSERIALNO: ${WECHAT_MCHSERIALNO:-}
+      WECHAT_PRIVATEKEY: ${WECHAT_PRIVATEKEY:-}
+      WECHAT_APIV3KEY: ${WECHAT_APIV3KEY:-}
+      WECHAT_NOTIFYURL: ${WECHAT_NOTIFYURL:-}
+      # 阿里云 OSS（按需填写）
+      ALIOSS_ENDPOINT: ${ALIOSS_ENDPOINT:-}
+      ALIOSS_BUCKETNAME: ${ALIOSS_BUCKETNAME:-}
+      ALIOSS_ACCESSKEYID: ${ALIOSS_ACCESSKEYID:-}
+      ALIOSS_ACCESSKEYSECRET: ${ALIOSS_ACCESSKEYSECRET:-}
+    volumes:
+      - ./logs:/app/logs
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
+
+  shop-ui:
+    image: shop-ui:1.0.0
+    restart: unless-stopped
+    depends_on:
+      - shop-server
+    ports:
+      - "${UI_PORT:-8000}:8000"
+
+volumes:
+  mysql-data:
+  redis-data:

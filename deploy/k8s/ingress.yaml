@@ -1,0 +1,22 @@
+# 入口：全部路径转发到 shop-ui；由 shop-ui 的 nginx 反代 /api、/ws 到 shop-server
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: shop
+  annotations:
+    # WebSocket(/ws) 需要长连接，避免网关超时断开
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: shop.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: shop-ui
+                port:
+                  number: 8000
