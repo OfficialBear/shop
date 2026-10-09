@@ -14,11 +14,13 @@ import com.shop.result.Result;
 import com.shop.service.EmployeeService;
 import com.shop.utils.JwtUtil;
 import com.shop.vo.EmployeeLoginVO;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,8 +57,9 @@ public class EmployeeController {
      */
     @PostMapping("/login")
     public Result<EmployeeLoginVO> login(@RequestBody EmployeeLoginDTO employeeLoginDTO,
+                                         HttpServletRequest request,
                                          HttpServletResponse response) {
-        log.info("员工登录：{}", employeeLoginDTO);
+        log.info("员工登录：{}，IP：{}", employeeLoginDTO.getUsername(), clientIp(request));
 
         Employee employee = employeeService.login(employeeLoginDTO);
 
@@ -204,5 +207,10 @@ public class EmployeeController {
                 .maxAge(0)
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    }
+
+    private String clientIp(HttpServletRequest request) {
+        String realIp = request.getHeader("X-Real-IP");
+        return StringUtils.hasText(realIp) ? realIp : request.getRemoteAddr();
     }
 }

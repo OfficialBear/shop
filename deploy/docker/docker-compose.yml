@@ -12,6 +12,7 @@
 #
 # 关键约定（不要随意改动）：
 #   - 后端服务名必须叫 shop-server：nginx 里写死了 proxy_pass http://shop-server:8080。
+#   - shop-server 不映射宿主机端口，只在 compose 内网可达（对外唯一入口是 shop-ui 的 nginx）。
 #   - shop-server 强依赖 MySQL 与 Redis，二者服务名固定为 mysql / redis。
 #   - prod 配置里 spring.datasource.url 是占位符 "xxx" 且无 redis 配置，
 #     因此下面的环境变量覆盖是必须的。
@@ -87,8 +88,10 @@ services:
       ALIOSS_ACCESSKEYSECRET: ${ALIOSS_ACCESSKEYSECRET:-}
     volumes:
       - ./logs:/app/logs
-    ports:
-      - "${SERVER_PORT:-8080}:8080"
+    # 不映射宿主机端口：后端仅在 compose 内网可达，由 shop-ui 的 nginx 反代访问。
+    # 本机调试可临时改为 "127.0.0.1:8080:8080"（仅回环，不对外），用完删掉。
+    expose:
+      - "8080"
 
   shop-ui:
     image: shop-ui:1.0.0

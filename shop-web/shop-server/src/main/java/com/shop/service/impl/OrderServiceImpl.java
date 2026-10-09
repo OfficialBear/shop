@@ -252,9 +252,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void reminder(Long id) {
-        // 查询订单是否存在
-        Order orders = orderMapper.getById(id);
-        if (orders == null) {
+        // 仅允许对自己名下的订单催单；不存在与不属于本人统一返回"订单不存在"，避免越权与订单号枚举
+        Long userId = currentUserId();
+        Order order = orderMapper.getById(id);
+        if (order == null || !order.getUserId().equals(userId)) {
             throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
         }
 
@@ -262,7 +263,7 @@ public class OrderServiceImpl implements OrderService {
         Map map = new HashMap();
         map.put("type", 2);//2代表用户催单
         map.put("orderId", id);
-        map.put("content", "订单号：" + orders.getNumber());
+        map.put("content", "订单号：" + order.getNumber());
         webSocketServer.sendToAllClient(JSON.toJSONString(map));
     }
 

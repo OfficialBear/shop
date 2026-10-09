@@ -13,13 +13,15 @@ import com.shop.dto.EmployeeLoginDTO;
 import com.shop.dto.EmployeePageQueryDTO;
 import com.shop.entity.Employee;
 import com.shop.exception.AccountLockedException;
-import com.shop.exception.AccountNotFoundException;
 import com.shop.exception.BaseException;
+import com.shop.exception.LoginFailedException;
+import com.shop.exception.LoginTooManyAttemptsException;
 import com.shop.exception.PasswordErrorException;
 import com.shop.exception.UniquenessConstraintViolationException;
 import com.shop.mapper.EmployeeMapper;
 import com.shop.result.PageResult;
 import com.shop.service.EmployeeService;
+import com.shop.service.LoginAttemptService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,11 +33,19 @@ import java.util.Objects;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
+
+    /** 恒定时间占位哈希：账号不存在时也执行一次 BCrypt 比对，避免时序枚举 */
+    private static final String DUMMY_PASSWORD_HASH =
+            "$2a$10$JqUqZZAUVTzQCOGVWkOFruTdfwqtcVk4UI1vrZ58m/nXRrP4cAP16";
+
     @Autowired
     private EmployeeMapper employeeMapper;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private LoginAttemptService loginAttemptService;
 
     /**
      * 员工登录
@@ -48,19 +58,29 @@ public class EmployeeServiceImpl implements EmployeeService {
         String username = employeeLoginDTO.getUsername();
         String password = employeeLoginDTO.getPassword();
 
-        //1、根据用户名查询数据库中的数据
-        Employee employee = employeeMapper.getByUsername(username);
-
-        //2、处理各种异常情况（用户名不存在、密码不对、账号被锁定）
-        if (employee == null) {
-            //账号不存在
-            throw new AccountNotFoundException(MessageConstant.ACCOUNT_NOT_FOUND);
+        // 1、被临时锁定则直接拒绝（不区分账号是否存在，避免枚举）
+        long lockRemaining = loginAttemptService.getLockRemainingSeconds(username);
+        if (lockRemaining > 0) {
+            long minutes = (lockRemaining + 59) / 60;
+            throw new LoginTooManyAttemptsException(
+                    MessageConstant.LOGIN_TOO_MANY_ATTEMPTS + "（约 " + minutes + " 分钟后重试）");
         }
 
+        // 2、根据用户名查询数据库中的数据
+        Employee employee = employeeMapper.getByUsername(username);
+
+        // 3、账号不存在：执行一次占位 BCrypt 比对以保持恒定耗时，并计入失败
+        if (employee == null) {
+            passwordEncoder.matches(password, DUMMY_PASSWORD_HASH);
+            loginAttemptService.recordFailure(username);
+            throw new LoginFailedException(MessageConstant.USERNAME_OR_PASSWORD_ERROR);
+        }
+
+        // 4、密码错误：同样计入失败
         if (employee.getPassword() == null
                 || !passwordEncoder.matches(password, employee.getPassword())) {
-            //密码错误
-            throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
+            loginAttemptService.recordFailure(username);
+            throw new LoginFailedException(MessageConstant.USERNAME_OR_PASSWORD_ERROR);
         }
 
         if (Objects.equals(employee.getStatus(), StatusConstant.DISABLE)) {
@@ -68,7 +88,10 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new AccountLockedException(MessageConstant.ACCOUNT_LOCKED);
         }
 
-        //3、返回实体对象
+        // 5、登录成功，清除失败计数
+        loginAttemptService.clear(username);
+
+        //6、返回实体对象
         return employee;
     }
 
@@ -166,7 +189,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Employee employee = employeeMapper.getById(loginUser.getUserId());
         if (employee == null) {
-            throw new AccountNotFoundException(MessageConstant.ACCOUNT_NOT_FOUND);
+            // 不向客户端暴露"账号不存在"，统一按登录状态失效处理
+            throw new BaseException(MessageConstant.LOGIN_STATE_INVALID);
         }
 
         if (!passwordEncoder.matches(employeeEditPasswordDTO.getOldPassword(), employee.getPassword())) {

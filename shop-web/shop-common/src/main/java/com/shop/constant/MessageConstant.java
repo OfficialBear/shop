@@ -5,12 +5,13 @@ package com.shop.constant;
  */
 public class MessageConstant {
 
-    public static final String PASSWORD_ERROR = "密码错误";
+    public static final String USERNAME_OR_PASSWORD_ERROR = "用户名或密码错误";
+    public static final String LOGIN_TOO_MANY_ATTEMPTS = "登录尝试过于频繁，请稍后再试";
     public static final String OLD_PASSWORD_ERROR = "原密码错误";
     public static final String PASSWORD_CANNOT_BE_EMPTY = "原密码和新密码不能为空";
     public static final String PASSWORD_FORMAT_ERROR = "密码长度需为 6-20 位";
     public static final String NEW_PASSWORD_SAME_AS_OLD = "新密码不能与原密码相同";
-    public static final String ACCOUNT_NOT_FOUND = "账号不存在";
+    public static final String LOGIN_STATE_INVALID = "登录状态失效，请重新登录";
     public static final String ACCOUNT_LOCKED = "账号被锁定";
     public static final String ALREADY_EXISTS = "已经存在";
     public static final String UNKNOWN_ERROR = "未知错误";
