@@ -121,7 +121,7 @@ public class SetmealServiceImpl implements SetmealService {
         setmealDishMapper.deleteBatch(ids);
 
         List<SetmealDish> list = setmealDTO.getSetmealDishes();
-        if (list != null && list.size() > 0) {
+        if (list != null && !list.isEmpty()) {
             list.forEach(setmealDish -> setmealDish.setSetmealId(setmealDTO.getId()));
             setmealDishMapper.insertBatch(list);
         }

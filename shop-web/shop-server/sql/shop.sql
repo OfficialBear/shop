@@ -5,8 +5,8 @@ USE `shop`;
 
 DROP TABLE IF EXISTS `address_book`;
 CREATE TABLE `address_book` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `user_id` bigint NOT NULL COMMENT '用户id',
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `user_id` bigint unsigned NOT NULL COMMENT '用户id',
   `consignee` varchar(50) DEFAULT NULL COMMENT '收货人',
   `sex` varchar(2) DEFAULT NULL COMMENT '性别',
   `phone` varchar(11) NOT NULL COMMENT '手机号',
@@ -24,17 +24,17 @@ CREATE TABLE `address_book` (
 
 DROP TABLE IF EXISTS `category`;
 CREATE TABLE `category` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `type` int DEFAULT NULL COMMENT '类型   1 菜品分类 2 套餐分类',
   `name` varchar(32) NOT NULL COMMENT '分类名称',
   `sort` int NOT NULL DEFAULT '0' COMMENT '顺序',
   `status` int DEFAULT NULL COMMENT '分类状态 0:禁用，1:启用',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-  `create_user` bigint DEFAULT NULL COMMENT '创建人',
-  `update_user` bigint DEFAULT NULL COMMENT '修改人',
+  `create_user` bigint unsigned DEFAULT NULL COMMENT '创建人',
+  `update_user` bigint unsigned DEFAULT NULL COMMENT '修改人',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_category_name` (`name`)
+  UNIQUE KEY `uk_category_name` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='菜品及套餐分类';
 
 INSERT INTO `category` VALUES (11,1,'酒水饮料',10,1,'2022-06-09 22:09:18','2022-06-09 22:09:18',1,1);
@@ -50,19 +50,19 @@ INSERT INTO `category` VALUES (21,1,'汤类',11,1,'2022-06-10 10:51:47','2022-06
 
 DROP TABLE IF EXISTS `dish`;
 CREATE TABLE `dish` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `name` varchar(32) NOT NULL COMMENT '菜品名称',
-  `category_id` bigint NOT NULL COMMENT '菜品分类id',
+  `category_id` bigint unsigned NOT NULL COMMENT '菜品分类id',
   `price` decimal(10,2) DEFAULT NULL COMMENT '菜品价格',
   `image` varchar(255) DEFAULT NULL COMMENT '图片',
   `description` varchar(255) DEFAULT NULL COMMENT '描述信息',
   `status` int DEFAULT '1' COMMENT '0 停售 1 起售',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-  `create_user` bigint DEFAULT NULL COMMENT '创建人',
-  `update_user` bigint DEFAULT NULL COMMENT '修改人',
+  `create_user` bigint unsigned DEFAULT NULL COMMENT '创建人',
+  `update_user` bigint unsigned DEFAULT NULL COMMENT '修改人',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_dish_name` (`name`)
+  UNIQUE KEY `uk_dish_name` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='菜品';
 
 INSERT INTO `dish` VALUES (46,'王老吉',11,6.00,'https://sky-itcast.oss-cn-beijing.aliyuncs.com/41bfcacf-7ad4-4927-8b26-df366553a94c.png','',1,'2022-06-09 22:40:47','2022-06-09 22:40:47',1,1);
@@ -92,8 +92,8 @@ INSERT INTO `dish` VALUES (69,'平菇豆腐汤',21,6.00,'https://sky-itcast.oss-
 
 DROP TABLE IF EXISTS `dish_flavor`;
 CREATE TABLE `dish_flavor` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `dish_id` bigint NOT NULL COMMENT '菜品',
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `dish_id` bigint unsigned NOT NULL COMMENT '菜品',
   `name` varchar(32) DEFAULT NULL COMMENT '口味名称',
   `value` varchar(255) DEFAULT NULL COMMENT '口味数据list',
   PRIMARY KEY (`id`)
@@ -126,7 +126,7 @@ INSERT INTO `dish_flavor` VALUES (103,65,'辣度','[\"不辣\",\"微辣\",\"中�
 
 DROP TABLE IF EXISTS `employee`;
 CREATE TABLE `employee` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `name` varchar(32) NOT NULL COMMENT '姓名',
   `username` varchar(32) NOT NULL COMMENT '用户名',
   `password` varchar(64) NOT NULL COMMENT '密码',
@@ -136,22 +136,22 @@ CREATE TABLE `employee` (
   `status` int NOT NULL DEFAULT '1' COMMENT '状态 0:禁用，1:启用',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-  `create_user` bigint DEFAULT NULL COMMENT '创建人',
-  `update_user` bigint DEFAULT NULL COMMENT '修改人',
+  `create_user` bigint unsigned DEFAULT NULL COMMENT '创建人',
+  `update_user` bigint unsigned DEFAULT NULL COMMENT '修改人',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_username` (`username`)
+  UNIQUE KEY `uk_username` (`username`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='员工信息';
 
 INSERT INTO `employee` VALUES (1,'管理员','admin','$2a$10$JqUqZZAUVTzQCOGVWkOFruTdfwqtcVk4UI1vrZ58m/nXRrP4cAP16','13812312312','1','110101199001010047',1,'2022-02-15 15:51:20','2022-02-17 09:16:20',10,1);
 
 DROP TABLE IF EXISTS `order_detail`;
 CREATE TABLE `order_detail` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `name` varchar(32) DEFAULT NULL COMMENT '名字',
   `image` varchar(255) DEFAULT NULL COMMENT '图片',
-  `order_id` bigint NOT NULL COMMENT '订单id',
-  `dish_id` bigint DEFAULT NULL COMMENT '菜品id',
-  `setmeal_id` bigint DEFAULT NULL COMMENT '套餐id',
+  `order_id` bigint unsigned NOT NULL COMMENT '订单id',
+  `dish_id` bigint unsigned DEFAULT NULL COMMENT '菜品id',
+  `setmeal_id` bigint unsigned DEFAULT NULL COMMENT '套餐id',
   `dish_flavor` varchar(50) DEFAULT NULL COMMENT '口味',
   `number` int NOT NULL DEFAULT '1' COMMENT '数量',
   `amount` decimal(10,2) NOT NULL COMMENT '金额',
@@ -160,12 +160,12 @@ CREATE TABLE `order_detail` (
 
 DROP TABLE IF EXISTS `orders`;
 CREATE TABLE `orders` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `number` varchar(50) DEFAULT NULL COMMENT '订单号',
   `table_no` varchar(32) DEFAULT NULL COMMENT '堂食桌号',
   `status` int NOT NULL DEFAULT '1' COMMENT '订单状态 1待付款 2待接单 3已接单 4派送中 5已完成 6已取消 7退款',
-  `user_id` bigint NOT NULL COMMENT '下单用户',
-  `address_book_id` bigint NOT NULL COMMENT '地址id',
+  `user_id` bigint unsigned NOT NULL COMMENT '下单用户',
+  `address_book_id` bigint unsigned NOT NULL COMMENT '地址id',
   `order_time` datetime NOT NULL COMMENT '下单时间',
   `checkout_time` datetime DEFAULT NULL COMMENT '结账时间',
   `pay_method` int NOT NULL DEFAULT '1' COMMENT '支付方式 1微信,2支付宝',
@@ -191,8 +191,8 @@ CREATE TABLE `orders` (
 
 DROP TABLE IF EXISTS `setmeal`;
 CREATE TABLE `setmeal` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `category_id` bigint NOT NULL COMMENT '菜品分类id',
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `category_id` bigint unsigned NOT NULL COMMENT '菜品分类id',
   `name` varchar(32) NOT NULL COMMENT '套餐名称',
   `price` decimal(10,2) NOT NULL COMMENT '套餐价格',
   `status` int DEFAULT '1' COMMENT '售卖状态 0:停售 1:起售',
@@ -200,17 +200,17 @@ CREATE TABLE `setmeal` (
   `image` varchar(255) DEFAULT NULL COMMENT '图片',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-  `create_user` bigint DEFAULT NULL COMMENT '创建人',
-  `update_user` bigint DEFAULT NULL COMMENT '修改人',
+  `create_user` bigint unsigned DEFAULT NULL COMMENT '创建人',
+  `update_user` bigint unsigned DEFAULT NULL COMMENT '修改人',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_setmeal_name` (`name`)
+  UNIQUE KEY `uk_setmeal_name` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='套餐';
 
 DROP TABLE IF EXISTS `setmeal_dish`;
 CREATE TABLE `setmeal_dish` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `setmeal_id` bigint DEFAULT NULL COMMENT '套餐id',
-  `dish_id` bigint DEFAULT NULL COMMENT '菜品id',
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `setmeal_id` bigint unsigned DEFAULT NULL COMMENT '套餐id',
+  `dish_id` bigint unsigned DEFAULT NULL COMMENT '菜品id',
   `name` varchar(32) DEFAULT NULL COMMENT '菜品名称 （冗余字段）',
   `price` decimal(10,2) DEFAULT NULL COMMENT '菜品单价（冗余字段）',
   `copies` int DEFAULT NULL COMMENT '菜品份数',
@@ -219,12 +219,12 @@ CREATE TABLE `setmeal_dish` (
 
 DROP TABLE IF EXISTS `shopping_cart`;
 CREATE TABLE `shopping_cart` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `name` varchar(32) DEFAULT NULL COMMENT '商品名称',
   `image` varchar(255) DEFAULT NULL COMMENT '图片',
-  `user_id` bigint NOT NULL COMMENT '主键',
-  `dish_id` bigint DEFAULT NULL COMMENT '菜品id',
-  `setmeal_id` bigint DEFAULT NULL COMMENT '套餐id',
+  `user_id` bigint unsigned NOT NULL COMMENT '主键',
+  `dish_id` bigint unsigned DEFAULT NULL COMMENT '菜品id',
+  `setmeal_id` bigint unsigned DEFAULT NULL COMMENT '套餐id',
   `dish_flavor` varchar(50) DEFAULT NULL COMMENT '口味',
   `number` int NOT NULL DEFAULT '1' COMMENT '数量',
   `amount` decimal(10,2) NOT NULL COMMENT '金额',
@@ -234,7 +234,7 @@ CREATE TABLE `shopping_cart` (
 
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `openid` varchar(45) DEFAULT NULL COMMENT '微信用户唯一标识',
   `name` varchar(32) DEFAULT NULL COMMENT '姓名',
   `phone` varchar(11) DEFAULT NULL COMMENT '手机号',
@@ -248,7 +248,7 @@ CREATE TABLE `user` (
 
 DROP TABLE IF EXISTS `data_dictionary_t`;
 CREATE TABLE data_dictionary_t (
- `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'Primary key',
+ `id` BIGINT unsigned NOT NULL AUTO_INCREMENT COMMENT 'Primary key',
  `dic_parent_code` VARCHAR(100) DEFAULT NULL COMMENT 'Parent dictionary code',
  `dic_code` VARCHAR(100) NOT NULL COMMENT 'Dictionary code',
  `dic_value` VARCHAR(255) NOT NULL COMMENT 'Dictionary value',
@@ -257,8 +257,8 @@ CREATE TABLE data_dictionary_t (
  `status` TINYINT NOT NULL DEFAULT 1 COMMENT '1: enabled, 0: disabled',
  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Created time',
  `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Updated time',
- `create_user` BIGINT DEFAULT NULL COMMENT 'Created by',
- `update_user` BIGINT DEFAULT NULL COMMENT 'Updated by',
+ `create_user` BIGINT unsigned DEFAULT NULL COMMENT 'Created by',
+ `update_user` BIGINT unsigned DEFAULT NULL COMMENT 'Updated by',
  PRIMARY KEY (id),
  UNIQUE KEY uk_parent_code_dic_code (dic_parent_code, dic_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Data dictionary';

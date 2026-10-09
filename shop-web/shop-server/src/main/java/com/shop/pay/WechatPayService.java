@@ -110,7 +110,7 @@ public class WechatPayService {
         if (updated > 0) {
             log.info("订单支付成功: {} -> {}", outTradeNo, transactionId);
 
-            Map map = new HashMap();
+            Map<String, Object> map = new HashMap<>();
             map.put("type", 1);//消息类型，1表示来单提醒
             map.put("orderId", order.getId());
             map.put("content", "订单号：" + outTradeNo);

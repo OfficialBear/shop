@@ -43,7 +43,7 @@ public class OrderTask {
 
         // select * from orders where status = 1 and order_time < 当前时间-15分钟
         List<Order> ordersList = orderMapper.getByStatusAndOrdertimeLT(OrderConstant.PENDING_PAYMENT, time);
-        if (ordersList != null && ordersList.size() > 0) {
+        if (ordersList != null && !ordersList.isEmpty()) {
             ordersList.forEach(order -> {
                 order.setStatus(OrderConstant.CANCELLED);
                 order.setCancelReason("支付超时，自动取消");
@@ -63,7 +63,7 @@ public class OrderTask {
         LocalDateTime time = LocalDateTime.now().minusMinutes(DELIVERY_TIMEOUT_MINUTES);
         List<Order> ordersList = orderMapper.getByStatusAndOrdertimeLT(OrderConstant.DELIVERY_IN_PROGRESS, time);
 
-        if (ordersList != null && ordersList.size() > 0) {
+        if (ordersList != null && !ordersList.isEmpty()) {
             ordersList.forEach(order -> {
                 order.setStatus(OrderConstant.COMPLETED);
                 orderMapper.update(order);

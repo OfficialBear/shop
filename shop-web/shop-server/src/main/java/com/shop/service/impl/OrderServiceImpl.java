@@ -260,7 +260,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         //基于WebSocket实现催单
-        Map map = new HashMap();
+        Map<String, Object> map = new HashMap<>();
         map.put("type", 2);//2代表用户催单
         map.put("orderId", id);
         map.put("content", "订单号：" + order.getNumber());

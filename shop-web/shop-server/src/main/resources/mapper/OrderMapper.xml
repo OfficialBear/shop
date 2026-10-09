@@ -81,16 +81,17 @@
     </select>
 
     <select id="getSalesTop10" resultType="com.shop.vo.SalesTop10ReportVO">
-        select od.name name, sum(od.number) as value from order_detail od, orders o
-        where od.order_id = o.id
-        and o.status = 5
+        select od.name as name, sum(od.number) as value
+        from order_detail od
+        inner join orders o on od.order_id = o.id
+        where o.status = 5
         <if test="begin != null">
-            and order_time &gt;= #{begin}
+            and o.order_time &gt;= #{begin}
         </if>
         <if test="endExclusive != null">
-            and order_time &lt; #{endExclusive}
+            and o.order_time &lt; #{endExclusive}
         </if>
-        group by name
+        group by od.name
         order by value desc
         limit 0, 10
     </select>
