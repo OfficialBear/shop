@@ -29,10 +29,7 @@ export function useOrderSocket(
 
     const connect = () => {
       const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-      const sid = `admin-${userId}-${Date.now()}-${Math.random()
-        .toString(36)
-        .slice(2, 8)}`;
-      socket = new WebSocket(`${protocol}://${window.location.host}/ws/${sid}`);
+      socket = new WebSocket(`${protocol}://${window.location.host}/ws`);
 
       socket.onmessage = (event) => {
         try {

@@ -1,74 +1,92 @@
 package com.shop.websocket;
 
-import jakarta.websocket.OnClose;
-import jakarta.websocket.OnMessage;
-import jakarta.websocket.OnOpen;
-import jakarta.websocket.Session;
-import jakarta.websocket.server.PathParam;
-import jakarta.websocket.server.ServerEndpoint;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.util.Collection;
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * WebSocket服务
+ * 管理端 WebSocket 服务：来单提醒 / 客户催单。
+ * 会话仅在握手通过鉴权（AdminHandshakeInterceptor）后才会建立并登记。
  */
 @Component
-@ServerEndpoint("/ws/{sid}")
 @Slf4j
-public class WebSocketServer {
+public class WebSocketServer extends TextWebSocketHandler {
 
-    //存放会话对象
-    private static Map<String, Session> sessionMap = new HashMap();
+    /** 单实例最大并发连接数，防止连接耗尽 */
+    private static final int MAX_CONNECTIONS = 200;
 
-    /**
-     * 连接建立成功调用的方法
-     */
-    @OnOpen
-    public void onOpen(Session session, @PathParam("sid") String sid) {
-        log.info("客户端：" + sid + "建立连接");
-        sessionMap.put(sid, session);
+    /** 已认证会话登记表：sessionId -> session（并发安全） */
+    private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
+
+    @Override
+    public void afterConnectionEstablished(WebSocketSession session) {
+        if (sessions.size() >= MAX_CONNECTIONS) {
+            log.warn("WebSocket 连接数已达上限 {}，拒绝会话 {}", MAX_CONNECTIONS, session.getId());
+            closeQuietly(session, CloseStatus.SERVICE_OVERLOAD);
+            return;
+        }
+        sessions.put(session.getId(), session);
+        log.info("WebSocket 已连接: {}，当前连接数: {}", session.getId(), sessions.size());
+    }
+
+    @Override
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+        String payload = message.getPayload();
+        log.info("收到会话 {} 的消息，长度 {}", session.getId(), payload == null ? 0 : payload.length());
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+        sessions.remove(session.getId());
+        log.info("WebSocket 断开: {}，当前连接数: {}", session.getId(), sessions.size());
     }
 
     /**
-     * 收到客户端消息后调用的方法
-     *
-     * @param message 客户端发送过来的消息
-     */
-    @OnMessage
-    public void onMessage(String message, @PathParam("sid") String sid) {
-        log.info("收到来自客户端：" + sid + "的信息:" + message);
-    }
-
-    /**
-     * 连接关闭调用的方法
-     *
-     * @param sid
-     */
-    @OnClose
-    public void onClose(@PathParam("sid") String sid) {
-        log.info("连接断开:" + sid);
-        sessionMap.remove(sid);
-    }
-
-    /**
-     * 群发
-     *
-     * @param message
+     * 广播给全部已认证会话（管理端来单提醒 / 催单）。
      */
     public void sendToAllClient(String message) {
-        Collection<Session> sessions = sessionMap.values();
-        for (Session session : sessions) {
-            try {
-                //服务器向客户端发送消息
-                session.getBasicRemote().sendText(message);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        sessions.values().forEach(session -> send(session, message));
+    }
+
+    /**
+     * 定向推送：仅发送给指定会话。
+     */
+    public void sendToClient(String sessionId, String message) {
+        WebSocketSession session = sessions.get(sessionId);
+        if (session != null) {
+            send(session, message);
         }
     }
 
+    private void send(WebSocketSession session, String message) {
+        if (!session.isOpen()) {
+            sessions.remove(session.getId());
+            return;
+        }
+        try {
+            // WebSocketSession 非线程安全，发送时串行化，避免并发写同一连接
+            synchronized (session) {
+                session.sendMessage(new TextMessage(message));
+            }
+        } catch (IOException ex) {
+            log.error("WebSocket 消息发送失败: {}", session.getId(), ex);
+            closeQuietly(session, CloseStatus.SERVER_ERROR);
+            sessions.remove(session.getId());
+        }
+    }
+
+    private void closeQuietly(WebSocketSession session, CloseStatus status) {
+        try {
+            session.close(status);
+        } catch (IOException ex) {
+            log.debug("关闭 WebSocket 会话失败: {}", session.getId(), ex);
+        }
+    }
 }
