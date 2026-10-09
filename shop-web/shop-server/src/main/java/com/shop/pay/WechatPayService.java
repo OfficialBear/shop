@@ -2,12 +2,9 @@ package com.shop.pay;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.shop.auth.LoginUser;
-import com.shop.context.UserContext;
 import com.shop.entity.Order;
 import com.shop.exception.BaseException;
 import com.shop.mapper.OrderMapper;
-
 import com.shop.properties.WechatProperties;
 import com.shop.utils.WechatPayUtil;
 import com.shop.vo.PrepayVO;
@@ -94,12 +91,8 @@ public class WechatPayService {
         if (!wechatProperties.getAppid().equals(appid)) {
             throw new BaseException("微信支付 appid 不匹配");
         }
-        LoginUser loginUser = UserContext.getCurrentUser();
-        if (loginUser == null) {
-            throw new BaseException("未登录");
-        }
-        Long userId = loginUser.getUserId();
-        Order order = orderMapper.getByNumber(outTradeNo, userId);
+
+        Order order = orderMapper.getByNumber(outTradeNo);
         if (order == null) {
             throw new BaseException("订单不存在: " + outTradeNo);
         }

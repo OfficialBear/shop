@@ -30,7 +30,7 @@
     <select id="getByNumber" resultType="com.shop.entity.Order">
         select
         <include refid="columns"/>
-        from orders where number = #{number} and user_id= #{userId}
+        from orders where number = #{number}
     </select>
 
     <select id="pageQuery" resultType="com.shop.entity.Order">

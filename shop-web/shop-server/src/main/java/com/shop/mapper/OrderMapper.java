@@ -30,13 +30,12 @@ public interface OrderMapper {
     Order getById(Long id);
 
     /**
-     * 根据订单号和用户id查询订单
+     * 根据订单号查询订单
      *
      * @param number
-     * @param userId
      * @return
      */
-    Order getByNumber(String number, Long userId);
+    Order getByNumber(String number);
 
     /**
      * 分页查询订单
