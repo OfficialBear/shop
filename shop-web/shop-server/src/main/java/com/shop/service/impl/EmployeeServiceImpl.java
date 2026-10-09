@@ -2,15 +2,19 @@ package com.shop.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.shop.auth.LoginUser;
 import com.shop.constant.MessageConstant;
 import com.shop.constant.PasswordConstant;
 import com.shop.constant.StatusConstant;
+import com.shop.context.UserContext;
 import com.shop.dto.EmployeeDTO;
+import com.shop.dto.EmployeeEditPasswordDTO;
 import com.shop.dto.EmployeeLoginDTO;
 import com.shop.dto.EmployeePageQueryDTO;
 import com.shop.entity.Employee;
 import com.shop.exception.AccountLockedException;
 import com.shop.exception.AccountNotFoundException;
+import com.shop.exception.BaseException;
 import com.shop.exception.PasswordErrorException;
 import com.shop.exception.UniquenessConstraintViolationException;
 import com.shop.mapper.EmployeeMapper;
@@ -20,6 +24,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -139,6 +144,44 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public void deleteBatch(List<Long> ids) {
         employeeMapper.deleteBatch(ids);
+    }
+
+    @Override
+    public void editPassword(EmployeeEditPasswordDTO employeeEditPasswordDTO) {
+        if (employeeEditPasswordDTO == null
+                || !StringUtils.hasText(employeeEditPasswordDTO.getOldPassword())
+                || !StringUtils.hasText(employeeEditPasswordDTO.getNewPassword())) {
+            throw new BaseException(MessageConstant.PASSWORD_CANNOT_BE_EMPTY);
+        }
+
+        String newPassword = employeeEditPasswordDTO.getNewPassword();
+        if (newPassword.length() < 6 || newPassword.length() > 20) {
+            throw new BaseException(MessageConstant.PASSWORD_FORMAT_ERROR);
+        }
+
+        LoginUser loginUser = UserContext.getCurrentUser();
+        if (loginUser == null || loginUser.getUserId() == null) {
+            throw new BaseException("未登录");
+        }
+
+        Employee employee = employeeMapper.getById(loginUser.getUserId());
+        if (employee == null) {
+            throw new AccountNotFoundException(MessageConstant.ACCOUNT_NOT_FOUND);
+        }
+
+        if (!passwordEncoder.matches(employeeEditPasswordDTO.getOldPassword(), employee.getPassword())) {
+            throw new PasswordErrorException(MessageConstant.OLD_PASSWORD_ERROR);
+        }
+
+        if (passwordEncoder.matches(newPassword, employee.getPassword())) {
+            throw new BaseException(MessageConstant.NEW_PASSWORD_SAME_AS_OLD);
+        }
+
+        Employee update = Employee.builder()
+                .id(employee.getId())
+                .password(passwordEncoder.encode(newPassword))
+                .build();
+        employeeMapper.update(update);
     }
 }
 

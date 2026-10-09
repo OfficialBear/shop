@@ -88,3 +88,20 @@ export function batchDeleteEmployees(ids: number[]) {
     data: ids,
   });
 }
+
+export interface ChangePasswordParams {
+  oldPassword: string;
+  newPassword: string;
+}
+
+/**
+ * Change the current signed-in employee's password.
+ *
+ * PUT /admin/employee/password
+ */
+export function updatePassword(data: ChangePasswordParams) {
+  return request<void>('/admin/employee/password', {
+    method: 'PUT',
+    data,
+  });
+}

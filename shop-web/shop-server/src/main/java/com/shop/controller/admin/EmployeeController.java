@@ -4,6 +4,7 @@ import com.shop.auth.LoginUser;
 import com.shop.constant.JwtClaimsConstant;
 import com.shop.context.UserContext;
 import com.shop.dto.EmployeeDTO;
+import com.shop.dto.EmployeeEditPasswordDTO;
 import com.shop.dto.EmployeeLoginDTO;
 import com.shop.dto.EmployeePageQueryDTO;
 import com.shop.entity.Employee;
@@ -94,6 +95,19 @@ public class EmployeeController {
     @GetMapping("/current")
     public Result<LoginUser> getCurrentUser() {
         return Result.success(UserContext.getCurrentUser());
+    }
+
+    /**
+     * 修改当前登录员工密码
+     *
+     * @param employeeEditPasswordDTO
+     * @return
+     */
+    @PutMapping("/password")
+    public Result<String> editPassword(@RequestBody EmployeeEditPasswordDTO employeeEditPasswordDTO) {
+        log.info("修改当前登录员工密码, 员工id {}", UserContext.getCurrentUser().getUserId());
+        employeeService.editPassword(employeeEditPasswordDTO);
+        return Result.success();
     }
 
     /**

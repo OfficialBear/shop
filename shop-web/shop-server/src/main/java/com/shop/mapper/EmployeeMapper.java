@@ -20,6 +20,14 @@ public interface EmployeeMapper {
     Employee getByUsername(String username);
 
     /**
+     * 根据id查询员工（含密码，用于校验原密码）
+     *
+     * @param id
+     * @return
+     */
+    Employee getById(Long id);
+
+    /**
      * 员工分页查询
      *
      * @param employeePageQueryDTO

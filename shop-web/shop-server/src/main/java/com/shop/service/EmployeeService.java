@@ -1,6 +1,7 @@
 package com.shop.service;
 
 import com.shop.dto.EmployeeDTO;
+import com.shop.dto.EmployeeEditPasswordDTO;
 import com.shop.dto.EmployeeLoginDTO;
 import com.shop.dto.EmployeePageQueryDTO;
 import com.shop.entity.Employee;
@@ -49,4 +50,11 @@ public interface EmployeeService {
     void updateStatus(Integer status, Long id);
 
     void deleteBatch(List<Long> ids);
+
+    /**
+     * 修改当前登录员工的密码
+     *
+     * @param employeeEditPasswordDTO
+     */
+    void editPassword(EmployeeEditPasswordDTO employeeEditPasswordDTO);
 }

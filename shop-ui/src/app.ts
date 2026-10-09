@@ -6,6 +6,7 @@
 import OrderAlertBell from '@/components/OrderAlertBell';
 import OrderNotification from '@/components/OrderNotification';
 import UnAccessible from '@/components/UnAccessible';
+import UserMenu from '@/components/UserMenu';
 import { CurrentUser, getCurrentUser } from '@/services/auth';
 import type { Result } from '@/types';
 import { ApiError, redirectToLogin } from '@/utils/request';
@@ -88,6 +89,11 @@ export const layout = () => {
     siderWidth: 180,
     // 未登录/无权限访问受保护路由时，重定向到登录页
     unAccessible: React.createElement(UnAccessible),
+    // 顶部右侧用户菜单：修改密码 / 退出登录
+    rightRender: (initialState: { currentUser?: CurrentUser } | undefined) => {
+      const currentUser = initialState?.currentUser;
+      return React.createElement(UserMenu, { username: currentUser?.username });
+    },
     // 登录后（布局内）挂载 WebSocket 来单提醒 / 客户催单
     childrenRender: (children: React.ReactNode) =>
       React.createElement(
